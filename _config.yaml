@@ -47,11 +47,11 @@ manifest:
       purpose: any maskable
 
     # 小尺寸图标 - 用于移动设备
-    - src: /favicon144.png
-      sizes: 144x144
+    - src: /favicon.ico
+      sizes: 128x128
 
 # 个人游戏等级信息
-level: ?? # 当前等级
+level: 67 # 当前等级
 exp: 8964 # 当前经验值
 nextExp: 9999 # 升级所需经验值
 
@@ -62,7 +62,7 @@ iconfont: 'https://at.alicdn.com/t/c/font_4336463_r5p9u2rf30h.js'
 dock:
   # 项目1
   - name: Project PureLove
-    href: 'https://github.com/Tom6814/Project-PureLove'
+    href: 'https://purelove.party'
     imgSrc: /img/Project-PureLove.jpg
 
   # 项目2
@@ -83,7 +83,7 @@ dock:
 
   # 项目5
   - name: AI Comic Detector For JM
-    href: 'https://github.com/Tom6814/AI-Benzi-Detect-JMComic'
+    href: 'https://ai-benzi-detect-jmcomic.zeabur.app/'
     imgSrc: /img/AId.png
 
 # 左侧联系方式区域
