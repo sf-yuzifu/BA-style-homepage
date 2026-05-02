@@ -51,7 +51,7 @@ manifest:
       sizes: 144x144
 
 # 个人游戏等级信息
-level: ??# 当前等级
+level: ?? # 当前等级
 exp: 8964 # 当前经验值
 nextExp: 9999 # 升级所需经验值
 
