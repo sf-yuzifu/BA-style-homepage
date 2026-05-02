@@ -25,7 +25,7 @@ manifest:
   name: Tori Archive
 
   # PWA应用简短名称 - 用于桌面显示
-  short_name: Tori's Archive
+  short_name: Tori Archive
 
   # PWA应用描述
   description: Toriの个人主页~
@@ -51,9 +51,9 @@ manifest:
       sizes: 144x144
 
 # 个人游戏等级信息
-level: 99 # 当前等级
+level: ??# 当前等级
 exp: 8964 # 当前经验值
-nextExp: 8381 # 升级所需经验值
+nextExp: 9999 # 升级所需经验值
 
 # Iconfont字体库地址 - 阿里云图标字体库
 iconfont: 'https://at.alicdn.com/t/c/font_4336463_r5p9u2rf30h.js'
@@ -94,19 +94,9 @@ contact:
     iconfont: icon-github
 
   # 联系方式2
-  - name: bilibili
+  - name: BiliBili
     href: 'https://space.bilibili.com/3537113777703733'
     iconfont: icon-bilibili
-
-  # 联系方式3
-  - name: YouTube
-    href: 'https://www.youtube.com/@Sliverwhale'
-    iconfont: icon-youtube
-
-  # 联系方式4
-  - name: Mail
-    href: 'mailto:me@nya.sarl'
-    iconfont: icon-email
 
 # 任务按钮配置 - 页面左下角的任务按钮
 task:
