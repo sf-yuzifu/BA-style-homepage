@@ -113,7 +113,7 @@ task:
   # 任务按钮显示文本
   name: Blog Link
   # 任务按钮链接地址
-  href: 'https://blog.2z2.org/"
+  href: 'https://blog.2z2.org/'
 
 # Banner音乐播放器配置
 banner:
@@ -159,7 +159,7 @@ memorialLobbies:
       position: right
       
   # 角色2 - Aris(Battle)
-   - name: Aris(Battle)
+  - name: Aris(Battle)
     # Live2D模型文件路径
     path: '/l2d/aris_battle/'
     # 骨骼动画文件
@@ -178,20 +178,20 @@ memorialLobbies:
       position: right
 
   # 角色3 - Kei
-   - name: Kei
+  - name: Kei
     # Live2D模型文件路径
-     path: '/l2d/kei/'
+    path: '/l2d/kei/'
     # 骨骼动画文件
-     skel: 'CH0335_home.skel'
+    skel: 'CH0335_home.skel'
     # 纹理图集文件
-     atlas: 'CH0335_home.atlas'
+    atlas: 'CH0335_home.atlas'
     # 角色在屏幕中的水平位置偏移（0-1之间）
-     offset: 0.62
+    offset: 0.62
     # 对话框显示位置配置
-     dialogueDisplay:
+    dialogueDisplay:
       # X坐标位置（可以是分数）
-       x: 1/4 + 1/8
+      x: 1/4 + 1/8
       # Y坐标位置（可以是分数）
-       y: -1/16
+      y: -1/16
       # 对话框位置（left/right）
-       position: left
+      position: left
