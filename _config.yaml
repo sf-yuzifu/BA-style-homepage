@@ -2,35 +2,33 @@
 # Website Basic Configuration
 
 # 网站标题 - 浏览器标签页显示的标题
-title: Fish Archive
+title: Tori Archive
 
 # 网站描述 - 用于搜索引擎优化和社交媒体分享
-description: A personal homepage in Blue Archive style.
+description: Toriの个人主页
 
 # 网站图标路径 - 浏览器标签页显示的小图标
 favicon: /favicon144.png
 
 # 网站作者姓名
-author: Yuzifu
+author: Tori
 
 # 网站关键词 - 用于搜索引擎优化，逗号分隔
-keywords: 'Blue Archive, 小鱼yuzifu, Personal Homepage'
+keywords: 'Blue Archive, Tori, Personal Homepage, Tom6814'
 
-# ICP备案号 - 中国大陆备案信息，留空表示未备案
+# ICP备案号 - 中国网站备案信息，留空表示未备案
 ICP: ''
-# 公安备案号 - 中国大陆网站备案信息，留空表示未备案
-gongan: ''
 
 # PWA配置 - 渐进式Web应用配置
 manifest:
   # PWA应用完整名称
-  name: Fish Archive
+  name: Tori Archive
 
   # PWA应用简短名称 - 用于桌面显示
-  short_name: Fish Archive
+  short_name: Tori's Archive
 
   # PWA应用描述
-  description: A personal homepage in Blue Archive style.
+  description: Toriの个人主页~
 
   # PWA主题颜色 - 影响浏览器UI颜色
   theme_color: '#128AFA'
@@ -53,70 +51,69 @@ manifest:
       sizes: 144x144
 
 # 个人游戏等级信息
-level: 90 # 当前等级
-exp: 8382 # 当前经验值
+level: 99 # 当前等级
+exp: 8964 # 当前经验值
 nextExp: 8381 # 升级所需经验值
-gold: 11451419 # 信用点数量
-pyroxene: 24000 # 青辉石数量
 
 # Iconfont字体库地址 - 阿里云图标字体库
-iconfont: 'https://at.alicdn.com/t/c/font_4336463_umq8x001wf9.js'
+iconfont: 'https://at.alicdn.com/t/c/font_4336463_r5p9u2rf30h.js'
 
 # 底部项目展示区域 - 显示相关项目链接
 dock:
   # 项目1
-  - name: Bandcomic
-    href: 'https://github.com/sf-yuzifu/bandcomic'
+  - name: Project PureLove
+    href: 'https://github.com/Tom6814/Project-PureLove'
     imgSrc: /img/bandcomic.png
 
   # 项目2
-  - name: BCM Converter Project
-    href: 'https://gitee.com/sf-yuzifu/bcm_convertor'
-    imgSrc: /img/convertor.png
+  - name: Tori Music
+    href: 'https://music.2z2.org'
+    imgSrc: /img/fish.png
+
 
   # 项目3
-  - name: Waddle Project
-    href: 'https://waddle.cocotais.cn/'
-    imgSrc: /img/waddle2.png
+  - name: JMComic3 No-Ads
+    href: 'https://github.com/Tom6814/JMComic3-NO-Ads'
+    imgSrc: /img/convertor.png
 
   # 项目4
-  - name: Boxy Project
-    href: 'https://boxy.cocotais.cn/'
-    imgSrc: /img/boxy.png
+  - name: JM-Aura
+    href: 'https://web.jmcomic.uk/'
+    imgSrc: /img/waddle2.png
 
   # 项目5
-  - name: Fish Archive Project
-    href: 'https://gitee.com/sf-yuzifu/eat-fish-together'
-    imgSrc: /img/fish.png
+  - name: AI Comic Detector For JM
+    href: 'https://github.com/Tom6814/AI-Benzi-Detect-JMComic'
+    imgSrc: /img/boxy.png
 
 # 左侧联系方式区域
 contact:
   # 联系方式1
-  - name: BandBBS
-    href: 'https://www.bandbbs.cn/members/969142/'
-    iconfont: icon-bandbbs
-
-  # 联系方式2
-  - name: Gitee
-    href: 'https://gitee.com/sf-yuzifu'
-    iconfont: icon-gitee
-
-  # 联系方式3
   - name: Github
-    href: 'https://github.com/sf-yuzifu'
+    href: 'https://github.com/Tom6814'
     iconfont: icon-github
 
-  # 联系方式4
-  - name: BiliBili
-    href: 'https://space.bilibili.com/447666445'
+  # 联系方式2
+  - name: bilibili
+    href: 'https://space.bilibili.com/3537113777703733'
     iconfont: icon-bilibili
+
+  # 联系方式3
+  - name: YouTube
+    href: 'https://www.youtube.com/@Sliverwhale'
+    iconfont: icon-youtube
+
+  # 联系方式4
+  - name: Mail
+    href: 'mailto:me@nya.sarl'
+    iconfont: icon-email
 
 # 任务按钮配置 - 页面左下角的任务按钮
 task:
   # 任务按钮显示文本
   name: Blog Link
   # 任务按钮链接地址
-  href: 'https://blog.yzf.moe/'
+  href: 'https://blog.2z2.org/"
 
 # Banner音乐播放器配置
 banner:
@@ -143,7 +140,26 @@ banner:
 # Live2D角色配置
 memorialLobbies:
   # 角色1 - Aris(Battle)
-  - name: Aris(Battle)
+  - name: Yuuka
+    # Live2D模型文件路径
+    path: '/l2d/yuuka/'
+    # 骨骼动画文件
+    skel: 'Yuuka_home.skel'
+    # 纹理图集文件
+    atlas: 'Yuuka_home.atlas'
+    # 角色在屏幕中的水平位置偏移（0-1之间）
+    offset: 0.5
+    # 对话框显示位置配置
+    dialogueDisplay:
+      # X坐标位置（可以是分数）
+      x: -1/4 - 1/16
+      # Y坐标位置（可以是分数）
+      y: -1/16
+      # 对话框位置（left/right）
+      position: right
+      
+  # 角色2 - Aris(Battle)
+   - name: Aris(Battle)
     # Live2D模型文件路径
     path: '/l2d/aris_battle/'
     # 骨骼动画文件
@@ -161,55 +177,21 @@ memorialLobbies:
       # 对话框位置（left/right）
       position: right
 
-  # 角色2 - Kei
-  - name: Kei
+  # 角色3 - Kei
+   - name: Kei
     # Live2D模型文件路径
-    path: '/l2d/kei/'
+     path: '/l2d/kei/'
     # 骨骼动画文件
-    skel: 'CH0335_home.skel'
+     skel: 'CH0335_home.skel'
     # 纹理图集文件
-    atlas: 'CH0335_home.atlas'
+     atlas: 'CH0335_home.atlas'
     # 角色在屏幕中的水平位置偏移（0-1之间）
-    offset: 0.62
+     offset: 0.62
     # 对话框显示位置配置
-    dialogueDisplay:
+     dialogueDisplay:
       # X坐标位置（可以是分数）
-      x: 1/4 + 1/8
+       x: 1/4 + 1/8
       # Y坐标位置（可以是分数）
-      y: -1/16
+       y: -1/16
       # 对话框位置（left/right）
-      position: left
-
-  # 角色3 - Hina
-  - name: Hina_swimsuit
-    # Live2D模型文件路径
-    path: '/l2d/hina_swimsuit/'
-    # 骨骼动画文件
-    skel: 'CH0063_home.skel'
-    # 纹理图集文件
-    atlas: 'CH0063_home.atlas'
-    # 角色在屏幕中的水平位置偏移（0-1之间）
-    offset: 0.68
-    # 对话框显示位置配置
-    dialogueDisplay:
-      # X坐标位置（可以是分数）
-      x: 1/4 + 1/8
-      # Y坐标位置（可以是分数）
-      y: -1/8
-      # 对话框位置（left/right）
-      position: left
-
-bio:
-  student:
-    - name: CH0334_spr
-      # Live2D模型文件路径
-      path: '/l2d/CH0334_spr/'
-      # 骨骼动画文件
-      skel: 'CH0334_spr.skel'
-      # 纹理图集文件
-      atlas: 'CH0334_spr.atlas'
-  bth:
-  - name: 蔚蓝档案
-    path: /img/card/ba.png
-  - name: 明日方舟
-    path: /img/card/arknight.png
+       position: left
