@@ -2,40 +2,38 @@
 # Chinese Translation File
 
 # 网站标题 - 浏览器标签页显示的标题
-title: 小鱼档案
+title: Tori's Archive
 
 # 网站描述 - 用于搜索引擎优化和社交媒体分享
-description: 有关小鱼的《蔚蓝档案》风格的个人主页
+description: Toriの个人主页
 
 # 网站关键词 - 用于搜索引擎优化，逗号分隔
-keywords: '蔚蓝档案,小鱼yuzifu,个人主页'
+keywords: '蔚蓝档案,Tori,个人主页，优香'
 
 # PWA应用名称配置
 manifest:
   # PWA应用完整名称
-  name: 小鱼档案
+  name: Tori's Archive
 
   # PWA应用简短名称 - 用于桌面显示
-  short_name: 小鱼档案
+  short_name: Tori's Archive
 
   # PWA应用描述
-  description: 有关小鱼的《蔚蓝档案》风格的个人主页
+  description: Toriの个人主页
 
 # 网站作者显示名称
-author: 小鱼yuzifu
+author: Tori
 
 # 底部项目展示区域 - 项目名称翻译
 dock:
-  - name: 腕上漫画
-  - name: 编程猫格式工厂
-  - name: Waddle编辑器
-  - name: Boxy编辑器
-  - name: 一起吃小鱼
+  - name: Project PL
+  - name: Tori Music
+  - name: JMComic3 NO-Ads
+  - name: JM-Aura
+  - name: AI鉴本
 
 # 左侧联系方式区域 - 联系方式名称翻译
 contact:
-  - name: BandBBS
-  - name: Gitee
   - name: Github
   - name: BiliBili
 
@@ -49,21 +47,26 @@ icp:
 
 # 纪念大厅角色显示名称翻译
 memorialLobbies:
-  - name: Aris(Battle)
+  - name: Yuuka
   - name: Aris
   - name: Hina_swimsuit
 
-# Aris(Battle)角色的语音对话翻译
+# Yuuka角色的语音对话翻译
 memorialLobbies[0]:
   voice:
-    CH0334_MemorialLobby_1_1: 诶嘿嘿。老师，吓到了吗？
-    CH0334_MemorialLobby_1_2: 因为想要和老师欣赏这片夜空……所以呼唤了您。
-    CH0334_MemorialLobby_2_1: 真是……十分美丽呢。
-    CH0334_MemorialLobby_2_2: 爱丽丝的世界也好，还没有去过的世界也好……肯定还会有很多这样美好的事物。
-    CH0334_MemorialLobby_3_1: 但是，真不可思议。
-    CH0334_MemorialLobby_3_2: 世界是，这么地美丽，但为何人与人之间还是会有纷争呢？
-    CH0334_MemorialLobby_4: 就如同那片星空一般，这个世界的美好，明明已经可以多到和大家一起分享也没关系的程度了……
-    CH0334_MemorialLobby_5: ……果然，爱丽丝还是不能理解。
+    Yuuka_MemorialLobby_1_1: 真是的...您好歹是大人，就要有大人的样子，平时消费一定要有计划。
+    Yuuka_MemorialLobby_1_2: 又不是一拿到零花钱，转头就全~部~花光的小孩子。
+    Yuuka_MemorialLobby_2_1: 再说，能像这个样子...过来好好帮您好好整理收据的...也就...只有我了...
+    Yuuka_MemorialLobby_2_2: 下一次...我可绝对不会再帮您了！
+    Yuuka_MemorialLobby_3_1: 十五天前在便利店...买的鸡肉三明治，500联合币...买新一期的漫画花了...450...？
+    Yuuka_MemorialLobby_3_2: 嗯？！前天晚上...在“软绵绵俱乐部”花了....两万！？
+    Yuuka_MemorialLobby_4_1: 呃...老师...！这什么啊...这个收据！？
+    Yuuka_MemorialLobby_4_2: 老师您应该是大家的榜样才对啊...！怎...怎么可以去这种...低...低级的地方！？
+    Yuuka_MemorialLobby_4_3: 真是难以置信，太差劲了！！
+    Yuuka_MemorialLobby_5_1: 呃？《软绵绵俱乐部》是手机游戏？那只是在抽卡？
+    Yuuka_MemorialLobby_5_2: 呼...我还以为那是...那是...
+    Yuuka_MemorialLobby_6_1: 啊不对，那也不行！一次氪了两万，也太多了吧！
+    Yuuka_MemorialLobby_6_2: 禁止冲动消费，今后花钱...要有计划性！
 # Kei角色的语音对话翻译
 memorialLobbies[1]:
   voice:
