@@ -63,28 +63,28 @@ dock:
   # 项目1
   - name: Project PureLove
     href: 'https://github.com/Tom6814/Project-PureLove'
-    imgSrc: /img/bandcomic.png
+    imgSrc: /img/Project-PureLove.jpg
 
   # 项目2
   - name: Tori Music
     href: 'https://music.2z2.org'
-    imgSrc: /img/fish.png
+    imgSrc: /img/ToriMusic.png
 
 
   # 项目3
   - name: JMComic3 No-Ads
     href: 'https://github.com/Tom6814/JMComic3-NO-Ads'
-    imgSrc: /img/convertor.png
+    imgSrc: /img/JMComic3-NO-Ads.png
 
   # 项目4
   - name: JM-Aura
     href: 'https://web.jmcomic.uk/'
-    imgSrc: /img/waddle2.png
+    imgSrc: /img/jm-aura5-nobg.png
 
   # 项目5
   - name: AI Comic Detector For JM
     href: 'https://github.com/Tom6814/AI-Benzi-Detect-JMComic'
-    imgSrc: /img/boxy.png
+    imgSrc: /img/AId.png
 
 # 左侧联系方式区域
 contact:
