@@ -20,7 +20,7 @@ const identifyOriginalAuthor = () => {
   if (!currentConfig.value?.author) return false
 
   const author = currentConfig.value.author
-  const originalAuthorKeywords = ['小鱼', 'ゆづふ', 'yuzifu', 'Yuzifu', 'sf-yuzifu']
+  const originalAuthorKeywords = ['Tori', 'SliverWhale', 'Tom6814', "yüan t'ung", '银whale‘']
   const hasOriginalKeyword = originalAuthorKeywords.some((keyword) =>
     author.toLowerCase().includes(keyword.toLowerCase())
   )
