@@ -1,9 +1,5 @@
 import { ref, computed, watch } from 'vue'
 import baseConfig from '/_config.yaml'
-import enUS from '../locales/en-US.yaml'
-import jaJP from '../locales/ja-JP.yaml'
-import zhCN from '../locales/zh-CN.yaml'
-import zhTW from '../locales/zh-TW.yaml'
 import { detectBrowserLanguage, createConfigLoader } from './configUtils'
 
 // 深度合并配置对象
@@ -89,19 +85,30 @@ function createLocaleConfig(base, translations) {
   return result
 }
 
-// 支持的语言配置
-const localeConfigs = {
-  'zh-CN': createLocaleConfig(baseConfig, zhCN),
-  'zh-TW': createLocaleConfig(baseConfig, zhTW),
-  'en-US': createLocaleConfig(baseConfig, enUS),
-  'ja-JP': createLocaleConfig(baseConfig, jaJP)
-}
+const localeFiles = import.meta.glob('../locales/*.yaml', { eager: true })
+const localeTranslations = Object.fromEntries(
+  Object.entries(localeFiles).map(([path, mod]) => {
+    const locale = path.split('/').pop().replace('.yaml', '')
+    return [locale, mod.default ?? mod]
+  })
+)
+
+const localeConfigs = Object.fromEntries(
+  Object.entries(localeTranslations).map(([locale, translations]) => [
+    locale,
+    createLocaleConfig(baseConfig, translations)
+  ])
+)
 
 // 创建配置加载器
 const configLoader = createConfigLoader(localeConfigs)
 
 // 全局状态（单例模式）
-let globalCurrentLocale = ref('en-US')
+const supportedLocales = configLoader.getSupportedLocales()
+const defaultLocale = supportedLocales.includes('en-US')
+  ? 'en-US'
+  : supportedLocales[0] || 'en-US'
+let globalCurrentLocale = ref(defaultLocale)
 let globalCurrentConfig = ref(null)
 let globalIsLoading = ref(false)
 let globalIsInitialized = ref(false)
