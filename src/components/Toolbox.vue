@@ -41,17 +41,13 @@ const about = () => {
   // 构建版权信息内容
   const copyrightContent = [`© ${new Date().getFullYear()} ${currentConfig.value.author}`]
 
-  // 如果不是原创者，添加"made by"信息
-  if (!isOriginalAuthor.value) {
-    copyrightContent.push(h('p', {}, 'Made by 小鱼yuzifu'))
-  }
 
   Modal.open({
     title: currentConfig.value.translate.about,
     content: () => [
       h('p', {}, copyrightContent),
       h('span', {}, currentConfig.value.translate.projectWebsite),
-      h('a', { href: 'https://github.com/sf-yuzifu/homepage', target: '_blank' }, 'Github')
+      h('a', { href: 'https://github.com/Tom6814', target: '_blank' }, 'Github')
     ],
     footer: false
   })
