@@ -5,6 +5,7 @@ import APlayer from 'aplayer'
 import { useConfig } from '@/composables/useConfig'
 
 const ap = ref(null)
+let audioObserver = null
 const songTimes = ref(0)
 const isMiniMode = ref(false)
 const currentSong = ref(null)
@@ -145,11 +146,18 @@ const syncAudioEl = () => {
   if (el !== audioEl.value) attachAudio(el)
 }
 
+const getAudioPaused = () => {
+  const el = audioEl.value
+  if (el) return el.paused
+  const a = ap.value?.audio
+  if (a && typeof a.paused === 'boolean') return a.paused
+  return !isPlaying.value
+}
+
 const togglePlay = () => {
   if (!ap.value) return
-  const el = audioEl.value
-  if (!el) return
-  if (el.paused) {
+  syncAudioEl()
+  if (getAudioPaused()) {
     ap.value.play()
   } else {
     ap.value.pause()
@@ -207,6 +215,11 @@ onMounted(() => {
   })
 
   ap.value.on('ended', addRandomSong)
+  const host = document.getElementById('aplayer')
+  if (host) {
+    audioObserver = new MutationObserver(() => syncAudioEl())
+    audioObserver.observe(host, { childList: true, subtree: true })
+  }
   addRandomSong()
 
   checkScreenSize()
@@ -215,6 +228,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   detachAudio()
+  if (audioObserver) {
+    audioObserver.disconnect()
+    audioObserver = null
+  }
   window.removeEventListener('resize', checkScreenSize)
   window.removeEventListener('pointermove', seekFromEvent)
   if (ap.value) {
@@ -402,7 +419,7 @@ const showMini = computed(() => Boolean(ifICP.value) || isMiniMode.value)
   height: 100%;
   background: #fffd;
   filter: drop-shadow(0px 0px clamp(3px, 0.1875vw, 100vw) #0003);
-  border-radius: clamp(6px, 0.375vw, 100vw);
+  border-radius: var(--border-radius-large);
   transform: skew(-10deg);
   display: flex;
   overflow: hidden;
@@ -511,13 +528,14 @@ const showMini = computed(() => Boolean(ifICP.value) || isMiniMode.value)
 
 .music-meta {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: clamp(10px, 0.625vw, 100vw);
 }
 
 .music-title {
   min-width: 0;
+  flex: 1;
   color: #003153;
   display: flex;
   flex-direction: column;
@@ -551,6 +569,7 @@ const showMini = computed(() => Boolean(ifICP.value) || isMiniMode.value)
   cursor: pointer;
   font-size: clamp(12px, 0.75vw, 100vw);
   font-weight: 700;
+  flex: 0 0 auto;
 }
 
 .music-lrc {
