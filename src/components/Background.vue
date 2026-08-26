@@ -337,6 +337,12 @@ const setL2D = async (num) => {
   addEventListenersToCanvas()
 }
 
+// 鼠标离开canvas时的处理函数（独立命名以便正确移除监听）
+const handleMouseLeave = () => {
+  handleMouseUp()
+  handleMouseLeaveCanvas()
+}
+
 // 在canvas上添加事件监听
 const addEventListenersToCanvas = () => {
   if (l2d.view) {
@@ -346,10 +352,7 @@ const addEventListenersToCanvas = () => {
     // 添加事件监听
     l2d.view.addEventListener('mousedown', handleMouseDown)
     l2d.view.addEventListener('mouseup', handleMouseUp)
-    l2d.view.addEventListener('mouseleave', () => {
-      handleMouseUp()
-      handleMouseLeaveCanvas()
-    })
+    l2d.view.addEventListener('mouseleave', handleMouseLeave)
     l2d.view.addEventListener('touchstart', handleTouchStart)
     l2d.view.addEventListener('touchmove', handleTouchMove)
     l2d.view.addEventListener('touchend', handleTouchEnd)
@@ -365,7 +368,7 @@ const removeEventListenersFromCanvas = () => {
   if (l2d.view) {
     l2d.view.removeEventListener('mousedown', handleMouseDown)
     l2d.view.removeEventListener('mouseup', handleMouseUp)
-    l2d.view.removeEventListener('mouseleave', handleMouseUp)
+    l2d.view.removeEventListener('mouseleave', handleMouseLeave)
     l2d.view.removeEventListener('touchstart', handleTouchStart)
     l2d.view.removeEventListener('touchmove', handleTouchMove)
     l2d.view.removeEventListener('touchend', handleTouchEnd)
