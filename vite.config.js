@@ -102,13 +102,46 @@ export default defineConfig({
       injectRegister: 'auto',
       workbox: {
         runtimeCaching: [
+          // 动态接口（音乐信息等）：网络优先，超时或失败时回退缓存，最长保留 1 天
           {
-            urlPattern: /.*/i,
+            urlPattern: /^https:\/\/www\.lihouse\.xyz\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'music-api-cache',
+              networkTimeoutSeconds: 8,
+              expiration: {
+                maxEntries: 32,
+                maxAgeSeconds: 60 * 60 * 24
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          // 第三方静态资源 CDN（iconfont、Yostar 素材）：缓存优先，内容基本不变
+          {
+            urlPattern: /^https:\/\/(at\.alicdn\.com|webcnstatic\.yostar\.net)\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'ba-cache',
+              cacheName: 'cdn-cache',
               expiration: {
-                maxEntries: 10,
+                maxEntries: 64,
+                maxAgeSeconds: 60 * 60 * 24 * 30
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          // 静态资源（Live2D 骨骼/图集/贴图/语音、图片、视频、字体）：缓存优先
+          // 注意：带查询串的请求（如网易云音频流）不匹配此规则，直接走网络
+          {
+            urlPattern: /\.(?:png|jpe?g|webp|gif|svg|skel|atlas|ogg|webm|woff2?)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'static-assets-cache',
+              expiration: {
+                maxEntries: 256,
                 maxAgeSeconds: 60 * 60 * 24 * 30
               },
               cacheableResponse: {
