@@ -19,13 +19,31 @@ export default defineConfig({
   build: {
     assetsInlineLimit: 0,
     minify: 'esbuild',
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 700,
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return id.toString().split('node_modules/')[1].split('/')[0].toString()
-          }
+          if (!id.includes('node_modules')) return
+
+          const pkg = id.toString().split('node_modules/')[1].split('/')[0]
+
+          // Vue 框架核心
+          if (['vue', 'vue-router', '@vue'].includes(pkg)) return 'vue-core'
+          // PIXI 渲染引擎与 Spine 骨骼动画
+          if (
+            ['pixi.js', '@pixi', '@esotericsoftware', 'eventemitter3', 'earcut', 'ismobilejs'].includes(pkg)
+          )
+            return 'pixi'
+          // Arco 组件库及其内部依赖
+          if (
+            ['@arco-design', 'dayjs', 'number-precision', 'b-tween', 'b-validate',
+             'compute-scroll-into-view', 'scroll-into-view-if-needed', 'resize-observer-polyfill'].includes(pkg)
+          )
+            return 'arco'
+          // 音视频播放
+          if (['aplayer', 'axios', 'howler'].includes(pkg)) return 'media'
+          // 其余第三方依赖合并为一个 vendor chunk，避免按包拆出过碎的文件
+          return 'vendor'
         }
       }
     }
