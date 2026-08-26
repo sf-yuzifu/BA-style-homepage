@@ -34,13 +34,11 @@ function getEffectConfig() {
 }
 
 // 光标移动相关
-document.addEventListener('mousemove', showMousePosition, false)
-
 function showMousePosition(event) {
   // 使用page坐标而不是client坐标，以避免导航栏等影响
   posX.value = event.pageX
   posY.value = event.pageY
-  
+
   // 显示光标
   const cursorInner = document.querySelector('#cursor .inner')
   if (cursorInner) {
@@ -48,30 +46,37 @@ function showMousePosition(event) {
   }
 }
 
-document.body.onmouseleave = function () {
-  document.querySelector('#cursor .inner').style.opacity = 0
+const handleBodyMouseLeave = () => {
+  const cursorInner = document.querySelector('#cursor .inner')
+  if (cursorInner) cursorInner.style.opacity = 0
 }
 
-document.body.onmouseenter = function () {
-  document.querySelector('#cursor .inner').style.opacity = 1
+const handleBodyMouseEnter = () => {
+  const cursorInner = document.querySelector('#cursor .inner')
+  if (cursorInner) cursorInner.style.opacity = 1
 }
 
-let el = window.document.body
-window.document.body.onmouseover = function (event) {
-  el = event.target
+const handleBodyMouseOver = (event) => {
+  const target = event.target
+  // 空值保护：目标可能不是元素节点，或处于 DOM 顶层（parentElement 为 null）
+  if (!target || !target.tagName || !target.classList) return
+
+  const parent = target.parentElement
+  const grandParent = parent?.parentElement
+
   if (
-    el.tagName === 'A' ||
-    el.tagName === 'BUTTON' ||
-    el.classList.contains('css-cursor-hover-enabled') ||
-    el.classList.contains('aplayer-button') ||
-    el.parentElement.classList.contains('css-cursor-hover-enabled') ||
-    el.parentElement.classList.contains('aplayer-button') ||
-    el.parentElement.parentElement.classList.contains('css-cursor-hover-enabled') ||
-    el.parentElement.parentElement.classList.contains('aplayer-button')
+    target.tagName === 'A' ||
+    target.tagName === 'BUTTON' ||
+    target.classList.contains('css-cursor-hover-enabled') ||
+    target.classList.contains('aplayer-button') ||
+    parent?.classList.contains('css-cursor-hover-enabled') ||
+    parent?.classList.contains('aplayer-button') ||
+    grandParent?.classList.contains('css-cursor-hover-enabled') ||
+    grandParent?.classList.contains('aplayer-button')
   ) {
-    document.querySelector('#cursor').classList.add('hover')
+    document.querySelector('#cursor')?.classList.add('hover')
   } else {
-    document.querySelector('#cursor').classList.remove('hover')
+    document.querySelector('#cursor')?.classList.remove('hover')
   }
 }
 
@@ -325,14 +330,22 @@ onMounted(() => {
   setTimeout(() => {
     initCanvas()
   }, 0)
-  
+
   window.addEventListener('resize', handleResize)
   document.addEventListener('click', handleClickEvent, { passive: true })
+  document.addEventListener('mousemove', showMousePosition, false)
+  document.body.addEventListener('mouseleave', handleBodyMouseLeave)
+  document.body.addEventListener('mouseenter', handleBodyMouseEnter)
+  document.body.addEventListener('mouseover', handleBodyMouseOver)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
   document.removeEventListener('click', handleClickEvent)
+  document.removeEventListener('mousemove', showMousePosition)
+  document.body.removeEventListener('mouseleave', handleBodyMouseLeave)
+  document.body.removeEventListener('mouseenter', handleBodyMouseEnter)
+  document.body.removeEventListener('mouseover', handleBodyMouseOver)
   if (animationId) {
     cancelAnimationFrame(animationId)
   }
