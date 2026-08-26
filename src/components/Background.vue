@@ -53,7 +53,8 @@ const updateDialoguePosition = () => {
   }
 }
 
-window.onresize = () => {
+// 窗口尺寸变化时更新对话框位置（在 onMounted/onUnmounted 中注册与移除）
+const handleWindowResize = () => {
   updateDialoguePosition()
 }
 
@@ -106,6 +107,7 @@ const addCanvasToBackground = () => {
 // 组件挂载后尝试添加canvas
 onMounted(() => {
   addCanvasToBackground()
+  window.addEventListener('resize', handleWindowResize)
 })
 
 // 路由离开前停止语音和清理
@@ -627,6 +629,7 @@ onUnmounted(() => {
 
   // 移除事件监听
   removeEventListenersFromCanvas()
+  window.removeEventListener('resize', handleWindowResize)
 
   // 销毁PIXI应用（destroy(true) 会自动将canvas从DOM中移除）
   if (l2d) {
