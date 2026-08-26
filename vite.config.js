@@ -16,6 +16,11 @@ import yaml from '@rollup/plugin-yaml'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // 生产环境剔除调试输出（保留 console.error 以便线上排障）
+  esbuild: {
+    drop: ['debugger'],
+    pure: ['console.log', 'console.info', 'console.warn']
+  },
   build: {
     assetsInlineLimit: 0,
     minify: 'esbuild',
