@@ -1,7 +1,7 @@
 <script setup>
 import { Modal } from '@arco-design/web-vue'
 import { IconInfoCircle } from '@arco-design/web-vue/es/icon'
-import { h, ref, computed } from 'vue'
+import { h, ref, computed, onMounted, onUnmounted } from 'vue'
 
 import { useConfig } from '@/composables/useConfig'
 import { useAp } from '@/composables/useAp'
@@ -15,7 +15,9 @@ const props = defineProps(['l2dOnly', 'canskip'])
 const currentConfig = computed(() => configs.value)
 const img = ref('/img/max.png')
 const showMin = ref(false)
-const hover = ref(window.matchMedia('(hover: none)').matches)
+// 触屏设备（hover: none）状态
+const hoverMedia = window.matchMedia('(hover: none)')
+const hover = ref(hoverMedia.matches)
 
 const identifyOriginalAuthor = () => {
   if (!currentConfig.value?.author) return false
@@ -65,16 +67,28 @@ const change = () => {
   }
 }
 
-document.body.addEventListener('click', () => {
+// body 级点击：L2D 全屏观赏模式下切换工具箱显隐
+const handleBodyClick = () => {
   if (props.l2dOnly && hover.value) {
     showMin.value = !showMin.value
   } else {
     showMin.value = true
   }
+}
+
+// 触屏状态变化时更新
+const handleHoverChange = (e) => {
+  hover.value = e.matches
+}
+
+onMounted(() => {
+  document.body.addEventListener('click', handleBodyClick)
+  hoverMedia.addEventListener('change', handleHoverChange)
 })
 
-window.matchMedia('(hover: none)').addListener((e) => {
-  hover.value = e.matches
+onUnmounted(() => {
+  document.body.removeEventListener('click', handleBodyClick)
+  hoverMedia.removeEventListener('change', handleHoverChange)
 })
 
 // Gold 和 Pyroxene 从配置读取
