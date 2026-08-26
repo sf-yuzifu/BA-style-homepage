@@ -1236,8 +1236,28 @@ watch(
 
 <template>
   <div id="change" v-if="!props.l2dOnly">
-    <img class="css-cursor-hover-enabled" @click="setL2D('-')" src="/l2d/arrow.png" alt="" />
-    <img class="css-cursor-hover-enabled" @click="setL2D('+')" src="/l2d/arrow.png" alt="" />
+    <img
+      class="css-cursor-hover-enabled"
+      role="button"
+      tabindex="0"
+      :aria-label="currentConfig?.translate?.prevPage"
+      @click="setL2D('-')"
+      @keydown.enter.prevent="setL2D('-')"
+      @keydown.space.prevent="setL2D('-')"
+      src="/l2d/arrow.png"
+      alt=""
+    />
+    <img
+      class="css-cursor-hover-enabled"
+      role="button"
+      tabindex="0"
+      :aria-label="currentConfig?.translate?.nextPage"
+      @click="setL2D('+')"
+      @keydown.enter.prevent="setL2D('+')"
+      @keydown.space.prevent="setL2D('+')"
+      src="/l2d/arrow.png"
+      alt=""
+    />
   </div>
   <div
     v-if="props.l2dOnly && canSkip"

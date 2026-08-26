@@ -48,7 +48,14 @@ const goBack = () => {
 
 <template>
   <div class="header">
-    <div class="back-button css-cursor-hover-enabled" @click="goBack">
+    <div
+      class="back-button css-cursor-hover-enabled"
+      role="button"
+      tabindex="0"
+      @click="goBack"
+      @keydown.enter.prevent="goBack"
+      @keydown.space.prevent="goBack"
+    >
       <icon-arrow-left class="back-icon" />
     </div>
 
@@ -78,7 +85,14 @@ const goBack = () => {
 
       <a-divider direction="vertical" class="divider"></a-divider>
 
-      <div class="home css-cursor-hover-enabled" @click="goBack">
+      <div
+        class="home css-cursor-hover-enabled"
+        role="button"
+        tabindex="0"
+        @click="goBack"
+        @keydown.enter.prevent="goBack"
+        @keydown.space.prevent="goBack"
+      >
         <icon-font type="icon-home" />
       </div>
     </div>

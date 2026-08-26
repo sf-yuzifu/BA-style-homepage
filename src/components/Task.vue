@@ -44,7 +44,12 @@ const skip = () => {
       v-if="!props.l2dOnly"
       :name="taskInfo.name"
       class="task css-cursor-hover-enabled"
+      role="button"
+      tabindex="0"
+      :aria-label="taskInfo.name"
       @click="skip"
+      @keydown.enter.prevent="skip"
+      @keydown.space.prevent="skip"
     ></div>
   </transition>
   <transition name="curtain">

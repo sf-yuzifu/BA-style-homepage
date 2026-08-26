@@ -129,7 +129,11 @@ const pyroxene = computed(() => {
     <a
       class="about toolbox"
       :class="{ 'toolbox-l2d': props.l2dOnly }"
+      role="button"
+      tabindex="0"
       @click="about"
+      @keydown.enter.prevent="about"
+      @keydown.space.prevent="about"
     >
       <icon-info-circle class="css-cursor-hover-enabled" />
     </a>
@@ -137,7 +141,11 @@ const pyroxene = computed(() => {
       id="change"
       class="l2d toolbox"
       :class="{ 'toolbox-l2d': props.l2dOnly, 'canHover': !hover && !props.canskip }"
+      role="button"
+      tabindex="0"
       @click="change"
+      @keydown.enter.prevent="change"
+      @keydown.space.prevent="change"
       :style="{
         transition: 'transform 0.3s ' + (!props.l2dOnly ? 'ease-out' : 'ease-in') + ',opacity 0.6s',
         opacity: (!props.l2dOnly || (showMin && hover)) && !props.canskip ? 1 : 0

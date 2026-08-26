@@ -53,7 +53,7 @@ onUnmounted(() => {
       </a>
     </div>
     <div class="time">
-      <img src="/deco.png" />
+      <img src="/deco.png" alt="" />
       <span>{{ time }}</span>
     </div>
     <div class="divide"></div>

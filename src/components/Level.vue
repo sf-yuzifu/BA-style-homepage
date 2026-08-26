@@ -51,7 +51,14 @@ const goToBio = () => {
 </script>
 
 <template>
-  <div class="level-box" @click="goToBio">
+  <div
+    class="level-box"
+    role="button"
+    tabindex="0"
+    @click="goToBio"
+    @keydown.enter.prevent="goToBio"
+    @keydown.space.prevent="goToBio"
+  >
     <div class="container">
       <div class="level css-cursor-hover-enabled">
         <span>Lv.</span>
