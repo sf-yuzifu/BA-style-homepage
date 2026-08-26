@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { useResourceLoader } from '@/composables/useResourceLoader'
 
 const props = defineProps(['percent'])
@@ -29,10 +29,14 @@ document.oncontextmenu = function () {
 let a = 0
 imgUrl.value = imgList[a % 4]
 a++
-setInterval(() => {
+const imgTimer = setInterval(() => {
   imgUrl.value = imgList[a % 4]
   a++
 }, 2000)
+
+onUnmounted(() => {
+  clearInterval(imgTimer)
+})
 </script>
 
 <template>

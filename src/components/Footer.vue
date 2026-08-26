@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { Icon } from '@arco-design/web-vue'
 import { useConfig } from '@/composables/useConfig'
 const { configs } = useConfig()
@@ -29,9 +29,13 @@ const addZero = (time) => {
   return time < 10 ? '0' + time : time
 }
 
-setInterval(() => {
+const timeTimer = setInterval(() => {
   time.value = addZero(new Date().getHours()) + ':' + addZero(new Date().getMinutes())
 }, 1000)
+
+onUnmounted(() => {
+  clearInterval(timeTimer)
+})
 </script>
 
 <template>
