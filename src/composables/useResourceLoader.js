@@ -109,14 +109,14 @@ export function useResourceLoader() {
   // 获取不同类型资源的最小加载时间
   const getMinLoadTime = (type) => {
     const baseTimes = {
-      'font': 10,      // 字体：800ms（增加时间）
-      'config': 10,    // 配置：600ms
-      'live2d': 10,   // Live2D：1200ms（增加时间）
-      'image': 10,     // 图片：400ms
-      'generic': 10    // 通用：300ms
+      'font': 10, // 字体：10ms
+      'config': 10, // 配置：10ms
+      'live2d': 10, // Live2D：10ms
+      'image': 10, // 图片：10ms
+      'generic': 10 // 通用：10ms
     }
-    
-    return baseTimes[type] || 300
+
+    return baseTimes[type] || 10
   }
 
   // 加载字体
@@ -202,7 +202,7 @@ export function useResourceLoader() {
     return response
   }
 
-  // 开始批量加载
+  // 开始批量加载（并行加载，进度由 loadedCount 响应式更新，界面平滑动画由 useLoading 负责）
   const loadAll = async () => {
     if (totalCount.value === 0) {
       isComplete.value = true
@@ -214,19 +214,7 @@ export function useResourceLoader() {
     console.log(`开始加载 ${totalCount.value} 个资源`)
 
     const pendingResources = Array.from(resources.value.values())
-    
-    // 串行加载而不是并行，每个资源间隔一定时间
-    for (let i = 0; i < pendingResources.length; i++) {
-      const resource = pendingResources[i]
-      
-      // 加载当前资源
-      await loadResource(resource.id)
-      
-      // 资源间添加小延迟，避免同时完成
-      if (i < pendingResources.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 200))
-      }
-    }
+    await Promise.all(pendingResources.map((resource) => loadResource(resource.id)))
 
     isComplete.value = true
     console.log(`所有资源加载完成: ${loadedCount.value}/${totalCount.value}`)
