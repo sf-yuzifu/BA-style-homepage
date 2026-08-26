@@ -103,9 +103,6 @@ export function useLoading() {
     
     // 等待配置加载完成
     const config = await waitForConfig()
-    
-    // 将配置保存到全局，便于其他模块访问
-    window.config = config
 
     // 添加字体加载任务
     resourceLoader.addResource('fonts_ready', '', 'font')
@@ -143,10 +140,6 @@ export function useLoading() {
     // 开始批量加载
     console.log('开始批量加载资源...')
     await resourceLoader.loadAll()
-    
-    // 确保设置全局状态
-    window.l2d_complete = true
-    console.log('Live2D全局状态设置完成')
   }
 
   onUnmounted(() => {

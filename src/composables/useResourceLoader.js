@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue'
+import { live2dReady } from '@/init/live2d'
 
 export function useResourceLoader() {
   const resources = ref(new Map())
@@ -163,34 +164,10 @@ export function useResourceLoader() {
     return yaml.load(yamlText)
   }
 
-  // 加载Live2D资源
+  // 加载Live2D资源（实际加载在 init/live2d.js 中进行，这里等待共享 Promise 完成）
   const loadLive2D = async (resource) => {
-    try {
-      // 这里我们只需要标记资源为已加载
-      // 实际的Live2D加载在live2d.js中处理
-      console.log(`Live2D资源准备就绪: ${resource.id}`)
-      
-      // 检查是否有全局的Live2D加载状态
-      if (typeof window.l2d_complete !== 'undefined') {
-        // 等待Live2D初始化完成
-        return new Promise((resolve) => {
-          const checkLive2D = () => {
-            if (window.l2d_complete === true) {
-              resolve()
-            } else {
-              setTimeout(checkLive2D, 100) // 每100ms检查一次
-            }
-          }
-          checkLive2D()
-        })
-      }
-      
-      // 如果没有全局状态，直接标记为完成
-      return Promise.resolve()
-    } catch (error) {
-      console.warn(`Live2D资源加载警告 ${resource.id}:`, error)
-      return Promise.resolve() // 即使失败也继续
-    }
+    console.log(`Live2D资源准备就绪: ${resource.id}`)
+    await live2dReady
   }
 
   // 通用加载

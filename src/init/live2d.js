@@ -1,22 +1,28 @@
 import * as PIXI from 'pixi.js'
 import { useConfig } from '@/composables/useConfig'
 
+// Live2D 资源加载完成的共享 Promise（替代 window.l2d_complete 全局标记）
+let resolveLive2DReady
+export const live2dReady = new Promise((resolve) => {
+  resolveLive2DReady = resolve
+})
+
 export async function initLive2D() {
   try {
     const { waitForConfig } = useConfig()
-    
+
     // 等待配置加载完成
     const config = await waitForConfig()
 
     if (!config) {
       console.warn('配置对象为空，跳过Live2D初始化')
-      window.l2d_complete = true
+      resolveLive2DReady()
       return false
     }
 
     if (!config.memorialLobbies || !Array.isArray(config.memorialLobbies)) {
       console.warn('memorialLobbies配置无效，跳过Live2D初始化:', config.memorialLobbies)
-      window.l2d_complete = true
+      resolveLive2DReady()
       return false
     }
 
@@ -45,13 +51,13 @@ export async function initLive2D() {
     await Promise.allSettled(loadPromises)
 
     // 标记Live2D加载完成
-    window.l2d_complete = true
+    resolveLive2DReady()
     console.log('Live2D资源加载完成')
 
     return true
   } catch (error) {
     console.error('Live2D资源加载失败:', error)
-    window.l2d_complete = true // 即使失败也设置为true，避免无限加载
+    resolveLive2DReady() // 即使失败也标记完成，避免无限加载
     return false
   }
 }
