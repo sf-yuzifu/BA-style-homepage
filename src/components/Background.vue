@@ -1,5 +1,5 @@
 <script setup>
-import { Spine } from '@esotericsoftware/spine-pixi-v7'
+import { Spine, SpineTexture } from '@esotericsoftware/spine-pixi-v7'
 import * as PIXI from 'pixi.js'
 import { Modal } from '@arco-design/web-vue'
 import { useConfig } from '@/composables/useConfig'
@@ -26,6 +26,8 @@ let longPressTimer = null
 let longPressThreshold = 500 // 长按阈值（毫秒）
 let isLongPress = false
 let patTimer = null // 摸头随机动作定时器
+let canvasRetryTimer = null // canvas添加重试定时器
+let isComponentUnmounted = false // 组件卸载标记，用于停止重试
 
 const dialogue = ref('')
 const showDialogue = ref(false)
@@ -69,6 +71,9 @@ const l2d = new PIXI.Application({
 
 // 安全地将canvas添加到background div中的函数
 const addCanvasToBackground = () => {
+  // 组件已卸载或PIXI视图已销毁时，停止重试
+  if (isComponentUnmounted || !l2d.view) return
+
   try {
     // 查找background元素
     const backgroundElement = document.querySelector('#background')
@@ -90,11 +95,11 @@ const addCanvasToBackground = () => {
       }
     } else {
       // 如果找不到background元素，延迟重试
-      setTimeout(addCanvasToBackground, 100)
+      canvasRetryTimer = setTimeout(addCanvasToBackground, 100)
     }
   } catch (error) {
     // 发生错误时也延迟重试
-    setTimeout(addCanvasToBackground, 100)
+    canvasRetryTimer = setTimeout(addCanvasToBackground, 100)
   }
 }
 
@@ -178,6 +183,15 @@ const onEvent = (entry, event) => {
   soundList.push(voice)
 }
 
+// 停止并释放所有语音资源
+const stopAllVoices = () => {
+  for (const sound of soundList) {
+    sound.stop()
+    sound.unload()
+  }
+  soundList = []
+}
+
 const setL2D = async (num) => {
   // 确保canvas已经添加到background div
   addCanvasToBackground()
@@ -192,17 +206,29 @@ const setL2D = async (num) => {
   talkIndex = 1
   // 重置骨骼状态缓存，解决角色切换时摸头错位问题
   originalBoneStates.value = {}
-  if (soundList.length !== 0) {
-    for (let i in soundList) soundList[i].stop()
-    soundList = []
-  }
+  stopAllVoices()
+  // 销毁旧角色动画实例并卸载其资源，避免反复切换后内存持续增长
   if (animation) {
-    animation.state.listeners = []
-    animation.state.addListener({
-      event: onEvent
-    })
+    l2d.stage.removeChild(animation)
+    animation.destroy()
+    animation = null
+    // 注意：此处 id 还是旧角色的索引，在下方switch语句中才会更新
+    try {
+      await PIXI.Assets.unload([`skeleton_${id}`, `atlas_${id}`])
+      // 同步清理 Spine 的静态骨骼缓存（缓存键格式为 skeleton-atlas-scale）
+      // 否则切回该角色时会复用引用了已释放贴图的骨骼数据，导致渲染异常
+      delete Spine.skeletonCache[`skeleton_${id}-atlas_${id}-1`]
+      // 同步清理 SpineTexture 静态缓存中已随图集释放的贴图
+      // 否则重新加载图集时会命中已销毁的贴图（baseTexture 为 null），渲染时报错
+      for (const [baseTexture, spineTexture] of SpineTexture.textureMap) {
+        if (spineTexture.texture?.destroyed) {
+          SpineTexture.textureMap.delete(baseTexture)
+        }
+      }
+    } catch (error) {
+      // 卸载失败不影响新角色加载
+    }
   }
-  l2d.stage.removeChild(animation)
 
   const lobbies = currentConfig.value.memorialLobbies
 
@@ -441,10 +467,7 @@ const handleBoneHover = (event) => {
 // 清理语音和对话框
 const clearVoiceAndDialogue = () => {
   // 停止所有语音
-  if (soundList.length !== 0) {
-    for (let i in soundList) soundList[i].stop()
-    soundList = []
-  }
+  stopAllVoices()
   // 隐藏对话框
   showDialogue.value = false
   dialogue.value = ''
@@ -521,10 +544,7 @@ const loadL2DSkipIdle = async (num) => {
   talkIndex = 1
   // 重置骨骼状态缓存
   originalBoneStates.value = {}
-  if (soundList.length !== 0) {
-    for (let i in soundList) soundList[i].stop()
-    soundList = []
-  }
+  stopAllVoices()
 
   const lobbies = currentConfig.value.memorialLobbies
 
@@ -598,18 +618,19 @@ const loadL2DSkipIdle = async (num) => {
 
 // 组件卸载时清理资源
 onUnmounted(() => {
+  // 标记组件已卸载，并取消可能存在的canvas重试定时器
+  isComponentUnmounted = true
+  if (canvasRetryTimer) {
+    clearTimeout(canvasRetryTimer)
+    canvasRetryTimer = null
+  }
+
   // 移除事件监听
   removeEventListenersFromCanvas()
 
-  // 销毁PIXI应用
+  // 销毁PIXI应用（destroy(true) 会自动将canvas从DOM中移除）
   if (l2d) {
     l2d.destroy(true)
-  }
-
-  // 移除canvas容器
-  const canvasContainer = l2d.view?.parentElement
-  if (canvasContainer && canvasContainer.parentElement) {
-    canvasContainer.parentElement.removeChild(canvasContainer)
   }
 })
 
@@ -644,10 +665,7 @@ const skipStartIdle = () => {
         cancelText: currentConfig.value.translate.cancel,
         onOk: () => {
           changeL2D(false)
-          if (soundList.length !== 0) {
-            for (let i in soundList) soundList[i].stop()
-            soundList = []
-          }
+          stopAllVoices()
 
           // 再次检查动画状态
           if (animation && animation.state) {
