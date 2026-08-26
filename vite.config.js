@@ -43,6 +43,7 @@ export default defineConfig({
         data: {
           title: config.title,
           favicon: config.favicon,
+          author: config.author,
           themeColor: config.manifest.theme_color,
           description: config.description,
           keywords: config.keywords
