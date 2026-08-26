@@ -105,23 +105,23 @@ const skip = () => {
 
 .task {
   position: absolute;
-  bottom: clamp(140px, 8.75vw, 100vw);
-  right: clamp(60px, 3.75vw, 100vw);
-  width: clamp(150px, 9.375vw, 100vw);
-  aspect-ratio: 1 / 1;
+  bottom: clamp(40px, 2.5vw, 100vw);
+  right: clamp(30px, 1.875vw, 100vw);
+  width: clamp(220px, 13.75vw, 100vw);
+  aspect-ratio: 329 / 232;
   background: url('/task.png') center;
   background-size: cover;
   transition: transform 0.1s;
-  z-index: 2;
+  z-index: 3;
 }
 
 .task:before {
   content: '';
   position: absolute;
-  left: clamp(10px, 0.625vw, 100vw);
+  left: clamp(30px, 1.875vw, 100vw);
   bottom: 0;
   height: clamp(50px, 3.125vw, 100vw);
-  width: calc(100% + clamp(10px, 0.625vw, 100vw));
+  width: calc(100% - clamp(30px, 1.875vw, 100vw));
   border-radius: clamp(8px, 0.5vw, 100vw);
   background: #003153;
   transform: skewX(-10deg);
@@ -130,10 +130,10 @@ const skip = () => {
 .task:after {
   content: attr(name);
   position: absolute;
-  left: clamp(10px, 0.625vw, 100vw);
+  left: clamp(30px, 1.875vw, 100vw);
   bottom: 0;
   height: clamp(50px, 3.125vw, 100vw);
-  width: 100%;
+  width: calc(100% - clamp(30px, 1.875vw, 100vw));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,9 +160,17 @@ const skip = () => {
     transform 0.25s ease-in-out;
 }
 
+@media screen and (max-width: 1120px) {
+  .task {
+    right: 60px;
+    bottom: 140px;
+  }
+}
+
 @media screen and (max-width: 495px) {
   .task {
     right: 40px;
+    bottom: 140px;
   }
 }
 

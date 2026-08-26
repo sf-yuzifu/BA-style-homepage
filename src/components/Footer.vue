@@ -52,6 +52,7 @@ setInterval(() => {
       <p>△×+○</p>
       <span>{{ time }}</span>
     </div>
+    <div class="divide"></div>
   </div>
 </template>
 
@@ -103,7 +104,7 @@ setInterval(() => {
 .time {
   transform: skew(20deg);
   position: absolute;
-  right: clamp(40px, 2.5vw, 100vw);
+  right: calc(clamp(220px, 13.75vw, 100vw) + clamp(20px, 1.25vw, 100vw));
   bottom: clamp(10px, 0.625vw, 100vw);
   display: flex;
   align-items: flex-end;
@@ -118,6 +119,16 @@ setInterval(() => {
 
 .time span {
   color: #525f72;
+}
+
+.divide {
+  width: clamp(2px, 0.125vw, 100vw);
+  height: 60%;
+  background-color: #abb3c4;
+  position: absolute;
+  right: calc(clamp(220px, 13.75vw, 100vw) - clamp(1px, 0.0625vw, 100vw));
+  bottom: 20%;
+  transform: skew(20deg);
 }
 
 .project {
@@ -151,6 +162,16 @@ setInterval(() => {
 .project img {
   width: clamp(64px, 4vw, 100vw);
   height: clamp(64px, 4vw, 100vw);
+}
+
+@media screen and (max-width: 1120px) {
+  .time {
+    right: 40px;
+  }
+
+  .divide {
+    display: none;
+  }
 }
 
 @media screen and (max-width: 830px) {
