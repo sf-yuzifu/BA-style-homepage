@@ -10,9 +10,9 @@ import { detectBrowserLanguage, createConfigLoader } from './configUtils'
 function deepMerge(base, override) {
   if (typeof base !== 'object' || base === null) return override
   if (typeof override !== 'object' || override === null) return override
-  
+
   const result = { ...base }
-  
+
   for (const key in override) {
     if (key in result && typeof result[key] === 'object' && typeof override[key] === 'object') {
       // 特别处理数组类型的合并（memorialLobbies等）
@@ -25,7 +25,7 @@ function deepMerge(base, override) {
           }
           return baseItem
         })
-        
+
         // 如果翻译数组比基础数组长，添加新的项目
         if (override[key].length > result[key].length) {
           for (let i = result[key].length; i < override[key].length; i++) {
@@ -39,7 +39,7 @@ function deepMerge(base, override) {
       result[key] = override[key]
     }
   }
-  
+
   return result
 }
 
@@ -48,7 +48,7 @@ function mergeArraysWithIndexOverrides(baseArray, translations) {
   if (!Array.isArray(baseArray)) {
     return baseArray
   }
-  
+
   const result = [...baseArray]
   // 合并数组元素
   for (let i = 0; i < baseArray.length; i++) {
@@ -57,7 +57,7 @@ function mergeArraysWithIndexOverrides(baseArray, translations) {
       result[i] = deepMerge(result[i], translations[indexKey])
     }
   }
-  
+
   if (Array.isArray(translations.memorialLobbies)) {
     for (let i = 0; i < Math.min(translations.memorialLobbies.length, result.length); i++) {
       if (typeof translations.memorialLobbies[i] === 'object') {
@@ -65,7 +65,7 @@ function mergeArraysWithIndexOverrides(baseArray, translations) {
       }
     }
   }
-  
+
   return result
 }
 
@@ -74,18 +74,15 @@ function createLocaleConfig(base, translations) {
   if (!translations || typeof translations !== 'object') {
     return base
   }
-  
+
   // 首先进行基础合并
   const result = deepMerge(base, translations)
-  
+
   // 特别处理 memorialLobbies 的数组合并
   if (Array.isArray(base.memorialLobbies) && translations) {
-    result.memorialLobbies = mergeArraysWithIndexOverrides(
-      base.memorialLobbies,
-      translations
-    )
+    result.memorialLobbies = mergeArraysWithIndexOverrides(base.memorialLobbies, translations)
   }
-  
+
   return result
 }
 
@@ -111,11 +108,13 @@ export function useConfig() {
   // 初始化语言（只在第一次执行）
   const initLocale = () => {
     if (globalIsInitialized.value) return // 防止重复初始化
-    
+
     try {
       const detectedLang = detectBrowserLanguage(configLoader.getSupportedLocales())
       globalCurrentLocale.value = detectedLang
       globalIsInitialized.value = true
+      // 同步页面语言标记，利于SEO与无障碍
+      document.documentElement.lang = detectedLang
 
       console.log('语言检测完成:', {
         最终语言: detectedLang,
@@ -166,11 +165,11 @@ export function useConfig() {
   // 异步初始化配置（只在第一次调用时执行）
   const initializeConfig = async () => {
     if (globalIsInitialized.value) return // 已初始化，直接返回
-    
+
     initLocale()
     await loadConfig()
   }
-  
+
   // 确保只执行一次初始化
   if (!globalIsInitialized.value && !globalIsInitializing.value) {
     initializeConfig()
@@ -210,6 +209,8 @@ export function useConfig() {
   const setLocale = (locale) => {
     if (configLoader.getSupportedLocales().includes(locale)) {
       globalCurrentLocale.value = locale
+      // 同步页面语言标记
+      document.documentElement.lang = locale
       loadConfig()
       console.log('语言已切换为:', locale)
     } else {

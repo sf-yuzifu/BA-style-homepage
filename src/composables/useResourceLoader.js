@@ -17,9 +17,9 @@ export function useResourceLoader() {
   // 平滑进度计算 - 在加载过程中提供更自然的进度体验
   const getSmoothProgress = () => {
     if (totalCount.value === 0) return 0
-    
+
     const baseProgress = loadedCount.value / totalCount.value
-    
+
     // 如果资源正在加载，提供部分进度反馈
     let loadingProgress = baseProgress
     for (const resource of resources.value.values()) {
@@ -28,7 +28,7 @@ export function useResourceLoader() {
         loadingProgress += 0.2 / totalCount.value
       }
     }
-    
+
     return Math.min(loadingProgress, baseProgress + 0.1) // 最大不超过基础进度+10%
   }
 
@@ -66,7 +66,7 @@ export function useResourceLoader() {
 
     // 获取最小加载时间并延迟
     const minLoadTime = getMinLoadTime(resource.type)
-    
+
     try {
       if (resource.type === 'font') {
         await loadFont(resource)
@@ -83,25 +83,25 @@ export function useResourceLoader() {
       // 记录结束时间
       resource.endTime = Date.now()
       const actualLoadTime = resource.endTime - resource.startTime
-      
+
       // 如果实际加载时间小于最小时间，等待剩余时间
       if (actualLoadTime < minLoadTime) {
         const remainingTime = minLoadTime - actualLoadTime
-        await new Promise(resolve => setTimeout(resolve, remainingTime))
+        await new Promise((resolve) => setTimeout(resolve, remainingTime))
         resource.endTime = Date.now() // 更新最终结束时间
       }
 
       resource.status = 'loaded'
       loadedCount.value++
-      
+
       console.log(`资源加载完成: ${id} (${resource.endTime - resource.startTime}ms)`)
     } catch (error) {
       resource.status = 'error'
       resource.error = error
       resource.endTime = Date.now()
-      
+
       console.error(`资源加载失败: ${id}`, error)
-      
+
       // 即使加载失败，也算作完成，避免无限加载
       loadedCount.value++
     }
@@ -110,11 +110,11 @@ export function useResourceLoader() {
   // 获取不同类型资源的最小加载时间
   const getMinLoadTime = (type) => {
     const baseTimes = {
-      'font': 10, // 字体：10ms
-      'config': 10, // 配置：10ms
-      'live2d': 10, // Live2D：10ms
-      'image': 10, // 图片：10ms
-      'generic': 10 // 通用：10ms
+      font: 10, // 字体：10ms
+      config: 10, // 配置：10ms
+      live2d: 10, // Live2D：10ms
+      image: 10, // 图片：10ms
+      generic: 10 // 通用：10ms
     }
 
     return baseTimes[type] || 10
@@ -124,14 +124,14 @@ export function useResourceLoader() {
   const loadFont = async (resource) => {
     try {
       console.log(`开始加载字体资源: ${resource.id}`)
-      
+
       // 使用CSS Font Loading API，等待所有字体加载完成
       if ('fonts' in document) {
         console.log('等待CSS字体加载完成...')
         await document.fonts.ready
         console.log('CSS字体加载完成')
       }
-      
+
       console.log(`字体资源加载完成: ${resource.id}`)
     } catch (error) {
       console.warn(`字体加载警告 ${resource.id}:`, error)
@@ -157,7 +157,7 @@ export function useResourceLoader() {
     if (!response.ok) {
       throw new Error(`配置加载失败: ${response.status}`)
     }
-    
+
     const yamlText = await response.text()
     // 使用js-yaml解析YAML
     const yaml = await import('js-yaml')
@@ -227,7 +227,7 @@ export function useResourceLoader() {
     totalCount,
     isLoading,
     isComplete,
-    
+
     // 方法
     addResource,
     loadResource,

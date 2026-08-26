@@ -8,7 +8,11 @@ const { configs } = useConfig()
 
 // 从配置中获取bio角色的Live2D配置
 const bioConfig = computed(() => {
-  if (!configs.value?.bio || !Array.isArray(configs.value.bio.student) || configs.value.bio.student.length === 0) {
+  if (
+    !configs.value?.bio ||
+    !Array.isArray(configs.value.bio.student) ||
+    configs.value.bio.student.length === 0
+  ) {
     return null
   }
   // 使用第一个bio角色配置

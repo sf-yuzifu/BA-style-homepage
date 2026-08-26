@@ -105,24 +105,15 @@ const pyroxene = computed(() => {
 
 <template>
   <div class="toolbox-box">
-    <div
-      class="toolbox"
-      :class="{ 'toolbox-l2d': props.l2dOnly }"
-    >
+    <div class="toolbox" :class="{ 'toolbox-l2d': props.l2dOnly }">
       <img src="/img/ap.png" alt="" />
       <span>{{ ap + '/' + maxAp }}</span>
     </div>
-    <div
-      class="toolbox"
-      :class="{ 'toolbox-l2d': props.l2dOnly }"
-    >
+    <div class="toolbox" :class="{ 'toolbox-l2d': props.l2dOnly }">
       <img src="/img/gold.png" alt="" />
       <span>{{ gold.toLocaleString() }}</span>
     </div>
-    <div
-      class="toolbox"
-      :class="{ 'toolbox-l2d': props.l2dOnly }"
-    >
+    <div class="toolbox" :class="{ 'toolbox-l2d': props.l2dOnly }">
       <img src="/img/pyroxene.png" alt="" />
       <span>{{ pyroxene.toLocaleString() }}</span>
     </div>
@@ -140,7 +131,7 @@ const pyroxene = computed(() => {
     <a
       id="change"
       class="l2d toolbox"
-      :class="{ 'toolbox-l2d': props.l2dOnly, 'canHover': !hover && !props.canskip }"
+      :class="{ 'toolbox-l2d': props.l2dOnly, canHover: !hover && !props.canskip }"
       role="button"
       tabindex="0"
       @click="change"

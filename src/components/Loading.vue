@@ -55,18 +55,28 @@ onUnmounted(() => {
     <div class="progress_wrapper">
       <h1 class="title">connecting...</h1>
       <div class="percent">{{ Math.floor(props.percent * 100) + '%' }}</div>
-      
+
       <!-- 显示加载详情 -->
       <div v-if="resourceLoader.totalCount.value > 0" class="loading_details">
         <div class="detail_item">
           <span class="label">字体:</span>
-          <span class="status" :class="{ 'loaded': resourceLoader.getStatus().resources.fonts_ready?.status === 'loaded' }">
-            {{ resourceLoader.getStatus().resources.fonts_ready?.status === 'loaded' ? '✓' : '...' }}
+          <span
+            class="status"
+            :class="{
+              loaded: resourceLoader.getStatus().resources.fonts_ready?.status === 'loaded'
+            }"
+          >
+            {{
+              resourceLoader.getStatus().resources.fonts_ready?.status === 'loaded' ? '✓' : '...'
+            }}
           </span>
         </div>
         <div class="detail_item" v-for="resource in live2dResources" :key="resource.id">
           <span class="label">Live2D:</span>
-          <span class="status" :class="{ 'loaded': resource.status === 'loaded', 'error': resource.status === 'error' }">
+          <span
+            class="status"
+            :class="{ loaded: resource.status === 'loaded', error: resource.status === 'error' }"
+          >
             {{ resource.status === 'loaded' ? '✓' : resource.status === 'error' ? '✗' : '...' }}
           </span>
         </div>
@@ -196,6 +206,6 @@ img {
 
 .avatar_img {
   height: clamp(340px, 21.25vw, 100vw);
-  width: clamp(250px, 15.625vw, 100vw);;
+  width: clamp(250px, 15.625vw, 100vw);
 }
 </style>

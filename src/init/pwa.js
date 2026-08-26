@@ -5,7 +5,7 @@ import { useConfig } from '@/composables/useConfig'
 export function initPWA() {
   if ('serviceWorker' in navigator) {
     const { configs } = useConfig()
-    
+
     const updateSW = registerSW({
       onNeedRefresh() {
         const config = configs.value

@@ -24,19 +24,11 @@ initLinkHandler()
 // 启动初始化流程
 async function startApp() {
   try {
-    // 初始化配置并设置页面标题
-    const { configs, waitForConfig } = useConfig()
+    // 初始化配置（页面标题由 router 的 afterEach 守卫统一设置）
+    const { waitForConfig } = useConfig()
 
     // 等待配置加载完成
     await waitForConfig()
-
-    // 设置页面标题
-    const config = configs.value
-    if (config && config.title) {
-      document.title = config.title
-    } else {
-      document.title = '个人主页'
-    }
 
     // 初始化 AP
     const { initAp } = useAp()

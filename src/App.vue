@@ -20,7 +20,7 @@ const { loading, percent } = useLoading()
 
   <!-- 幕布效果 -->
   <div id="curtain"></div>
-  
+
   <!-- 自定义光标 -->
   <Cursor />
 </template>

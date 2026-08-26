@@ -148,7 +148,7 @@ const onEvent = (entry, event) => {
   // 播放语音
   const jpPath = lobby.path + 'ja-JP/' + event.stringValue + '.ogg'
   let voicePath = jpPath
-  
+
   if (locale.value === 'zh-CN') {
     // 只有简体中文优先尝试使用中文语音
     voicePath = lobby.path + 'zh-CN/' + event.stringValue + '.ogg'
@@ -697,7 +697,13 @@ const skipStartIdle = () => {
 const handleBoneClick = (event) => {
   // 检查动画是否可以交互，添加摸头状态检查
   // 允许在摸头结束阶段（isLongPress为false）进行交互
-  if (!animation || !animation.state || !animationReady || talking || (ifPetting.value && isLongPress)) {
+  if (
+    !animation ||
+    !animation.state ||
+    !animationReady ||
+    talking ||
+    (ifPetting.value && isLongPress)
+  ) {
     return
   }
 
@@ -1059,10 +1065,10 @@ const playPatAnimation = () => {
 // 摸头期间随机播放 Pat_02_M
 const startPatRandomLoop = () => {
   if (patTimer) clearTimeout(patTimer)
-  
+
   // 随机时间 5-15秒 (平均10秒)
   const delay = 5000 + Math.random() * 10000
-  
+
   patTimer = setTimeout(() => {
     if (ifPetting.value && animation && animation.state && animationReady) {
       try {

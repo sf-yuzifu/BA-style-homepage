@@ -15,7 +15,7 @@ function getEffectConfig() {
   const viewportWidth = window.innerWidth
   const baseWidth = 1600
   const scale = viewportWidth / baseWidth
-  
+
   return {
     radius: 25 * Math.max(1, scale),
     duration: 800,
@@ -84,7 +84,7 @@ const handleBodyMouseOver = (event) => {
 class ClickEffect {
   constructor(x, y) {
     const config = getEffectConfig()
-    
+
     this.x = x
     this.y = y
     this.startTime = Date.now()
@@ -92,18 +92,18 @@ class ClickEffect {
     this.rotation1 = Math.random() * Math.PI * 2
     this.rotation2 = Math.random() * Math.PI * 2
     this.radius = config.radius
-    
+
     this.triangles = []
     this.createTriangles(config)
   }
 
   createTriangles(config) {
     const triangleCount = 3 + Math.floor(Math.random() * 4)
-    
+
     for (let i = 0; i < triangleCount; i++) {
       const angle = Math.random() * Math.PI * 2
       const delay = Math.random() * config.delayMax
-      
+
       this.triangles.push({
         angle: angle,
         delay: delay,
@@ -119,37 +119,37 @@ class ClickEffect {
     const config = getEffectConfig()
     const elapsed = currentTime - this.startTime
     const progress = Math.min(elapsed / this.duration, 1)
-    
+
     ctx.save()
     ctx.translate(this.x, this.y)
-    
+
     const scale = 1 + progress * 0.3
     const alpha = Math.pow(1 - progress, 1.5)
     const currentRadius = this.radius + config.outerRadiusOffset + progress * config.radiusGrowth
-    
+
     ctx.globalAlpha = alpha
     ctx.scale(scale, scale)
-    
+
     this.drawOuterCircle(ctx, alpha, currentRadius, config)
     this.drawArcTails(ctx, progress, currentRadius, config)
     this.drawTriangles(ctx, elapsed, config)
-    
+
     ctx.restore()
-    
+
     return progress < 1
   }
 
   drawOuterCircle(ctx, alpha, currentRadius, config) {
     const centerRadius = currentRadius + config.outerRadiusOffset
-    
+
     ctx.beginPath()
     ctx.arc(0, 0, centerRadius, 0, Math.PI * 2)
-    
+
     const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, centerRadius)
     gradient.addColorStop(0, `rgba(195, 235, 255, ${alpha * 0.8})`)
     gradient.addColorStop(0.7, `rgba(195, 235, 255, ${alpha * 0.4})`)
     gradient.addColorStop(1, `rgba(195, 235, 255, 0)`)
-    
+
     ctx.fillStyle = gradient
     ctx.shadowColor = '#c3ebff'
     ctx.shadowBlur = config.shadowBlur
@@ -159,93 +159,96 @@ class ClickEffect {
 
   drawArcTails(ctx, progress, currentRadius, config) {
     if (progress < 0.3) return
-    
+
     const tailProgress = (progress - 0.3) / 0.7
-    
+
     ctx.save()
     ctx.globalAlpha = Math.max(0, 1 - progress * 1.2)
-    
+
     const tail1Angle = this.rotation1 - tailProgress * 2
     const tail2Angle = this.rotation2 + Math.PI - tailProgress * 2
-    
+
     for (let i = 0; i < 8; i++) {
       const offset = i * config.offset
       const alpha = (1 - progress) * (1 - i * 0.12)
-      
+
       ctx.save()
       ctx.globalAlpha = alpha
       ctx.strokeStyle = '#77deff'
       ctx.lineWidth = Math.max(1, 3 - i * 0.3)
       ctx.lineCap = 'round'
-      
+
       ctx.shadowColor = '#77deff'
       ctx.shadowBlur = config.tailShadowBlur - i
-      
-      const startAngle = tail1Angle - (offset * Math.PI / 180)
-      const endAngle = tail1Angle + Math.PI * 0.6 - (offset * Math.PI / 180)
+
+      const startAngle = tail1Angle - (offset * Math.PI) / 180
+      const endAngle = tail1Angle + Math.PI * 0.6 - (offset * Math.PI) / 180
       ctx.beginPath()
       ctx.arc(0, 0, currentRadius, startAngle, endAngle)
       ctx.stroke()
-      
+
       ctx.restore()
     }
-    
+
     for (let i = 0; i < 8; i++) {
       const offset = i * config.offset
       const alpha = (1 - progress) * (1 - i * 0.12)
-      
+
       ctx.save()
       ctx.globalAlpha = alpha
       ctx.strokeStyle = '#ffffff'
       ctx.lineWidth = Math.max(1, 3 - i * 0.3)
       ctx.lineCap = 'round'
-      
+
       ctx.shadowColor = '#ffffff'
       ctx.shadowBlur = config.tailShadowBlur - i
-      
-      const startAngle = tail2Angle - (offset * Math.PI / 180)
-      const endAngle = tail2Angle + Math.PI * 0.4 - (offset * Math.PI / 180)
+
+      const startAngle = tail2Angle - (offset * Math.PI) / 180
+      const endAngle = tail2Angle + Math.PI * 0.4 - (offset * Math.PI) / 180
       ctx.beginPath()
       ctx.arc(0, 0, currentRadius, startAngle, endAngle)
       ctx.stroke()
-      
+
       ctx.restore()
     }
-    
+
     ctx.restore()
   }
 
   drawTriangles(ctx, elapsed, config) {
     this.triangles.forEach((triangle) => {
-      const triangleProgress = Math.max(0, (elapsed - triangle.delay) / (this.duration - triangle.delay))
-      
+      const triangleProgress = Math.max(
+        0,
+        (elapsed - triangle.delay) / (this.duration - triangle.delay)
+      )
+
       if (triangleProgress <= 0 || triangleProgress >= 1) return
-      
+
       const distance = triangle.speed * triangleProgress
       const size = triangle.size * (1 - triangleProgress * 0.8)
       const brightness = Math.sin(triangleProgress * Math.PI * 6) * 0.4 + 0.8
-      
+
       ctx.save()
       ctx.translate(
         Math.cos(triangle.angle) * (this.radius + distance),
         Math.sin(triangle.angle) * (this.radius + distance)
       )
-      
-      ctx.rotate(triangle.angle + elapsed * triangle.rotationSpeed / 1000)
-      
+
+      ctx.rotate(triangle.angle + (elapsed * triangle.rotationSpeed) / 1000)
+
       ctx.globalAlpha = 1 - triangleProgress
-      
+
       ctx.fillStyle = triangle.color
       ctx.shadowColor = triangle.color
       ctx.shadowBlur = config.shadowBlur
-      
+
       ctx.beginPath()
       ctx.moveTo(0, -size)
       ctx.lineTo(size * 0.866, size * 0.5)
       ctx.lineTo(-size * 0.866, size * 0.5)
       ctx.closePath()
       ctx.fill()
-      
+
       ctx.globalCompositeOperation = 'lighter'
       ctx.fillStyle = triangle.color
       ctx.globalAlpha = brightness * 0.3
@@ -257,7 +260,7 @@ class ClickEffect {
       ctx.lineTo(-size * 0.693, size * 0.4)
       ctx.closePath()
       ctx.fill()
-      
+
       ctx.restore()
     })
   }
@@ -269,11 +272,11 @@ function initCanvas() {
 
   const width = window.innerWidth
   const height = window.innerHeight
-  
+
   // 设置Canvas的实际像素尺寸
   canvas.value.width = width
   canvas.value.height = height
-  
+
   ctx = canvas.value.getContext('2d')
   // 重置变换矩阵，然后应用设备像素比缩放
   ctx.setTransform(1, 0, 0, 1, 0, 0)
@@ -281,18 +284,18 @@ function initCanvas() {
 
 function animate() {
   if (!ctx) return
-  
+
   const currentTime = Date.now()
-  
+
   ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
-  
+
   for (let i = effects.length - 1; i >= 0; i--) {
     const effect = effects[i]
     if (!effect.draw(ctx, currentTime)) {
       effects.splice(i, 1)
     }
   }
-  
+
   if (effects.length > 0 || animationId) {
     animationId = requestAnimationFrame(animate)
   } else {
@@ -304,9 +307,9 @@ function handleClickEvent(event) {
   const rect = canvas.value.getBoundingClientRect()
   const x = event.clientX - rect.left
   const y = event.clientY - rect.top
-  
+
   effects.push(new ClickEffect(x, y))
-  
+
   if (!animationId) {
     animationId = requestAnimationFrame(animate)
   }
@@ -314,13 +317,13 @@ function handleClickEvent(event) {
 
 function handleResize() {
   initCanvas()
-  
+
   // 在窗口大小变化时清理正在进行的动画
   if (animationId) {
     cancelAnimationFrame(animationId)
     animationId = null
   }
-  
+
   // 清理所有效果，重新开始动画循环
   effects.length = 0
 }
@@ -362,17 +365,13 @@ onUnmounted(() => {
   >
     <div class="inner"></div>
   </div>
-  <canvas
-    ref="canvas"
-    class="click-canvas"
-  ></canvas>
+  <canvas ref="canvas" class="click-canvas"></canvas>
 </template>
 
 <style>
 * {
   cursor: none !important;
 }
-
 </style>
 
 <style scoped>

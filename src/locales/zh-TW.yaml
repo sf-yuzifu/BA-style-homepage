@@ -52,7 +52,6 @@ memorialLobbies:
   - name: Aris
   - name: Hina_swimsuit
 
-
 # Aris(Battle)角色的語音對話翻譯
 memorialLobbies[0]:
   voice:

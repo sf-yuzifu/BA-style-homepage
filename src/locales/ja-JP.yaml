@@ -14,10 +14,10 @@ keywords: 'ブルーアーカイブ, ゆづふ, 個人ホームページ'
 manifest:
   # PWAアプリケーション完全名
   name: フィッシュアーカイブ
-  
+
   # PWAアプリケーション短名 - デスクトップ表示に使用
   short_name: フィッシュアーカイブ
-  
+
   # PWAアプリケーション説明
   description: ブルーアーカイブスタイルの個人ホームページ
 
@@ -52,7 +52,6 @@ memorialLobbies:
   - name: アリス
   - name: ヒナ（水着）
 
-
 # Aris(Battle)
 memorialLobbies[0]:
   voice:
@@ -82,16 +81,16 @@ memorialLobbies[1]:
 # ヒナ水着版キャラクター音声対話翻訳
 memorialLobbies[2]:
   voice:
-      CH0063_MemorialLobby_1_1: 何でみんな、そんなに海が好きなんだろう……って、いつもそう思ってた。
-      CH0063_MemorialLobby_1_2: みんなは楽しそうだけど、私はどうしても好きになれなくて…
-      CH0063_MemorialLobby_2_1: 水の中はよく見えないし、足が付がないと不安だし……
-      CH0063_MemorialLobby_2_2: 先生も、そう思ったことない？
-      CH0063_MemorialLobby_3_1: 特に夜の海は、まるで暗闇みたいに不気味で……
-      CH0063_MemorialLobby_3_2: 見てるだけで吸い込まれそうで、好きになれなかったけど……
-      CH0063_MemorialLobby_4_1: でも……今は、みんなの気持ちが少しだけ分かった気がする。
-      CH0063_MemorialLobby_4_2: 海って、こんなに綺麗だったのね。
-      CH0063_MemorialLobby_5_1: 不思議……今まで、こんな風に思ったことなかったのに。
-      CH0063_MemorialLobby_5_2: ありがとう，先生。一緒にいてくれて…… 色んなことを，教えてくれて。
+    CH0063_MemorialLobby_1_1: 何でみんな、そんなに海が好きなんだろう……って、いつもそう思ってた。
+    CH0063_MemorialLobby_1_2: みんなは楽しそうだけど、私はどうしても好きになれなくて…
+    CH0063_MemorialLobby_2_1: 水の中はよく見えないし、足が付がないと不安だし……
+    CH0063_MemorialLobby_2_2: 先生も、そう思ったことない？
+    CH0063_MemorialLobby_3_1: 特に夜の海は、まるで暗闇みたいに不気味で……
+    CH0063_MemorialLobby_3_2: 見てるだけで吸い込まれそうで、好きになれなかったけど……
+    CH0063_MemorialLobby_4_1: でも……今は、みんなの気持ちが少しだけ分かった気がする。
+    CH0063_MemorialLobby_4_2: 海って、こんなに綺麗だったのね。
+    CH0063_MemorialLobby_5_1: 不思議……今まで、こんな風に思ったことなかったのに。
+    CH0063_MemorialLobby_5_2: ありがとう，先生。一緒にいてくれて…… 色んなことを，教えてくれて。
 
 # 共通インターフェース翻訳文字列
 translate:

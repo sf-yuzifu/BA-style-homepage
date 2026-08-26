@@ -32,14 +32,14 @@ export async function initLive2D() {
         // 使用索引生成唯一的资源别名，避免覆盖
         const skeletonAlias = `skeleton_${lobby.name}_${index}`
         const atlasAlias = `atlas_${lobby.name}_${index}`
-        
+
         // 添加资源到PIXI资源管理器
         PIXI.Assets.add({ alias: skeletonAlias, src: lobby.path + lobby.skel })
         PIXI.Assets.add({ alias: atlasAlias, src: lobby.path + lobby.atlas })
 
         // 加载资源
         await PIXI.Assets.load([skeletonAlias, atlasAlias])
-        
+
         console.log(`Live2D资源加载完成: ${lobby.path} (别名: ${skeletonAlias}, ${atlasAlias})`)
       } catch (error) {
         console.error(`Live2D资源加载失败: ${lobby.path}`, error)
