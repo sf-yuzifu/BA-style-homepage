@@ -1,5 +1,6 @@
 <script setup>
 import { Modal } from '@arco-design/web-vue'
+import { IconInfoCircle } from '@arco-design/web-vue/es/icon'
 import { h, ref, computed } from 'vue'
 
 import { useConfig } from '@/composables/useConfig'

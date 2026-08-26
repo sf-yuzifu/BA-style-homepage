@@ -1,5 +1,10 @@
 import './assets/index.css'
-import '@arco-design/web-vue/dist/arco.css'
+// 按需引入使用到的 Arco 组件样式（css.js 会自动带上基础样式）
+import '@arco-design/web-vue/es/button/style/css.js'
+import '@arco-design/web-vue/es/divider/style/css.js'
+import '@arco-design/web-vue/es/progress/style/css.js'
+import '@arco-design/web-vue/es/trigger/style/css.js'
+import '@arco-design/web-vue/es/modal/style/css.js'
 
 import { initApp } from '@/init/app'
 import { initPWA } from '@/init/pwa'

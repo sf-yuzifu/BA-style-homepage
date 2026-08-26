@@ -1,13 +1,16 @@
 import { createApp } from 'vue'
-import ArcoVue from '@arco-design/web-vue'
-import ArcoVueIcon from '@arco-design/web-vue/es/icon'
+// 按需引入使用到的 Arco 组件，避免全量注册产生过大 chunk
+import { Button, Divider, Modal, Progress, Trigger } from '@arco-design/web-vue'
 import App from '@/App.vue'
 import router from '@/router'
 
 export function initApp() {
   const app = createApp(App)
-  app.use(ArcoVue)
-  app.use(ArcoVueIcon)
+  app.use(Button)
+  app.use(Divider)
+  app.use(Progress)
+  app.use(Trigger)
+  app.use(Modal)
   app.use(router)
   app.mount('#app')
 

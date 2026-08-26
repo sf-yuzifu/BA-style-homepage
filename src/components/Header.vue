@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { navigateWithCurtain } from '@/init/links.js'
 import { Icon } from '@arco-design/web-vue'
+import { IconArrowLeft } from '@arco-design/web-vue/es/icon'
 
 import { useConfig } from '@/composables/useConfig'
 import { useAp } from '@/composables/useAp'
