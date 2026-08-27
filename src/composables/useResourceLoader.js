@@ -47,7 +47,6 @@ export function useResourceLoader() {
       status: 'pending', // pending, loading, loaded, error
       startTime: null,
       endTime: null,
-      size: null,
       error: null
     })
 
@@ -71,14 +70,10 @@ export function useResourceLoader() {
     try {
       if (resource.type === 'font') {
         await loadFont(resource)
-      } else if (resource.type === 'image') {
-        await loadImage(resource)
-      } else if (resource.type === 'config') {
-        await loadConfig(resource)
       } else if (resource.type === 'live2d') {
         await loadLive2D(resource)
       } else {
-        await loadGeneric(resource)
+        console.warn(`未知资源类型: ${resource.type}，跳过实际加载`)
       }
 
       // 记录结束时间
@@ -112,10 +107,7 @@ export function useResourceLoader() {
   const getMinLoadTime = (type) => {
     const baseTimes = {
       font: 10, // 字体：10ms
-      config: 10, // 配置：10ms
-      live2d: 10, // Live2D：10ms
-      image: 10, // 图片：10ms
-      generic: 10 // 通用：10ms
+      live2d: 10 // Live2D：10ms
     }
 
     return baseTimes[type] || 10
@@ -139,45 +131,10 @@ export function useResourceLoader() {
     }
   }
 
-  // 加载图片
-  const loadImage = async (resource) => {
-    return new Promise((resolve, reject) => {
-      const img = new Image()
-      img.onload = () => {
-        resource.size = img.naturalWidth + 'x' + img.naturalHeight
-        resolve()
-      }
-      img.onerror = () => reject(new Error(`图片加载失败: ${resource.url}`))
-      img.src = resource.url
-    })
-  }
-
-  // 加载配置
-  const loadConfig = async (resource) => {
-    const response = await fetch(resource.url)
-    if (!response.ok) {
-      throw new Error(`配置加载失败: ${response.status}`)
-    }
-
-    const yamlText = await response.text()
-    // 使用js-yaml解析YAML
-    const yaml = await import('js-yaml')
-    return yaml.load(yamlText)
-  }
-
   // 加载Live2D资源（实际加载在 init/live2d.js 中进行，这里等待共享 Promise 完成）
   const loadLive2D = async (resource) => {
     console.log(`Live2D资源准备就绪: ${resource.id}`)
     await live2dReady
-  }
-
-  // 通用加载
-  const loadGeneric = async (resource) => {
-    const response = await fetch(resource.url)
-    if (!response.ok) {
-      throw new Error(`资源加载失败: ${response.status}`)
-    }
-    return response
   }
 
   // 开始批量加载（并行加载，进度由 loadedCount 响应式更新，界面平滑动画由 useLoading 负责）

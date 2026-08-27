@@ -115,9 +115,6 @@ export function useLoading() {
     // 添加字体加载任务
     resourceLoader.addResource('fonts_ready', '', 'font')
 
-    // 添加配置资源
-    resourceLoader.addResource('config_main', '/_config.yaml', 'config')
-
     // 添加Live2D资源（根据实际配置动态添加）
     if (config.memorialLobbies && Array.isArray(config.memorialLobbies)) {
       config.memorialLobbies.forEach((lobby, index) => {
@@ -132,7 +129,6 @@ export function useLoading() {
     // 等待字体加载完成
     await loadFonts()
 
-    // 等待配置资源加载完成后再初始化Live2D
     // 等待Live2D加载完成
     await initLive2D()
 
