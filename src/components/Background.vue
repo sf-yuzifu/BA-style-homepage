@@ -1125,7 +1125,11 @@ const handleHeadBoneFollow = (event) => {
   }
 
   // 计算实际的世界坐标X（主要关注左右移动）
-  const { x: worldX } = clientToWorld(event.clientX, event.clientY, l2d.view.getBoundingClientRect())
+  const { x: worldX } = clientToWorld(
+    event.clientX,
+    event.clientY,
+    l2d.view.getBoundingClientRect()
+  )
 
   // 获取头部旋转骨骼
   const headBone = animation.skeleton.findBone('Head_Rot')
@@ -1282,7 +1286,12 @@ watch(
   <div
     v-if="props.l2dOnly && canSkip"
     style="position: fixed; width: 100%; height: 100%; z-index: 2"
+    role="button"
+    tabindex="0"
+    :aria-label="currentConfig?.translate?.skipIntro"
     @click="skipStartIdle()"
+    @keydown.enter.prevent="skipStartIdle()"
+    @keydown.space.prevent="skipStartIdle()"
   ></div>
   <a-trigger
     v-if="showDialogue"

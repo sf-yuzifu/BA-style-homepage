@@ -11,8 +11,8 @@ const icpTitle = computed(() => configs.value?.icp?.title || '备案信息')
 
 <template>
   <div id="icp-container">
-    <img class="icp-bg" src="/img/bannerBG.png" alt="icp-bg" />
-    <img class="banner" src="/img/banner.png" alt="banner" />
+    <img class="icp-bg" src="/img/bannerBG.png" alt="" />
+    <img class="banner" src="/img/banner.png" alt="" />
     <div v-if="ifICP || ifGongan" class="icp-content">
       <span class="title" :data-text="icpTitle">{{ icpTitle }}</span>
       <div class="icp-links">

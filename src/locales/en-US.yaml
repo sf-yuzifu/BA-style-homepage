@@ -116,6 +116,8 @@ translate:
     - '<img width="100%" src="https://card.yuy1n.io/card/76561198886449751/dark,en,badge,group">'
   prevPage: Previous
   nextPage: Next
+  skipIntro: Skip intro
+  carouselPage: Page {n}
 
 bio:
   bth:

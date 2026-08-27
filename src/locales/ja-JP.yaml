@@ -117,6 +117,8 @@ translate:
     - '<img width="100%" src="https://card.yuy1n.io/card/76561198886449751/dark,en,badge,group">'
   prevPage: 前へ
   nextPage: 次へ
+  skipIntro: オープニングをスキップ
+  carouselPage: '{n} ページ目'
 
 bio:
   bth:

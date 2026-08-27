@@ -1,8 +1,15 @@
 * {
   margin: 0;
   padding: 0;
+}
+
+/* 仅装饰/交互元素禁止选择文本（Arco 组件自带 user-select: none），
+   正文内容（如 Bio 页自我介绍）保持可选中复制 */
+img,
+canvas,
+[role='button'] {
+  -webkit-user-select: none;
   user-select: none;
-  --webkit-user-select: none;
 }
 
 :root {

@@ -115,6 +115,8 @@ translate:
     - '<img width="100%" src="https://card.yuy1n.io/card/76561198886449751/dark,zh,badge,group">'
   prevPage: 上一页
   nextPage: 下一页
+  skipIntro: 跳过开场动画
+  carouselPage: 第 {n} 页
 
 bio:
   bth:

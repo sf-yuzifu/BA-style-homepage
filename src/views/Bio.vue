@@ -53,6 +53,7 @@ const openImageDialog = (btn) => {
     content: () =>
       h('img', {
         src: btn.path,
+        alt: btn.name,
         style: {
           width: '100%'
         }
@@ -99,6 +100,10 @@ const goToSlide = (index) => {
   })
 }
 
+// 轮播圆点的无障碍标签（i18n，{n} 占位符替换为页码）
+const slideLabel = (index) =>
+  (translate.value.carouselPage || 'Page {n}').replace('{n}', String(index + 1))
+
 onMounted(() => {
   // 监听 carousel 滚动
   if (carouselWrapper.value) {
@@ -123,8 +128,18 @@ onUnmounted(() => {
     <div class="bio-container">
       <!-- Carousel 指示器 (移动端: 圆点, 电脑端: 箭头) -->
       <div class="carousel-dots">
-        <div class="dot" :class="{ active: currentSlide === 0 }" @click="goToSlide(0)"></div>
-        <div class="dot" :class="{ active: currentSlide === 1 }" @click="goToSlide(1)"></div>
+        <div
+          v-for="index in 2"
+          :key="index - 1"
+          class="dot"
+          :class="{ active: currentSlide === index - 1 }"
+          role="button"
+          tabindex="0"
+          :aria-label="slideLabel(index - 1)"
+          @click="goToSlide(index - 1)"
+          @keydown.enter.prevent="goToSlide(index - 1)"
+          @keydown.space.prevent="goToSlide(index - 1)"
+        ></div>
       </div>
 
       <!-- 电脑端箭头导航 -->
@@ -133,14 +148,24 @@ onUnmounted(() => {
           src="/l2d/arrow.png"
           class="arrow arrow-left css-cursor-hover-enabled"
           :class="{ disabled: currentSlide === 0 }"
+          role="button"
+          tabindex="0"
+          :aria-disabled="currentSlide === 0"
           @click="goToSlide(0)"
+          @keydown.enter.prevent="goToSlide(0)"
+          @keydown.space.prevent="goToSlide(0)"
           :alt="translate.prevPage || ''"
         />
         <img
           src="/l2d/arrow.png"
           class="arrow arrow-right css-cursor-hover-enabled"
           :class="{ disabled: currentSlide === 1 }"
+          role="button"
+          tabindex="0"
+          :aria-disabled="currentSlide === 1"
           @click="goToSlide(1)"
+          @keydown.enter.prevent="goToSlide(1)"
+          @keydown.space.prevent="goToSlide(1)"
           :alt="translate.nextPage || ''"
         />
       </div>
