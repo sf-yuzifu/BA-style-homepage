@@ -106,6 +106,9 @@ export default defineConfig({
       registerType: 'prompt',
       injectRegister: 'auto',
       workbox: {
+        // SPA 导航回退（navigateFallback 默认为 index.html）不拦截静态资源直链：
+        // URL 带文件扩展名时不返回 index.html，直接走网络，避免图片/媒体/CSS 直链被回退成首页
+        navigateFallbackDenylist: [/\.[a-zA-Z0-9]{1,10}(\?.*)?$/],
         runtimeCaching: [
           // 动态接口（音乐信息等）：网络优先，超时或失败时回退缓存，最长保留 1 天
           {
@@ -139,9 +142,11 @@ export default defineConfig({
             }
           },
           // 静态资源（Live2D 骨骼/图集/贴图/语音、图片、视频、字体）：缓存优先
+          // 只匹配本站资源目录与根目录文件，避免拦截第三方站点的同名资源
           // 注意：带查询串的请求（如网易云音频流）不匹配此规则，直接走网络
           {
-            urlPattern: /\.(?:png|jpe?g|webp|gif|svg|skel|atlas|ogg|webm|woff2?|cur)$/i,
+            urlPattern:
+              /^https?:\/\/[^/]+\/(?:(?:assets|img|l2d|shitim|cursors)\/[^?#]+|[^/?#]+)\.(?:png|jpe?g|webp|gif|svg|skel|atlas|ogg|webm|woff2?|cur)$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'static-assets-cache',
