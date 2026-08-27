@@ -85,14 +85,6 @@ onMounted(async () => {
     app.ticker.addOnce(() => {
       if (!spine) return
 
-      // 获取 spine 的边界框
-      const bounds = spine.getBounds()
-      const spineWidth = bounds.width
-      const spineHeight = bounds.height
-
-      spine.width = spineWidth
-      spine.height = spineHeight
-
       // 设置缩放
       spine.scale.set(0.85) // 稍微留一点边距
 

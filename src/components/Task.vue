@@ -17,6 +17,12 @@ const bg = ref(false)
 
 const props = defineProps(['l2dOnly'])
 
+// 转场时序（毫秒）
+const CURTAIN_OPEN_DELAY = 700 // 开场视频开始播放后，幕布拉开的延迟
+const PAGE_OPEN_DELAY = 300 // 幕布拉开后打开目标页面的延迟
+// 幕布随机停留时长：1000 或 1250
+const randomCurtainDuration = () => Math.floor(Math.random() * 2 + 4) * 250
+
 const skip = () => {
   bg.value = true
   setTimeout(() => {
@@ -26,15 +32,12 @@ const skip = () => {
       if (href && href !== '#') {
         window.open(href)
       }
-    }, 300)
-    setTimeout(
-      () => {
-        bg.value = false
-        curtain.value = false
-      },
-      Math.floor(Math.random() * 2 + 4) * 250
-    )
-  }, 700)
+    }, PAGE_OPEN_DELAY)
+    setTimeout(() => {
+      bg.value = false
+      curtain.value = false
+    }, randomCurtainDuration())
+  }, CURTAIN_OPEN_DELAY)
 }
 </script>
 

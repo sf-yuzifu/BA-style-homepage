@@ -6,6 +6,8 @@ const ap = ref(0)
 const lastUpdateTime = ref(Date.now())
 let intervalId = null
 
+const DAY_MS = 24 * 60 * 60 * 1000 // 一天的毫秒数
+
 export function useAp() {
   const { configs } = useConfig()
 
@@ -22,7 +24,7 @@ export function useAp() {
       `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()} 00:00:00`
     ).getTime()
     const elapsed = now - dayStart
-    const dayProgress = elapsed / 86400000
+    const dayProgress = elapsed / DAY_MS
     return Math.max(0, max - Math.trunc(max * dayProgress))
   }
 

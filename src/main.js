@@ -40,8 +40,7 @@ async function startApp() {
     // 这样可以确保加载顺序正确
   } catch (error) {
     console.error('应用初始化失败:', error)
-    // 设置默认标题
-    document.title = '个人主页'
+    // 页面标题由 router 的 afterEach 守卫统一兜底（i18n 感知），此处不再设置
   }
 }
 

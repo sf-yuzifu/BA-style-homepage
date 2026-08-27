@@ -14,11 +14,11 @@ const dockSites = computed(() => {
   return currentConfig.value.dock
 })
 
-const time = ref(new Date().getHours() + ':' + new Date().getMinutes())
-
 const addZero = (time) => {
   return time < 10 ? '0' + time : time
 }
+
+const time = ref(addZero(new Date().getHours()) + ':' + addZero(new Date().getMinutes()))
 
 const timeTimer = setInterval(() => {
   time.value = addZero(new Date().getHours()) + ':' + addZero(new Date().getMinutes())

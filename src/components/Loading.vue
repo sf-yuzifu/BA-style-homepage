@@ -3,22 +3,20 @@ import { ref, onUnmounted } from 'vue'
 
 const props = defineProps(['percent'])
 
-const imgUrl = ref('https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar2.b84283e9.png')
 const imgList = [
   'https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar1.c18ce793.png',
   'https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar2.b84283e9.png',
   'https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar3.c9d108f1.png',
   'https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar4.8656c817.png'
 ]
+const imgUrl = ref(imgList[0])
 
 document.oncontextmenu = function () {
   return false
 }
-let a = 0
-imgUrl.value = imgList[a % 4]
-a++
+let a = 1
 const imgTimer = setInterval(() => {
-  imgUrl.value = imgList[a % 4]
+  imgUrl.value = imgList[a % imgList.length]
   a++
 }, 2000)
 
@@ -91,9 +89,6 @@ img {
   background-size: cover;
   overflow: hidden;
   z-index: 99;
-}
-
-.loading_wrapper {
   position: absolute;
   top: 0;
   left: 0;

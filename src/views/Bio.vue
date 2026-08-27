@@ -43,17 +43,9 @@ const bioButtons = computed(() => {
   return bioConfig.value?.bth || []
 })
 
-// Dialog 状态
-const dialogVisible = ref(false)
-const currentImage = ref('')
-const currentImageName = ref('')
-
-// 打开图片 Dialog
+// 打开图片 Dialog（命令式 Modal，无需响应式状态）
 const openImageDialog = (btn) => {
   if (!btn.path) return
-  currentImage.value = btn.path
-  currentImageName.value = btn.name
-  dialogVisible.value = true
 
   Modal.open({
     title: btn.name,
@@ -108,7 +100,6 @@ const goToSlide = (index) => {
 }
 
 onMounted(() => {
-  window.addEventListener('resize', updateWidth)
   // 监听 carousel 滚动
   if (carouselWrapper.value) {
     carouselWrapper.value.addEventListener('scroll', updateCurrentSlide)
@@ -116,7 +107,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', updateWidth)
   if (carouselWrapper.value) {
     carouselWrapper.value.removeEventListener('scroll', updateCurrentSlide)
   }
@@ -190,6 +180,8 @@ onUnmounted(() => {
             </div>
             <div class="intro-content">
               <div class="content">
+                <!-- v-html 渲染的是仓库内受信任的 YAML 配置（translate.bioContent），
+                     仅项目维护者可修改；切勿改为渲染外部输入（XSS 风险） -->
                 <p v-for="(item, index) in translate.bioContent" :key="index" v-html="item"></p>
               </div>
             </div>

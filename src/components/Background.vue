@@ -22,12 +22,33 @@ let modalRef
 let originalOffsetPercent = 70 // 默认值，等待配置加载后更新
 
 // 长按相关变量
+const LONG_PRESS_THRESHOLD = 500 // 长按阈值（毫秒）
 let longPressTimer = null
-let longPressThreshold = 500 // 长按阈值（毫秒）
 let isLongPress = false
 let patTimer = null // 摸头随机动作定时器
 let canvasRetryTimer = null // canvas添加重试定时器
 let isComponentUnmounted = false // 组件卸载标记，用于停止重试
+
+// 骨骼交互检测半径
+const BONE_HIT_RADIUS = 100 // 悬停/点击/摸头的命中半径
+const BONE_HIT_FALLBACK_RADIUS = 60 // 点击未命中骨骼时的宽松重试半径
+
+// 摸头期间随机动作的间隔范围（毫秒）：5~15 秒
+const PAT_RANDOM_MIN_DELAY = 5000
+const PAT_RANDOM_DELAY_SPAN = 10000
+
+// 脸部（头部）骨骼名单：摸头判定与骨骼状态保存/恢复共用
+const FACE_BONE_NAMES = [
+  'Head_Rot',
+  'face',
+  'Neck_01',
+  'R_Eyebrows_default',
+  'L_Eyebrows_default',
+  'R_eye_default_1',
+  'L_eye_default_1',
+  'nose',
+  'mouth_1'
+]
 
 const dialogue = ref('')
 const showDialogue = ref(false)
@@ -71,6 +92,23 @@ const l2d = new PIXI.Application({
   height: 1440,
   backgroundAlpha: 0
 })
+
+// 不参与交互的骨骼（根骨骼/椅子/背景/灯光）
+const isNonInteractiveBone = (boneName) =>
+  boneName === 'root' ||
+  boneName.startsWith('chair') ||
+  boneName.startsWith('Back_') ||
+  boneName.startsWith('Light')
+
+// 将 client 坐标按 canvas 缩放/偏移换算为 Live2D 世界坐标
+const clientToWorld = (clientX, clientY, rect) => {
+  const scaleX = rect.width / l2d.screen.width
+  const scaleY = rect.height / l2d.screen.height
+  return {
+    x: (clientX - rect.left) / scaleX - animation.x,
+    y: (clientY - rect.top) / scaleY - animation.y
+  }
+}
 
 // 安全地将canvas添加到background div中的函数
 const addCanvasToBackground = () => {
@@ -455,17 +493,9 @@ const processBoneHover = (event) => {
   if (!cachedViewRect) {
     cachedViewRect = l2d.view.getBoundingClientRect()
   }
-  const rect = cachedViewRect
-  const canvasX = event.clientX - rect.left
-  const canvasY = event.clientY - rect.top
-
-  // 计算canvas的缩放比例
-  const scaleX = rect.width / l2d.screen.width
-  const scaleY = rect.height / l2d.screen.height
 
   // 计算实际的世界坐标
-  const worldX = canvasX / scaleX - animation.x
-  const worldY = canvasY / scaleY - animation.y
+  const { x: worldX, y: worldY } = clientToWorld(event.clientX, event.clientY, cachedViewRect)
 
   // 检测是否悬停在可交互骨骼上
   let isHovering = false
@@ -473,21 +503,15 @@ const processBoneHover = (event) => {
 
   for (let i = skeleton.bones.length - 1; i >= 0; i--) {
     const bone = skeleton.bones[i]
-    if (
-      bone.data.name === 'root' ||
-      bone.data.name.startsWith('chair') ||
-      bone.data.name.startsWith('Back_') ||
-      bone.data.name.startsWith('Light')
-    ) {
+    if (isNonInteractiveBone(bone.data.name)) {
       continue // 跳过不需要交互的骨骼
     }
 
     const boneX = bone.worldX
     const boneY = bone.worldY
-    const radius = 100 // 悬停检测半径
     const distance = Math.sqrt((worldX - boneX) ** 2 + (worldY - boneY) ** 2)
 
-    if (distance < radius) {
+    if (distance < BONE_HIT_RADIUS) {
       isHovering = true
       break
     }
@@ -775,20 +799,12 @@ const handleBoneClick = (event) => {
     return
   }
 
-  // 获取点击位置
-  const rect = l2d.view.getBoundingClientRect()
-
-  // 计算相对于canvas的坐标
-  const canvasX = event.clientX - rect.left
-  const canvasY = event.clientY - rect.top
-
-  // 计算canvas的缩放比例
-  const scaleX = rect.width / l2d.screen.width
-  const scaleY = rect.height / l2d.screen.height
-
   // 计算实际的世界坐标
-  const worldX = canvasX / scaleX - animation.x
-  const worldY = canvasY / scaleY - animation.y
+  const { x: worldX, y: worldY } = clientToWorld(
+    event.clientX,
+    event.clientY,
+    l2d.view.getBoundingClientRect()
+  )
 
   // 检测点击的骨骼
   const hitBones = []
@@ -797,21 +813,15 @@ const handleBoneClick = (event) => {
   // 遍历所有骨骼，找到被点击的骨骼
   for (let i = skeleton.bones.length - 1; i >= 0; i--) {
     const bone = skeleton.bones[i]
-    if (
-      bone.data.name === 'root' ||
-      bone.data.name.startsWith('chair') ||
-      bone.data.name.startsWith('Back_') ||
-      bone.data.name.startsWith('Light')
-    ) {
+    if (isNonInteractiveBone(bone.data.name)) {
       continue // 跳过不需要交互的骨骼
     }
 
     const boneX = bone.worldX
     const boneY = bone.worldY
-    const radius = 100 // 点击检测半径
     const distance = Math.sqrt((worldX - boneX) ** 2 + (worldY - boneY) ** 2)
 
-    if (distance < radius) {
+    if (distance < BONE_HIT_RADIUS) {
       hitBones.push({ name: bone.data.name, distance: distance })
     }
   }
@@ -823,16 +833,10 @@ const handleBoneClick = (event) => {
     const clickedBone = hitBones[0].name
     triggerInteractionByBone(clickedBone)
   } else {
-    // 使用更大的检测半径重新检测
-    const largerRadius = 60
+    // 使用更宽松的检测半径重新检测
     for (let i = skeleton.bones.length - 1; i >= 0; i--) {
       const bone = skeleton.bones[i]
-      if (
-        bone.data.name === 'root' ||
-        bone.data.name.startsWith('chair') ||
-        bone.data.name.startsWith('Back_') ||
-        bone.data.name.startsWith('Light')
-      ) {
+      if (isNonInteractiveBone(bone.data.name)) {
         continue
       }
 
@@ -840,7 +844,7 @@ const handleBoneClick = (event) => {
       const boneY = bone.worldY
       const distance = Math.sqrt((worldX - boneX) ** 2 + (worldY - boneY) ** 2)
 
-      if (distance < largerRadius) {
+      if (distance < BONE_HIT_FALLBACK_RADIUS) {
         triggerInteractionByBone(bone.data.name)
         break
       }
@@ -859,9 +863,6 @@ const startLongPressTimer = (event) => {
   // 重置状态
   isLongPress = false
 
-  // 保存事件对象，以便在长按触发时使用
-  startLongPressTimer._lastEvent = event
-
   // 启动长按计时器
   longPressTimer = setTimeout(() => {
     isLongPress = true
@@ -870,20 +871,17 @@ const startLongPressTimer = (event) => {
       return
     }
 
-    // 检查是否点击到脸部相关骨骼
-    const rect = l2d.view.getBoundingClientRect()
-    const canvasX = event.clientX - rect.left
-    const canvasY = event.clientY - rect.top
-    const scaleX = rect.width / l2d.screen.width
-    const scaleY = rect.height / l2d.screen.height
-    const worldX = canvasX / scaleX - animation.x
-    const worldY = canvasY / scaleY - animation.y
+    // 计算世界坐标，检查是否点击到脸部骨骼
+    const { x: worldX, y: worldY } = clientToWorld(
+      event.clientX,
+      event.clientY,
+      l2d.view.getBoundingClientRect()
+    )
 
-    // 检查是否点击到脸部骨骼
     if (checkFaceBoneClick(worldX, worldY)) {
       playPatAnimation()
     }
-  }, longPressThreshold)
+  }, LONG_PRESS_THRESHOLD)
 }
 
 const cancelLongPressTimer = (event) => {
@@ -938,7 +936,6 @@ const cancelLongPressTimer = (event) => {
 
     // 重置状态
     isLongPress = false
-    delete startLongPressTimer._lastEvent
   }
 }
 
@@ -974,19 +971,6 @@ const handleTouchStart = (event) => {
 
 // 处理触摸移动事件，确保长按过程中移动也能保持长按状态
 const handleTouchMove = (event) => {
-  // 如果已经开始长按计时，保持长按状态
-  if (longPressTimer && !isLongPress) {
-    // 可以选择更新最后一个事件，以便在长按触发时使用最新的位置
-    if (event.touches.length > 0) {
-      const touchEvent = event.touches[0]
-      const mouseEvent = new MouseEvent('mousemove', {
-        clientX: touchEvent.clientX,
-        clientY: touchEvent.clientY
-      })
-      startLongPressTimer._lastEvent = mouseEvent
-    }
-  }
-
   // 如果正在摸头状态，让头部骨骼跟随鼠标移动
   if (ifPetting.value && isLongPress && animation && animation.skeleton && animationReady) {
     if (event.touches.length > 0) {
@@ -1018,27 +1002,13 @@ const checkFaceBoneClick = (x, y) => {
   }
 
   const skeleton = animation.skeleton
-  const faceBones = [
-    'Head_Rot',
-    'face',
-    'Neck_01',
-    'R_Eyebrows_default',
-    'L_Eyebrows_default',
-    'R_eye_default_1',
-    'L_eye_default_1',
-    'nose',
-    'mouth_1'
-  ]
-
-  // 使用更小的检测半径，提高精度
-  const radius = 100
 
   // 遍历所有骨骼，检查是否点击到脸部骨骼
   for (let i = skeleton.bones.length - 1; i >= 0; i--) {
     const bone = skeleton.bones[i]
 
     // 只检查脸部相关骨骼
-    if (!faceBones.includes(bone.data.name)) {
+    if (!FACE_BONE_NAMES.includes(bone.data.name)) {
       continue
     }
 
@@ -1046,7 +1016,7 @@ const checkFaceBoneClick = (x, y) => {
     const boneY = bone.worldY
     const distance = Math.sqrt((x - boneX) ** 2 + (y - boneY) ** 2)
 
-    if (distance < radius) {
+    if (distance < BONE_HIT_RADIUS) {
       return true
     }
   }
@@ -1129,7 +1099,7 @@ const startPatRandomLoop = () => {
   if (patTimer) clearTimeout(patTimer)
 
   // 随机时间 5-15秒 (平均10秒)
-  const delay = 5000 + Math.random() * 10000
+  const delay = PAT_RANDOM_MIN_DELAY + Math.random() * PAT_RANDOM_DELAY_SPAN
 
   patTimer = setTimeout(() => {
     if (ifPetting.value && animation && animation.state && animationReady) {
@@ -1154,15 +1124,8 @@ const handleHeadBoneFollow = (event) => {
     return
   }
 
-  // 获取鼠标位置
-  const rect = l2d.view.getBoundingClientRect()
-  const canvasX = event.clientX - rect.left
-
-  // 计算canvas的缩放比例
-  const scaleX = rect.width / l2d.screen.width
-
   // 计算实际的世界坐标X（主要关注左右移动）
-  const worldX = canvasX / scaleX - animation.x
+  const { x: worldX } = clientToWorld(event.clientX, event.clientY, l2d.view.getBoundingClientRect())
 
   // 获取头部旋转骨骼
   const headBone = animation.skeleton.findBone('Head_Rot')
@@ -1213,20 +1176,9 @@ const saveOriginalBoneStates = () => {
   }
 
   const skeleton = animation.skeleton
-  const headBones = [
-    'Head_Rot',
-    'face',
-    'Neck_01',
-    'R_Eyebrows_default',
-    'L_Eyebrows_default',
-    'R_eye_default_1',
-    'L_eye_default_1',
-    'nose',
-    'mouth_1'
-  ]
 
   // 保存每个头部骨骼的原始状态
-  headBones.forEach((boneName) => {
+  FACE_BONE_NAMES.forEach((boneName) => {
     const bone = skeleton.findBone(boneName)
     if (bone) {
       originalBoneStates.value[boneName] = {
