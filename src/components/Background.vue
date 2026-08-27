@@ -282,6 +282,36 @@ const doSetL2D = async (num) => {
     return
   }
 
+  const lobbies = currentConfig.value.memorialLobbies
+
+  // 先解析目标 id 并完成全部校验：通过前不触碰旧角色与任何交互状态，
+  // 否则传入非法 id/配置时旧角色已销毁、新角色不加载，页面只剩空 canvas
+  let newId
+  switch (num) {
+    case '-':
+      newId = id === 0 ? lobbies.length - 1 : id - 1
+      break
+    case '+':
+      newId = id === lobbies.length - 1 ? 0 : id + 1
+      break
+    default:
+      newId = num
+  }
+
+  if (newId < 0 || newId >= lobbies.length) {
+    return
+  }
+
+  const lobby = lobbies[newId]
+
+  // 检查必需的属性
+  if (!lobby.path || !lobby.skel || !lobby.atlas) {
+    return
+  }
+
+  // 校验全部通过，提交切换
+  id = newId
+
   canSkip.value = true
   emit('canskip', true)
   talking = false
@@ -297,30 +327,6 @@ const doSetL2D = async (num) => {
     l2d.stage.removeChild(animation)
     animation.destroy()
     animation = null
-  }
-
-  const lobbies = currentConfig.value.memorialLobbies
-
-  switch (num) {
-    case '-':
-      id = id === 0 ? lobbies.length - 1 : id - 1
-      break
-    case '+':
-      id = id === lobbies.length - 1 ? 0 : id + 1
-      break
-    default:
-      id = num
-  }
-
-  if (id < 0 || id >= lobbies.length) {
-    return
-  }
-
-  const lobby = lobbies[id]
-
-  // 检查必需的属性
-  if (!lobby.path || !lobby.skel || !lobby.atlas) {
-    return
   }
 
   dialogueDisplay.value.x =
