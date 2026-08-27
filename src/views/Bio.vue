@@ -274,7 +274,7 @@ onUnmounted(() => {
   height: 10px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
+  cursor: url('/cursors/link.cur'), pointer;
   transition: background 0.3s;
 }
 
@@ -311,7 +311,8 @@ onUnmounted(() => {
 
 .carousel-arrows .arrow.disabled {
   opacity: 0.3;
-  cursor: not-allowed;
+  /* !important 用于压过全局 .css-cursor-hover-enabled 的链接光标 */
+  cursor: url('/cursors/block.cur'), not-allowed !important;
 }
 
 @keyframes move {

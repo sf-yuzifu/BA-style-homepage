@@ -450,14 +450,11 @@ const handleBoneHover = (event) => {
     }
   }
 
-  // 更新光标状态
-  const cursorElement = document.querySelector('#cursor')
-  if (cursorElement) {
-    if (isHovering) {
-      cursorElement.classList.add('hover')
-    } else {
-      cursorElement.classList.remove('hover')
-    }
+  // 更新光标状态（为canvas添加悬停类以切换链接光标）
+  if (isHovering) {
+    l2d.view.classList.add('l2d-hover')
+  } else {
+    l2d.view.classList.remove('l2d-hover')
   }
 
   // 如果正在摸头状态，让头部骨骼跟随鼠标移动
@@ -892,9 +889,8 @@ const handleMouseUp = (event) => {
 // 处理鼠标离开canvas事件
 const handleMouseLeaveCanvas = () => {
   // 确保鼠标离开canvas时恢复光标状态
-  const cursorElement = document.querySelector('#cursor')
-  if (cursorElement) {
-    cursorElement.classList.remove('hover')
+  if (l2d.view) {
+    l2d.view.classList.remove('l2d-hover')
   }
 }
 

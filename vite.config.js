@@ -141,7 +141,7 @@ export default defineConfig({
           // 静态资源（Live2D 骨骼/图集/贴图/语音、图片、视频、字体）：缓存优先
           // 注意：带查询串的请求（如网易云音频流）不匹配此规则，直接走网络
           {
-            urlPattern: /\.(?:png|jpe?g|webp|gif|svg|skel|atlas|ogg|webm|woff2?)$/i,
+            urlPattern: /\.(?:png|jpe?g|webp|gif|svg|skel|atlas|ogg|webm|woff2?|cur)$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'static-assets-cache',

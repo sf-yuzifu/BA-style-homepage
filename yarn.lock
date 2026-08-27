@@ -2445,6 +2445,11 @@ b-validate@^1.5.3:
   resolved "https://registry.yarnpkg.com/b-validate/-/b-validate-1.5.3.tgz#f6ac83b70caccbabf1c2eee42a0739bd228f79e6"
   integrity sha512-iCvCkGFskbaYtfQ0a3GmcQCHl/Sv1GufXFGuUQ+FE+WJa7A/espLOuFIn09B944V8/ImPj71T4+rTASxO2PAuA==
 
+ba-click-fx@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.npmjs.org/ba-click-fx/-/ba-click-fx-1.3.1.tgz#5c313219d7e9b4bed9a731bcfc0753450c088d13"
+  integrity sha512-LnEE4zElhk6Gj8Sm5zt4lpxuVwIhZ1wzVMj4xG4GYzocM/ArtA4FL0MfXUHZilRFHeZZtm9/hZx6VJbxEr53aQ==
+
 babel-plugin-polyfill-corejs2@^0.4.14:
   version "0.4.14"
   resolved "https://registry.yarnpkg.com/babel-plugin-polyfill-corejs2/-/babel-plugin-polyfill-corejs2-0.4.14.tgz#8101b82b769c568835611542488d463395c2ef8f"

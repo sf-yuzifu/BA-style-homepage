@@ -48,6 +48,8 @@
 - [APlayer](https://aplayer.js.org/#/)
 - [howler.js](https://github.com/goldfire/howler.js)
 - [Resource Han Rounded CN](https://github.com/CyanoHao/Resource-Han-Rounded)
+- [ba-click-fx](https://github.com/CialloKing/ba-click-fx)
+- [BlueArchive-Cursors](https://github.com/makipom/BlueArchive-Cursors)
 
 ## 部署方式
 
