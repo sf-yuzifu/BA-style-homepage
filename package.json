@@ -26,6 +26,7 @@
     "lodash": "^4.17.21"
   },
   "dependencies": {
+    "@arco-design/web-vue": "^2.56.3",
     "@esotericsoftware/spine-pixi-v7": "^4.2.76",
     "@pixi/assets": "^7.4.3",
     "@pixi/core": "^7.4.3",
@@ -42,17 +43,14 @@
     "howler": "^2.2.4",
     "js-yaml": "^4.1.0",
     "pixi.js": "^7.4.3",
-    "rollup-plugin-copy": "^3.5.0",
-    "serialize-javascript": "^6.0.2",
     "vite-plugin-font": "^5.1.2",
     "vite-plugin-pwa": "^1.2.0",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
-    "workbox-build": "^7.3.0",
-    "workbox-window": "^7.3.0"
+    "workbox-build": "^7.4.0",
+    "workbox-window": "^7.4.0"
   },
   "devDependencies": {
-    "@arco-design/web-vue": "^2.56.3",
     "@rushstack/eslint-patch": "^1.10.5",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.1",
