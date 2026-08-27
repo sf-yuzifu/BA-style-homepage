@@ -15,6 +15,7 @@ let animation,
   id = 0
 const canSkip = ref(true)
 let soundList = []
+let voiceEpoch = 0 // 语音会话代际：stopAllVoices 清理时递增，异步错误回调据此识别过期会话
 let animationReady = false // 动画初始化状态
 let talking = false,
   talkIndex = 1
@@ -194,31 +195,25 @@ const onEvent = (entry, event) => {
     voicePath = lobby.path + 'zh-CN/' + event.stringValue + '.ogg'
   }
 
+  // 语音会话代际：stopAllVoices 清理时递增。
+  // onloaderror/onplayerror 是异步回调（且构造阶段可能同步触发，回调内不能引用 voice 自身——TDZ），
+  // 若回调触发前已清理（路由离开/切换角色），代际已变，必须放弃降级，
+  // 否则会在 /bio 等其他页面响起本页角色的语音
+  const epoch = voiceEpoch
+
   let voice = new Howl({
     src: [voicePath],
     volume: 0.3,
     onloaderror: () => {
       // 如果加载失败且当前尝试的是中文语音，则降级到日文语音
       if (voicePath !== jpPath) {
-        const fallbackVoice = new Howl({
-          src: [jpPath],
-          volume: 0.3,
-          onend: () => releaseVoice(fallbackVoice)
-        })
-        fallbackVoice.play()
-        soundList.push(fallbackVoice)
+        playFallbackVoice(jpPath, epoch)
       }
     },
     onplayerror: () => {
       // 播放错误尝试降级
       if (voicePath !== jpPath) {
-        const fallbackVoice = new Howl({
-          src: [jpPath],
-          volume: 0.3,
-          onend: () => releaseVoice(fallbackVoice)
-        })
-        fallbackVoice.play()
-        soundList.push(fallbackVoice)
+        playFallbackVoice(jpPath, epoch)
       }
     },
     onend: () => releaseVoice(voice)
@@ -228,8 +223,23 @@ const onEvent = (entry, event) => {
   soundList.push(voice)
 }
 
+// 中文语音失败时降级创建日文语音（代际不一致说明组件已清理，直接放弃）
+const playFallbackVoice = (jpPath, epoch) => {
+  if (epoch !== voiceEpoch) return
+
+  const fallbackVoice = new Howl({
+    src: [jpPath],
+    volume: 0.3,
+    onend: () => releaseVoice(fallbackVoice)
+  })
+  fallbackVoice.play()
+  soundList.push(fallbackVoice)
+}
+
 // 停止并释放所有语音资源
 const stopAllVoices = () => {
+  // 先递增代际，使遍历期间/之后触发的任何异步错误回调识别会话已过期，放弃创建降级语音
+  voiceEpoch++
   for (const sound of soundList) {
     sound.stop()
     sound.unload()
