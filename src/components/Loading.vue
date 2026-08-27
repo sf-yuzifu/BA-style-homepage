@@ -80,7 +80,9 @@ img {
 
 @font-face {
   font-family: TVPS-Vain-Capital-2;
-  src: url(https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/TVPS-Vain-Capital-2.cca90a05.ttf);
+  /* 本地子集（仅 "connecting." + 数字 + % 共 18 字符，4.2KB），替代 CDN 完整 TTF（31.7KB） */
+  src: url('/fonts/TVPS-Vain-Capital-2.woff2') format('woff2');
+  font-display: swap;
 }
 
 .loading_wrapper {
