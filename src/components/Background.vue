@@ -35,7 +35,9 @@ let isComponentUnmounted = false // 组件卸载标记，用于停止重试
 
 // 骨骼交互检测半径
 const BONE_HIT_RADIUS = 100 // 悬停/点击/摸头的命中半径
-const BONE_HIT_FALLBACK_RADIUS = 60 // 点击未命中骨骼时的宽松重试半径
+// 点击未命中骨骼时的宽松重试半径——必须大于 BONE_HIT_RADIUS 才可能命中新结果
+// （初版引入时误写为 60 < 100，与变量名 largerRadius 和「更大」注释矛盾，整段重检循环曾是死代码）
+const BONE_HIT_FALLBACK_RADIUS = 160
 
 // 摸头期间随机动作的间隔范围（毫秒）：5~15 秒
 const PAT_RANDOM_MIN_DELAY = 5000
