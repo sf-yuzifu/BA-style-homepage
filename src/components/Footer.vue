@@ -119,6 +119,8 @@ onUnmounted(() => {
 
 .time img {
   height: clamp(12px, 0.75vw, 100vw);
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .time span {
