@@ -1,5 +1,5 @@
 <script setup>
-import { Spine, SpineTexture } from '@esotericsoftware/spine-pixi-v7'
+import { Spine } from '@esotericsoftware/spine-pixi-v7'
 import * as PIXI from 'pixi.js'
 import { Modal } from '@arco-design/web-vue'
 import { useConfig } from '@/composables/useConfig'
@@ -55,6 +55,8 @@ const updateDialoguePosition = () => {
 
 // 窗口尺寸变化时更新对话框位置（在 onMounted/onUnmounted 中注册与移除）
 const handleWindowResize = () => {
+  // 画布布局缓存随窗口尺寸失效
+  cachedViewRect = null
   updateDialoguePosition()
 }
 
@@ -194,7 +196,28 @@ const stopAllVoices = () => {
   soundList = []
 }
 
-const setL2D = async (num) => {
+// 注册资源别名（若已被 init/live2d.js 预加载注册则跳过，避免重复 add 触发 resolver 覆盖警告）
+const addAssetAlias = (alias, src) => {
+  if (!PIXI.Assets.resolver.hasKey(alias)) {
+    PIXI.Assets.add({ alias, src })
+  }
+}
+
+// 串行化 setL2D 调用：进行中的调用未完成时复用同一 Promise，
+// 防止首次加载时 watch(immediate) 与 onActivated 并发触发导致的双重初始化
+// （两个 Spine 实例同上屏，先完成的实例丢失引用但永久留在 stage 上，
+//  切换角色卸载资源后，孤儿实例仍持有已销毁贴图，渲染时报 alphaMode 空指针），
+// 同时防止切换途中重复点击造成的资源竞争
+let setL2DInFlight = null
+const setL2D = (num) => {
+  if (setL2DInFlight) return setL2DInFlight
+  setL2DInFlight = doSetL2D(num).finally(() => {
+    setL2DInFlight = null
+  })
+  return setL2DInFlight
+}
+
+const doSetL2D = async (num) => {
   // 确保canvas已经添加到background div
   addCanvasToBackground()
 
@@ -209,27 +232,14 @@ const setL2D = async (num) => {
   // 重置骨骼状态缓存，解决角色切换时摸头错位问题
   originalBoneStates.value = {}
   stopAllVoices()
-  // 销毁旧角色动画实例并卸载其资源，避免反复切换后内存持续增长
+  // 销毁旧角色动画实例（资源保留在缓存中不卸载：
+  // 全部角色在加载屏阶段已由 init/live2d.js 预加载，数量有限、占用有界，
+  // 保留缓存（含 skeletonCache / 贴图 / GPU 纹理）让来回切换完全无缝；
+  // 卸载反而会使切回时重新下载/解码/上传 GPU，出现约 1s 卡顿）
   if (animation) {
     l2d.stage.removeChild(animation)
     animation.destroy()
     animation = null
-    // 注意：此处 id 还是旧角色的索引，在下方switch语句中才会更新
-    try {
-      await PIXI.Assets.unload([`skeleton_${id}`, `atlas_${id}`])
-      // 同步清理 Spine 的静态骨骼缓存（缓存键格式为 skeleton-atlas-scale）
-      // 否则切回该角色时会复用引用了已释放贴图的骨骼数据，导致渲染异常
-      delete Spine.skeletonCache[`skeleton_${id}-atlas_${id}-1`]
-      // 同步清理 SpineTexture 静态缓存中已随图集释放的贴图
-      // 否则重新加载图集时会命中已销毁的贴图（baseTexture 为 null），渲染时报错
-      for (const [baseTexture, spineTexture] of SpineTexture.textureMap) {
-        if (spineTexture.texture?.destroyed) {
-          SpineTexture.textureMap.delete(baseTexture)
-        }
-      }
-    } catch (error) {
-      // 卸载失败不影响新角色加载
-    }
   }
 
   const lobbies = currentConfig.value.memorialLobbies
@@ -267,12 +277,12 @@ const setL2D = async (num) => {
     const skeletonPath = lobby.path + lobby.skel
     const atlasPath = lobby.path + lobby.atlas
 
-    // 先预加载资源 (使用与 live2d.js 相同的别名格式)
+    // 先预加载资源（别名与 init/live2d.js 的预加载保持一致，可直接命中其缓存）
     const skeletonAlias = `skeleton_${id}`
     const atlasAlias = `atlas_${id}`
 
-    PIXI.Assets.add({ alias: skeletonAlias, src: skeletonPath })
-    PIXI.Assets.add({ alias: atlasAlias, src: atlasPath })
+    addAssetAlias(skeletonAlias, skeletonPath)
+    addAssetAlias(atlasAlias, atlasPath)
     await PIXI.Assets.load([skeletonAlias, atlasAlias])
 
     // 然后创建动画
@@ -298,6 +308,8 @@ const setL2D = async (num) => {
 
   originalOffsetPercent = (parseFloat(lobby.offset) || 0.7) * 100
   l2d.view.style.transform = `translateX(calc((50% - ${originalOffsetPercent} * 1%) * (1 - min(1, 100vw / 1200px))))`
+  // 角色偏移改变，画布布局缓存失效
+  cachedViewRect = null
 
   let startIdle = 'Start_Idle_01'
   showDialogue.value = false
@@ -381,8 +393,9 @@ const addEventListenersToCanvas = () => {
     l2d.view.addEventListener('mousedown', handleMouseDown)
     l2d.view.addEventListener('mouseup', handleMouseUp)
     l2d.view.addEventListener('mouseleave', handleMouseLeave)
-    l2d.view.addEventListener('touchstart', handleTouchStart)
-    l2d.view.addEventListener('touchmove', handleTouchMove)
+    // touch 处理器均不调用 preventDefault，声明 passive 消除 scroll-blocking 警告
+    l2d.view.addEventListener('touchstart', handleTouchStart, { passive: true })
+    l2d.view.addEventListener('touchmove', handleTouchMove, { passive: true })
     l2d.view.addEventListener('touchend', handleTouchEnd)
     l2d.view.addEventListener('touchcancel', handleTouchEnd)
 
@@ -405,14 +418,35 @@ const removeEventListenersFromCanvas = () => {
   }
 }
 
-// 骨骼悬停检测函数
+// 骨骼悬停检测：rAF 节流 + 布局缓存 + 状态变化才写 DOM
+// （原实现每次 mousemove 都对全骨骼做距离计算、getBoundingClientRect 强制同步布局，
+//   并无条件 classList.add/remove，是长帧与 violation 警告的来源之一）
+let hoverRafId = null
+let lastHoverEvent = null
+let cachedViewRect = null
+let isL2dHovering = false
+
 const handleBoneHover = (event) => {
+  lastHoverEvent = event
+  if (hoverRafId !== null) return
+  hoverRafId = requestAnimationFrame(() => {
+    hoverRafId = null
+    if (lastHoverEvent) {
+      processBoneHover(lastHoverEvent)
+    }
+  })
+}
+
+const processBoneHover = (event) => {
   if (!animation || !animation.skeleton || !animationReady) {
     return
   }
 
-  // 获取鼠标位置
-  const rect = l2d.view.getBoundingClientRect()
+  // 获取鼠标位置（rect 在窗口尺寸/角色偏移变化时失效重建）
+  if (!cachedViewRect) {
+    cachedViewRect = l2d.view.getBoundingClientRect()
+  }
+  const rect = cachedViewRect
   const canvasX = event.clientX - rect.left
   const canvasY = event.clientY - rect.top
 
@@ -450,11 +484,14 @@ const handleBoneHover = (event) => {
     }
   }
 
-  // 更新光标状态（为canvas添加悬停类以切换链接光标）
-  if (isHovering) {
-    l2d.view.classList.add('l2d-hover')
-  } else {
-    l2d.view.classList.remove('l2d-hover')
+  // 更新光标状态（仅在悬停状态变化时写 classList）
+  if (isHovering !== isL2dHovering) {
+    isL2dHovering = isHovering
+    if (isHovering) {
+      l2d.view.classList.add('l2d-hover')
+    } else {
+      l2d.view.classList.remove('l2d-hover')
+    }
   }
 
   // 如果正在摸头状态，让头部骨骼跟随鼠标移动
@@ -569,12 +606,12 @@ const loadL2DSkipIdle = async (num) => {
     const skeletonPath = lobby.path + lobby.skel
     const atlasPath = lobby.path + lobby.atlas
 
-    // 先预加载资源
+    // 先预加载资源（别名与 init/live2d.js 的预加载保持一致，可直接命中其缓存）
     const skeletonAlias = `skeleton_${num}`
     const atlasAlias = `atlas_${num}`
 
-    PIXI.Assets.add({ alias: skeletonAlias, src: skeletonPath })
-    PIXI.Assets.add({ alias: atlasAlias, src: atlasPath })
+    addAssetAlias(skeletonAlias, skeletonPath)
+    addAssetAlias(atlasAlias, atlasPath)
     await PIXI.Assets.load([skeletonAlias, atlasAlias])
 
     // 然后创建动画
@@ -601,6 +638,8 @@ const loadL2DSkipIdle = async (num) => {
 
   originalOffsetPercent = (parseFloat(lobby.offset) || 0.7) * 100
   l2d.view.style.transform = `translateX(calc((50% - ${originalOffsetPercent} * 1%) * (1 - min(1, 100vw / 1200px))))`
+  // 角色偏移改变，画布布局缓存失效
+  cachedViewRect = null
 
   showDialogue.value = false
   // 添加事件监听器
@@ -622,6 +661,11 @@ onUnmounted(() => {
   if (canvasRetryTimer) {
     clearTimeout(canvasRetryTimer)
     canvasRetryTimer = null
+  }
+  // 取消挂起的悬停检测帧
+  if (hoverRafId !== null) {
+    cancelAnimationFrame(hoverRafId)
+    hoverRafId = null
   }
 
   // 移除事件监听
@@ -889,6 +933,7 @@ const handleMouseUp = (event) => {
 // 处理鼠标离开canvas事件
 const handleMouseLeaveCanvas = () => {
   // 确保鼠标离开canvas时恢复光标状态
+  isL2dHovering = false
   if (l2d.view) {
     l2d.view.classList.remove('l2d-hover')
   }

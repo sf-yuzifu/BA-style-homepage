@@ -30,8 +30,10 @@ export async function initLive2D() {
     const loadPromises = config.memorialLobbies.map(async (lobby, index) => {
       try {
         // 使用索引生成唯一的资源别名，避免覆盖
-        const skeletonAlias = `skeleton_${lobby.name}_${index}`
-        const atlasAlias = `atlas_${lobby.name}_${index}`
+        // 注意：别名格式必须与 Background.vue 中实际使用的保持一致（skeleton_${id} / atlas_${id}），
+        // 否则预加载不会被 Spine.from 命中，同一资源会被重复下载/解析/上传 GPU 且副本永久驻留内存
+        const skeletonAlias = `skeleton_${index}`
+        const atlasAlias = `atlas_${index}`
 
         // 添加资源到PIXI资源管理器
         PIXI.Assets.add({ alias: skeletonAlias, src: lobby.path + lobby.skel })
