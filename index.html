@@ -2,6 +2,16 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
+    <!-- 第三方域名连接预热（preconnect + dns-prefetch 兜底）：
+         webcnstatic.yostar.net - Loading 首屏头像/背景/TTF 字体
+         api.injahow.cn - 音乐 API
+         at.alicdn.com - Iconfont 脚本 -->
+    <link rel="preconnect" href="https://webcnstatic.yostar.net" />
+    <link rel="dns-prefetch" href="https://webcnstatic.yostar.net" />
+    <link rel="preconnect" href="https://api.injahow.cn" />
+    <link rel="dns-prefetch" href="https://api.injahow.cn" />
+    <link rel="preconnect" href="https://at.alicdn.com" />
+    <link rel="dns-prefetch" href="https://at.alicdn.com" />
     <meta content="yes" name="mobile-web-app-capable" />
     <meta content="yes" name="apple-mobile-web-app-capable" />
     <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style" />
