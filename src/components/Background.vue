@@ -387,8 +387,8 @@ const doSetL2D = async (num) => {
 }
 
 // 鼠标离开canvas时的处理函数（独立命名以便正确移除监听）
-const handleMouseLeave = () => {
-  handleMouseUp()
+const handleMouseLeave = (event) => {
+  handleMouseUp(event)
   handleMouseLeaveCanvas()
 }
 
@@ -745,6 +745,8 @@ const skipStartIdle = () => {
 
 // 骨骼点击交互处理
 const handleBoneClick = (event) => {
+  if (!event) return
+
   // 检查动画是否可以交互，添加摸头状态检查
   // 允许在摸头结束阶段（isLongPress为false）进行交互
   if (
@@ -877,6 +879,8 @@ const startLongPressTimer = (event) => {
 }
 
 const cancelLongPressTimer = (event) => {
+  if (!event) return
+
   if (longPressTimer) {
     clearTimeout(longPressTimer)
     longPressTimer = null
