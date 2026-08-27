@@ -6,7 +6,7 @@ import { useConfig } from '@/composables/useConfig'
 const { configs, locale } = useConfig()
 const emit = defineEmits(['canskip', 'update:changeL2D'])
 import { Howl } from 'howler'
-import { ref, computed, watch, onMounted, onUnmounted, onActivated } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 
 const props = defineProps(['l2dOnly'])
@@ -556,6 +556,9 @@ let isFirstLoad = true
 
 // 组件重新激活时的处理
 onActivated(() => {
+  // 先恢复 PIXI 渲染循环（动画仍在时的常规返回场景立即恢复渲染；
+  // 下面的 setL2D/loadL2DSkipIdle 为异步且带并发守卫，不受其完成时机影响）
+  l2d.ticker.start()
   // 重新添加canvas到DOM
   addCanvasToBackground()
   // 如果动画被销毁了，重新加载
@@ -572,6 +575,11 @@ onActivated(() => {
   // 重置 talking 状态
   talking = false
   talkIndex = 1
+})
+
+// keep-alive 缓存（路由离开）期间停止 PIXI 渲染循环，避免不可见 canvas 空转耗电耗 GPU
+onDeactivated(() => {
+  l2d.ticker.stop()
 })
 
 // 加载Live2D并跳过初始动画

@@ -1,7 +1,7 @@
 <script setup>
 import { Spine, SpineTexture } from '@esotericsoftware/spine-pixi-v7'
 import * as PIXI from 'pixi.js'
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, onActivated, onDeactivated, computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
 
 const { configs } = useConfig()
@@ -108,6 +108,16 @@ onMounted(async () => {
   } catch (error) {
     console.error('Live2D 加载失败:', error)
   }
+})
+
+// keep-alive 缓存（路由离开）期间停止/恢复 PIXI 渲染循环，避免不可见 canvas 空转耗电耗 GPU
+// （onActivated 在首次挂载时也会触发，此时 app 可能尚未创建或 ticker 已在运行，判空后调用无副作用）
+onActivated(() => {
+  app?.ticker.start()
+})
+
+onDeactivated(() => {
+  app?.ticker.stop()
 })
 
 // 清理函数 - 放在 setup 顶层
