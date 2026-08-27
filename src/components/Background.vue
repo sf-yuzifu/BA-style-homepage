@@ -720,6 +720,9 @@ onUnmounted(() => {
 })
 
 const skipStartIdle = () => {
+  // 已有确认框打开时忽略重复触发，避免连点叠加多个 Modal
+  if (modalRef) return
+
   // 检查动画是否已正确初始化
   if (!animation || !animation.state || !animationReady) {
     changeL2D(false)
@@ -767,6 +770,10 @@ const skipStartIdle = () => {
 
           canSkip.value = false
           emit('canskip', false)
+        },
+        // 任意关闭路径（确定/取消/遮罩/ESC/程序化 close）都会触发，释放引用以允许再次打开
+        onClose: () => {
+          modalRef = null
         }
       })
     }
