@@ -13,7 +13,7 @@ const props = defineProps(['l2dOnly'])
 
 let animation,
   id = 0
-let canSkip = true
+const canSkip = ref(true)
 let soundList = []
 let animationReady = false // 动画初始化状态
 let talking = false,
@@ -234,7 +234,7 @@ const doSetL2D = async (num) => {
     return
   }
 
-  canSkip = true
+  canSkip.value = true
   emit('canskip', true)
   talking = false
   talkIndex = 1
@@ -346,7 +346,7 @@ const doSetL2D = async (num) => {
           animation.state.addListener({
             event: onEvent
           })
-          canSkip = false
+          canSkip.value = false
           emit('canskip', false)
           if (modalRef) {
             modalRef.close()
@@ -370,7 +370,7 @@ const doSetL2D = async (num) => {
         animation.state.addListener({
           event: onEvent
         })
-        canSkip = false
+        canSkip.value = false
         emit('canskip', false)
         if (modalRef) {
           modalRef.close()
@@ -583,7 +583,7 @@ const loadL2DSkipIdle = async (num) => {
     return
   }
 
-  canSkip = false
+  canSkip.value = false
   emit('canskip', false)
   talking = false
   talkIndex = 1
@@ -733,7 +733,7 @@ const skipStartIdle = () => {
             })
           }
 
-          canSkip = false
+          canSkip.value = false
           emit('canskip', false)
         }
       })
