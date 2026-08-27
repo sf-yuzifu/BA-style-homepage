@@ -109,7 +109,7 @@ export default defineConfig({
         runtimeCaching: [
           // 动态接口（音乐信息等）：网络优先，超时或失败时回退缓存，最长保留 1 天
           {
-            urlPattern: /^https:\/\/www\.lihouse\.xyz\/.*/i,
+            urlPattern: /^https:\/\/api\.injahow\.cn\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'music-api-cache',

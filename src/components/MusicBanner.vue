@@ -37,7 +37,7 @@ onMounted(() => {
     autoplay: false,
     mini: false,
     order: 'random',
-    lrcType: 1,
+    lrcType: 3,
     listFolded: true,
     loop: 'none',
     audio: []
@@ -64,13 +64,14 @@ onBeforeUnmount(() => {
 const fetchSongData = async (songId) => {
   try {
     const response = await axios.get(
-      `https://www.lihouse.xyz/coco_widget/music_resource/id/${songId}`
+      `https://api.injahow.cn/meting/?server=netease&type=song&id=${songId}`
     )
 
     // 检查响应数据结构
     console.log('API响应:', response.data)
 
-    const data = response.data.song_data || response.data
+    // Meting API 返回数组，单曲类型取第一项
+    const data = Array.isArray(response.data) ? response.data[0] : response.data
 
     // 验证数据结构
     if (!data) {
@@ -79,11 +80,11 @@ const fetchSongData = async (songId) => {
 
     // 检查必要的字段
     const songInfo = {
-      name: data.name || data.song_name || '未知歌曲',
-      artist: data.artist || data.singer || '未知艺术家',
-      url: data.url || data.song_url,
-      cover: data.pic || data.cover || data.image,
-      lrc: data.lyric || data.lrc || '[00:00.000]暂无歌词\n'
+      name: data.title || data.name || '未知歌曲',
+      artist: data.author || data.artist || '未知艺术家',
+      url: data.url,
+      cover: data.pic,
+      lrc: data.lrc || ''
     }
 
     // 验证URL字段
