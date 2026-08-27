@@ -138,8 +138,13 @@ const pyroxene = computed(() => {
       @keydown.enter.prevent="change"
       @keydown.space.prevent="change"
       :style="{
-        transition: 'transform 0.3s ' + (!props.l2dOnly ? 'ease-out' : 'ease-in') + ',opacity 0.6s',
-        opacity: (!props.l2dOnly || (showMin && hover)) && !props.canskip ? 1 : 0
+        transition:
+          'transform 0.3s ' + (!props.l2dOnly ? 'ease-out' : 'ease-in') + ',opacity 0.6s,visibility 0.6s',
+        opacity: (!props.l2dOnly || (showMin && hover)) && !props.canskip ? 1 : 0,
+        // canskip（开场动画）期间彻底禁用交互：不吞掉下方跳过遮罩的点击、不是 tab 停靠点
+        // 注意不能对 l2dOnly 桌面端的透明状态禁用——那里依赖 :hover 显现按钮（.canHover:hover）
+        pointerEvents: props.canskip ? 'none' : '',
+        visibility: props.canskip ? 'hidden' : ''
       }"
     >
       <img alt="" :src="img" />
