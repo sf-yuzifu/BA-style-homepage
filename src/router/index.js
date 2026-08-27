@@ -1,7 +1,8 @@
 import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
-import Bio from '@/views/Bio.vue'
+// Bio 页（含其 Live2D 组件依赖）按需懒加载，不占用首屏 chunk
+const Bio = () => import('@/views/Bio.vue')
 import { useConfig } from '@/composables/useConfig'
 
 const routes = [
