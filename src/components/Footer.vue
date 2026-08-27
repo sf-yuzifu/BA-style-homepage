@@ -1,26 +1,17 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
-import { Icon } from '@arco-design/web-vue'
 import { useConfig } from '@/composables/useConfig'
+import { useIconFont } from '@/composables/useIconFont'
 const { configs } = useConfig()
 
 const currentConfig = computed(() => configs.value)
 const ifICP = computed(() => configs.value?.ICP || '')
 
-const iconfontUrl = computed(() => {
-  if (!currentConfig.value || !currentConfig.value.iconfont) return ''
-  return currentConfig.value.iconfont
-})
+const { IconFont } = useIconFont()
 
 const dockSites = computed(() => {
   if (!currentConfig.value || !currentConfig.value.dock) return []
   return currentConfig.value.dock
-})
-
-const IconFont = computed(() => {
-  const url = iconfontUrl.value
-  if (!url) return null
-  return Icon.addFromIconFontCn({ src: url })
 })
 
 const time = ref(new Date().getHours() + ':' + new Date().getMinutes())

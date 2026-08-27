@@ -1,25 +1,16 @@
 <script setup>
-import { Icon } from '@arco-design/web-vue'
 import { computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
+import { useIconFont } from '@/composables/useIconFont'
 const { configs } = useConfig()
 
 const currentConfig = computed(() => configs.value)
 
-const iconfontUrl = computed(() => {
-  if (!currentConfig.value || !currentConfig.value.iconfont) return ''
-  return currentConfig.value.iconfont
-})
+const { IconFont } = useIconFont()
 
 const contacts = computed(() => {
   if (!currentConfig.value || !currentConfig.value.contact) return []
   return currentConfig.value.contact
-})
-
-const IconFont = computed(() => {
-  const url = iconfontUrl.value
-  if (!url) return null
-  return Icon.addFromIconFontCn({ src: url })
 })
 </script>
 

@@ -1,11 +1,11 @@
 <script setup>
 import { computed } from 'vue'
 import { navigateWithCurtain } from '@/init/links.js'
-import { Icon } from '@arco-design/web-vue'
 import { IconArrowLeft } from '@arco-design/web-vue/es/icon'
 
 import { useConfig } from '@/composables/useConfig'
 import { useAp } from '@/composables/useAp'
+import { useIconFont } from '@/composables/useIconFont'
 
 const props = defineProps({
   title: {
@@ -19,16 +19,7 @@ const { ap, maxAp } = useAp()
 
 const currentConfig = computed(() => configs.value)
 
-const iconfontUrl = computed(() => {
-  if (!currentConfig.value || !currentConfig.value.iconfont) return ''
-  return currentConfig.value.iconfont
-})
-
-const IconFont = computed(() => {
-  const url = iconfontUrl.value
-  if (!url) return null
-  return Icon.addFromIconFontCn({ src: url })
-})
+const { IconFont } = useIconFont()
 
 // Gold 和 Pyroxene 从配置读取
 const gold = computed(() => {
