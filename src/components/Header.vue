@@ -180,6 +180,8 @@ const goBack = () => {
 .item img {
   height: 70%;
   margin: 0 clamp(4px, 0.25vw, 100vw) 0 0;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .home {

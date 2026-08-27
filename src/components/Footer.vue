@@ -166,6 +166,8 @@ onUnmounted(() => {
 .project img {
   width: clamp(64px, 4vw, 100vw);
   height: clamp(64px, 4vw, 100vw);
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 @media screen and (max-width: 1120px) {

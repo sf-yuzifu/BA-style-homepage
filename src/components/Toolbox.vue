@@ -178,7 +178,10 @@ const pyroxene = computed(() => {
   height: 70%;
   transform: skew(10deg);
   margin: 0 clamp(8px, 0.5vw, 100vw) 0 clamp(10px, 0.625vw, 100vw);
+  user-select: none;
+  -webkit-user-drag: none;
 }
+
 .toolbox span {
   font-size: clamp(26px, 1.625vw, 100vw);
   transform: skew(10deg);
