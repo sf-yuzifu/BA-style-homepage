@@ -16,6 +16,10 @@ author: Yuzifu
 # 网站关键词 - 用于搜索引擎优化，逗号分隔
 keywords: 'Blue Archive, 小鱼yuzifu, Personal Homepage'
 
+# 站点规范地址 - 用于拼接 og:image/og:url/canonical 的绝对 URL（社交分享卡片要求绝对地址），
+# 留空则 og:url/canonical 不输出、og:image 退回相对路径
+url: 'https://yzf.moe'
+
 # ICP备案号 - 中国大陆备案信息，留空表示未备案
 ICP: ''
 # 公安备案号 - 中国大陆网站备案信息，留空表示未备案

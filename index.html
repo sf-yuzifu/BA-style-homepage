@@ -25,7 +25,12 @@
     <meta property="og:title" content="<%- title %>" />
     <meta property="og:description" content="<%- description %>" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/favicon512.png" />
+    <!-- 爬虫要求 og:image 为绝对 URL（相对路径会导致分享卡片无图） -->
+    <meta property="og:image" content="<%- siteUrl %>/favicon512.png" />
+    <% if (siteUrl) { %>
+    <meta property="og:url" content="<%- siteUrl %>/" />
+    <link rel="canonical" href="<%- siteUrl %>/" />
+    <% } %>
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="<%- title %>" />
     <meta name="twitter:description" content="<%- description %>" />

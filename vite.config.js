@@ -69,7 +69,9 @@ export default defineConfig({
           author: config.author,
           themeColor: config.manifest.theme_color,
           description: config.description,
-          keywords: config.keywords
+          keywords: config.keywords,
+          // 站点规范地址（去除尾部斜杠），供 og:image/og:url/canonical 拼绝对 URL
+          siteUrl: (config.url || '').replace(/\/+$/, '')
         }
       }
     }),
