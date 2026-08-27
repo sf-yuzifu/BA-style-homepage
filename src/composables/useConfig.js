@@ -112,6 +112,10 @@ let globalCurrentConfig = ref(null)
 let globalIsLoading = ref(false)
 let globalIsInitialized = ref(false)
 let globalIsInitializing = ref(false)
+// 配置加载代际：每次发起新加载递增，仅最新一代的结果允许写入全局配置。
+// 修复语言切换竞态：旧实现在加载中直接 return 丢弃新语言请求，
+// 导致 locale 已是新语言、配置仍是旧语言（在途旧请求完成后覆盖）
+let configLoadToken = 0
 
 export function useConfig() {
   // 初始化语言（只在第一次执行）
@@ -137,16 +141,18 @@ export function useConfig() {
     }
   }
 
-  // 加载配置
+  // 加载配置（语言切换等新请求会取代在途请求：旧请求结果按代际丢弃，不再直接 return 丢弃新请求）
   const loadConfig = async () => {
-    if (globalIsLoading.value || globalIsInitializing.value) return
+    const token = ++configLoadToken
 
     globalIsLoading.value = true
     globalIsInitializing.value = true
     try {
       const config = await configLoader.getConfig(globalCurrentLocale.value)
+      if (token !== configLoadToken) return // 已有更新的加载请求，丢弃过期结果
       globalCurrentConfig.value = config
     } catch (error) {
+      if (token !== configLoadToken) return
       console.error('加载配置失败:', error)
       // 使用默认配置
       globalCurrentConfig.value = {
@@ -166,8 +172,11 @@ export function useConfig() {
         }
       }
     } finally {
-      globalIsLoading.value = false
-      globalIsInitializing.value = false
+      // 仅最新一代负责复位加载标记，过期一代不得误清新请求的状态
+      if (token === configLoadToken) {
+        globalIsLoading.value = false
+        globalIsInitializing.value = false
+      }
     }
   }
 

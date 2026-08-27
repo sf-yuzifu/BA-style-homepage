@@ -21,6 +21,9 @@ let talking = false,
   talkIndex = 1
 let modalRef
 let originalOffsetPercent = 70 // 默认值，等待配置加载后更新
+// 当前已加载角色的资源标识（path+skel|atlas）：语言切换只换翻译/语音文案时，
+// config 对象整体替换但角色资源未变，据此跳过整只重载，避免重播 Start_Idle
+let loadedL2DKey = null
 
 // 长按相关变量
 const LONG_PRESS_THRESHOLD = 500 // 长按阈值（毫秒）
@@ -363,6 +366,8 @@ const doSetL2D = async (num) => {
       animation.state.setAnimation(3, 'Dummy', true)
       animation.state.setAnimation(4, 'Dummy', true)
       l2d.stage.addChild(animation)
+      // 记录已加载角色的资源标识，供语言切换时判重（资源未变则跳过重载）
+      loadedL2DKey = skeletonPath + '|' + atlasPath
     } else {
       return
     }
@@ -686,6 +691,8 @@ const loadL2DSkipIdle = async (num) => {
       animation.state.setAnimation(3, 'Dummy', true)
       animation.state.setAnimation(4, 'Dummy', true)
       l2d.stage.addChild(animation)
+      // 记录已加载角色的资源标识，供语言切换时判重（资源未变则跳过重载）
+      loadedL2DKey = skeletonPath + '|' + atlasPath
     } else {
       return
     }
@@ -1271,9 +1278,19 @@ const restoreAllHeadBones = () => {
 
 // 等待配置加载完成后初始化Live2D
 const initLive2DWhenReady = () => {
-  if (currentConfig.value && currentConfig.value.memorialLobbies) {
-    setL2D(id)
+  if (!currentConfig.value || !currentConfig.value.memorialLobbies) {
+    return
   }
+
+  // 语言切换只替换翻译/语音文案，若当前角色的 skel/atlas 资源未变且实例存活，
+  // 跳过整只重载（避免重播 Start_Idle）；语音语言在 onEvent 播放时按 locale 实时选择，无需重载
+  const lobby = currentConfig.value.memorialLobbies[id]
+  const key = lobby && lobby.path ? lobby.path + lobby.skel + '|' + lobby.atlas : null
+  if (animation && key && key === loadedL2DKey) {
+    return
+  }
+
+  setL2D(id)
 }
 
 // 监听配置变化
