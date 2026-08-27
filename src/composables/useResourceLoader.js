@@ -1,19 +1,20 @@
 import { ref, computed } from 'vue'
 import { live2dReady } from '@/init/live2d'
 
+// 模块级单例状态（与 useAp 模式一致），确保 useLoading 与 Loading.vue 共享同一实例
+const resources = ref(new Map())
+const loadedCount = ref(0)
+const totalCount = ref(0)
+const isLoading = ref(false)
+const isComplete = ref(false)
+
+// 计算加载进度
+const progress = computed(() => {
+  if (totalCount.value === 0) return 0
+  return loadedCount.value / totalCount.value
+})
+
 export function useResourceLoader() {
-  const resources = ref(new Map())
-  const loadedCount = ref(0)
-  const totalCount = ref(0)
-  const isLoading = ref(false)
-  const isComplete = ref(false)
-
-  // 计算加载进度
-  const progress = computed(() => {
-    if (totalCount.value === 0) return 0
-    return loadedCount.value / totalCount.value
-  })
-
   // 平滑进度计算 - 在加载过程中提供更自然的进度体验
   const getSmoothProgress = () => {
     if (totalCount.value === 0) return 0
