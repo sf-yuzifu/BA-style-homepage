@@ -36,7 +36,7 @@ onUnmounted(() => {
         <img :src="imgList[1]" alt="" />
         <img :src="imgList[2]" alt="" />
         <img :src="imgList[3]" alt="" />
-        <video autoplay src="/transfrom.webm"></video>
+        <video autoplay muted preload="auto" src="/transfrom.webm"></video>
         <img src="/shitim/Tran_Shitim_Icon.png" alt="" />
       </div>
     </div>
