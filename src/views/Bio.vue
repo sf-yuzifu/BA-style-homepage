@@ -184,7 +184,7 @@ onUnmounted(() => {
                   <span class="name">{{ author }}</span>
                   <div>
                     <a-progress
-                      :percent="exp / nextExp"
+                      :percent="nextExp > 0 ? exp / nextExp : 1"
                       :show-text="false"
                       :color="exp >= nextExp ? '#ffe433' : '#89d5fd'"
                       :stroke-width="strokeWidth"
