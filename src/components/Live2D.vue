@@ -1,5 +1,5 @@
 <script setup>
-import { Spine } from '@esotericsoftware/spine-pixi-v7'
+import { Spine, SpineTexture } from '@esotericsoftware/spine-pixi-v7'
 import * as PIXI from 'pixi.js'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
@@ -22,6 +22,10 @@ const bioConfig = computed(() => {
 const l2dContainer = ref(null)
 let app = null
 let spine = null
+let isUnmounted = false // 组件卸载标记，await 加载期间卸载时阻止后续初始化
+let skeletonAlias = null
+let atlasAlias = null
+let pageTextureUrl = null
 
 onMounted(async () => {
   if (!l2dContainer.value) return
@@ -51,19 +55,22 @@ onMounted(async () => {
     const basePath = config.path
     const skelFile = config.skel
     const atlasFile = config.atlas
-    const pngFile = skelFile.replace('.skel', '.png')
 
-    // 添加资源
-    const skeletonAlias = `skeleton_${config.name}`
-    const atlasAlias = `atlas_${config.name}`
-    const pngAlias = `png_${config.name}`
+    // 添加资源（贴图页由 atlas 加载器按 .atlas 内声明自动加载，无需单独添加 png，
+    // 否则同一张贴图会以不同缓存键重复下载/解码/占 GPU）
+    skeletonAlias = `skeleton_${config.name}`
+    atlasAlias = `atlas_${config.name}`
+    // 贴图页在 Assets 缓存中的键（atlas 加载器以解析后的 URL 为键），供卸载时使用
+    pageTextureUrl = basePath + skelFile.replace('.skel', '.png')
 
     PIXI.Assets.add({ alias: skeletonAlias, src: basePath + skelFile })
     PIXI.Assets.add({ alias: atlasAlias, src: basePath + atlasFile })
-    PIXI.Assets.add({ alias: pngAlias, src: basePath + pngFile })
 
     // 加载资源
-    await PIXI.Assets.load([skeletonAlias, atlasAlias, pngAlias])
+    await PIXI.Assets.load([skeletonAlias, atlasAlias])
+
+    // await 期间组件可能已被卸载，避免在已销毁的 app 上创建 Spine 导致泄漏
+    if (isUnmounted) return
 
     // 创建 Spine 实例
     spine = Spine.from({
@@ -105,11 +112,36 @@ onMounted(async () => {
 
 // 清理函数 - 放在 setup 顶层
 onUnmounted(() => {
+  isUnmounted = true
+
   if (spine) {
     spine.destroy()
+    spine = null
   }
   if (app) {
     app.destroy(true, { children: true, texture: true, baseTexture: true })
+    app = null
+  }
+
+  // 卸载资源并清理两层静态缓存（对齐 Background.vue 验证过的清理逻辑）：
+  // 否则组件卸载后再次挂载（如 keep-alive 缓存被淘汰后重建）时，
+  // Spine.from 会命中引用了已销毁贴图的缓存，渲染时报 alphaMode 空指针
+  if (skeletonAlias && atlasAlias) {
+    // 贴图页由 atlas 加载器以 URL 为键缓存，需一并卸载
+    PIXI.Assets.unload([skeletonAlias, atlasAlias, pageTextureUrl]).catch(() => {
+      // 卸载失败不影响清理流程
+    })
+    // 清理 Spine 静态骨骼缓存（缓存键格式为 skeleton-atlas-scale，scale 默认为 1）
+    delete Spine.skeletonCache[`${skeletonAlias}-${atlasAlias}-1`]
+    // 清理 SpineTexture 静态缓存中已随图集释放的贴图
+    for (const [baseTexture, spineTexture] of SpineTexture.textureMap) {
+      if (spineTexture.texture?.destroyed) {
+        SpineTexture.textureMap.delete(baseTexture)
+      }
+    }
+    skeletonAlias = null
+    atlasAlias = null
+    pageTextureUrl = null
   }
 })
 </script>
