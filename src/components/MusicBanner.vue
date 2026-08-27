@@ -7,6 +7,8 @@ import { useConfig } from '@/composables/useConfig'
 
 const ap = ref(null)
 const songTimes = ref(0)
+const retryCount = ref(0)
+const MAX_RETRY_COUNT = 3
 const songName = ref('')
 const isMiniMode = ref(false)
 
@@ -16,6 +18,8 @@ const ifICP = computed(() => configs.value?.ICP || '')
 const songlist = computed(() => configs.value?.banner?.musicID || [])
 
 const checkScreenSize = () => {
+  if (!ap.value) return
+
   if (ifICP.value) {
     ap.value.setMode('mini')
     return
@@ -55,8 +59,10 @@ onMounted(() => {
 
 // 组件卸载时销毁播放器
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkScreenSize)
   if (ap.value) {
     ap.value.destroy()
+    ap.value = null
   }
 })
 
@@ -64,7 +70,8 @@ onBeforeUnmount(() => {
 const fetchSongData = async (songId) => {
   try {
     const response = await axios.get(
-      `https://api.injahow.cn/meting/?server=netease&type=song&id=${songId}`
+      `https://api.injahow.cn/meting/?server=netease&type=song&id=${songId}`,
+      { timeout: 8000 }
     )
 
     // 检查响应数据结构
@@ -132,6 +139,7 @@ const addRandomSong = async () => {
 
     if (songData) {
       songTimes.value++
+      retryCount.value = 0
       ap.value.list.add(songData)
       ap.value.lrc.show()
       ap.value.play()
@@ -146,12 +154,15 @@ const addRandomSong = async () => {
     if (songTimes.value === 0) {
       console.log('首次加载失败，销毁播放器')
       ap.value.destroy()
+      ap.value = null
     } else {
-      // 如果不是第一次，尝试加载其他歌曲
-      console.log('尝试加载其他歌曲')
-      if (songTimes.value < 3) {
-        // 最多尝试3次
+      // 如果不是第一次，尝试加载其他歌曲（统计连续失败次数，成功时清零）
+      retryCount.value++
+      if (retryCount.value < MAX_RETRY_COUNT) {
+        console.log(`尝试加载其他歌曲（第 ${retryCount.value} 次重试）`)
         setTimeout(() => addRandomSong(), 1000)
+      } else {
+        console.warn('连续加载失败次数已达上限，停止重试')
       }
     }
   }
