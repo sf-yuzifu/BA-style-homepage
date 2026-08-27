@@ -164,7 +164,8 @@ const onEvent = (entry, event) => {
       if (voicePath !== jpPath) {
         const fallbackVoice = new Howl({
           src: [jpPath],
-          volume: 0.3
+          volume: 0.3,
+          onend: () => releaseVoice(fallbackVoice)
         })
         fallbackVoice.play()
         soundList.push(fallbackVoice)
@@ -175,12 +176,14 @@ const onEvent = (entry, event) => {
       if (voicePath !== jpPath) {
         const fallbackVoice = new Howl({
           src: [jpPath],
-          volume: 0.3
+          volume: 0.3,
+          onend: () => releaseVoice(fallbackVoice)
         })
         fallbackVoice.play()
         soundList.push(fallbackVoice)
       }
-    }
+    },
+    onend: () => releaseVoice(voice)
   })
 
   voice.play()
@@ -194,6 +197,12 @@ const stopAllVoices = () => {
     sound.unload()
   }
   soundList = []
+}
+
+// 单条语音播放完毕后自动释放（含解码后的 PCM 缓冲），避免长时间互动后 soundList 只进不出、内存单调增长
+const releaseVoice = (target) => {
+  target.unload()
+  soundList = soundList.filter((s) => s !== target)
 }
 
 // 注册资源别名（若已被 init/live2d.js 预加载注册则跳过，避免重复 add 触发 resolver 覆盖警告）
