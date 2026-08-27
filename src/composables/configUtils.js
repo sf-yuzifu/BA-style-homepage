@@ -79,7 +79,7 @@ export function validateConfig(config) {
               skel: lobby.skel || 'default.skel',
               atlas: lobby.atlas || 'default.atlas',
               voice: lobby.voice || {},
-              offset: lobby.offset || 0.5,
+              offset: lobby.offset ?? 0.5,
               dialogueDisplay: lobby.dialogueDisplay || {
                 x: 0,
                 y: 0,

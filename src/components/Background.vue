@@ -61,6 +61,13 @@ const parseFraction = (fractionString) => {
   return eval(fractionString)
 }
 
+// 解析角色横向偏移：offset: 0 是合法配置值（贴左边缘），不能用 || 判 falsy 吞掉；
+// 仅当解析失败（undefined/非法字符串 → NaN）时才回退默认值
+const parseOffset = (offset, fallback = 0.7) => {
+  const parsed = parseFloat(offset)
+  return Number.isNaN(parsed) ? fallback : parsed
+}
+
 const updateDialoguePosition = () => {
   if (
     currentConfig.value &&
@@ -369,7 +376,7 @@ const doSetL2D = async (num) => {
   animation.y = 1440
   animation.x = 2560 / 2
 
-  originalOffsetPercent = (parseFloat(lobby.offset) || 0.7) * 100
+  originalOffsetPercent = parseOffset(lobby.offset) * 100
   l2d.view.style.transform = `translateX(calc((50% - ${originalOffsetPercent} * 1%) * (1 - min(1, 100vw / 1200px))))`
   // 角色偏移改变，画布布局缓存失效
   cachedViewRect = null
@@ -693,7 +700,7 @@ const loadL2DSkipIdle = async (num) => {
   animation.y = 1440
   animation.x = 2560 / 2
 
-  originalOffsetPercent = (parseFloat(lobby.offset) || 0.7) * 100
+  originalOffsetPercent = parseOffset(lobby.offset) * 100
   l2d.view.style.transform = `translateX(calc((50% - ${originalOffsetPercent} * 1%) * (1 - min(1, 100vw / 1200px))))`
   // 角色偏移改变，画布布局缓存失效
   cachedViewRect = null
