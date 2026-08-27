@@ -1,9 +1,5 @@
 import { ref, computed, watch } from 'vue'
 import baseConfig from '/_config.yaml'
-import enUS from '../locales/en-US.yaml'
-import jaJP from '../locales/ja-JP.yaml'
-import zhCN from '../locales/zh-CN.yaml'
-import zhTW from '../locales/zh-TW.yaml'
 import { detectBrowserLanguage, createConfigLoader } from './configUtils'
 
 // 深度合并配置对象
@@ -86,12 +82,25 @@ function createLocaleConfig(base, translations) {
   return result
 }
 
+// 语言包动态加载：各语言拆为独立 chunk，仅按需加载当前语言，
+// 其余语言的翻译（含全部 voice 文案）不再打进主 chunk
+// 每个 loader 记忆化合并结果（Promise 缓存），重复切换语言时无需重新加载与合并
+const createLocaleLoader = (importFn) => {
+  let cached = null
+  return () => {
+    if (!cached) {
+      cached = importFn().then((m) => createLocaleConfig(baseConfig, m.default))
+    }
+    return cached
+  }
+}
+
 // 支持的语言配置
 const localeConfigs = {
-  'zh-CN': createLocaleConfig(baseConfig, zhCN),
-  'zh-TW': createLocaleConfig(baseConfig, zhTW),
-  'en-US': createLocaleConfig(baseConfig, enUS),
-  'ja-JP': createLocaleConfig(baseConfig, jaJP)
+  'zh-CN': createLocaleLoader(() => import('../locales/zh-CN.yaml')),
+  'zh-TW': createLocaleLoader(() => import('../locales/zh-TW.yaml')),
+  'en-US': createLocaleLoader(() => import('../locales/en-US.yaml')),
+  'ja-JP': createLocaleLoader(() => import('../locales/ja-JP.yaml'))
 }
 
 // 创建配置加载器

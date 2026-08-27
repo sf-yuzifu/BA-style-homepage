@@ -116,8 +116,8 @@ export function createConfigLoader(localeConfigs) {
   for (const [locale, config] of Object.entries(localeConfigs)) {
     loaders[locale] = async () => {
       try {
-        // 如果配置是Promise（异步加载），等待其完成
-        const loadedConfig = await Promise.resolve(config)
+        // 支持三种配置形式：静态对象 / Promise / 动态加载函数（() => import(...)）
+        const loadedConfig = await Promise.resolve(typeof config === 'function' ? config() : config)
         return validateConfig(loadedConfig)
       } catch (error) {
         console.error(`加载语言配置失败 [${locale}]:`, error)
