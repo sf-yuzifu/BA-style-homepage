@@ -15,7 +15,11 @@
   opacity: 0;
 }
 
-/* 内容区域动画 */
+/* 内容区域动画
+   位移距离 = 元素自身尺寸(100%) + 边缘偏移补偿，保证不同尺寸的元素
+   都能在相同时长内恰好完全移出视口（补偿值需覆盖对应组件的 top/left/right/bottom） */
+
+/* 向上离场：Level（top: clamp(40px, 2.5vw)），补偿 max(48px, 3vw) 覆盖该 top 值 */
 .up-enter-active,
 .up-leave-active {
   transition: transform 0.3s ease-out;
@@ -23,7 +27,7 @@
 
 .up-enter-from,
 .up-leave-to {
-  transform: translateY(-300px);
+  transform: translateY(calc(-100% - max(48px, 3vw)));
 }
 
 .up-enter-to,
@@ -31,6 +35,8 @@
   transform: translateY(0);
 }
 
+/* 向下离场：Footer（bottom: clamp(25px, 1.5625vw)、移动端 50px）与
+   ICPBanner 移动端（bottom: clamp(180px, 11.25vw)），补偿 max(190px, 12vw) 覆盖最大 bottom 值 */
 .down-enter-active,
 .down-leave-active {
   transition: transform 0.3s ease-out;
@@ -38,7 +44,7 @@
 
 .down-enter-from,
 .down-leave-to {
-  transform: translateY(300px) skew(-20deg);
+  transform: translateY(calc(100% + max(190px, 12vw))) skew(-20deg);
 }
 
 .down-enter-to,
@@ -46,6 +52,8 @@
   transform: translateY(0) skew(-20deg);
 }
 
+/* 向左离场：Contact（left: clamp(20px, 1.25vw)）与
+   ICPBanner 桌面端（left: clamp(50px, 3.125vw)），补偿 max(56px, 3.5vw) 覆盖最大 left 值 */
 .left-enter-active,
 .left-leave-active {
   transition: transform 0.3s ease-out;
@@ -53,7 +61,7 @@
 
 .left-enter-from,
 .left-leave-to {
-  transform: translateX(-400px);
+  transform: translateX(calc(-100% - max(56px, 3.5vw)));
 }
 
 .left-enter-to,
@@ -61,6 +69,7 @@
   transform: translateX(0);
 }
 
+/* 向右离场：MusicBanner（right: clamp(20px, 1.25vw)），补偿 max(40px, 1.5vw) 覆盖该 right 值 */
 .right-enter-active,
 .right-leave-active {
   transition: transform 0.3s ease-out;
@@ -68,7 +77,7 @@
 
 .right-enter-from,
 .right-leave-to {
-  transform: translateX(300px);
+  transform: translateX(calc(100% + max(40px, 1.5vw)));
 }
 
 .right-enter-to,
@@ -110,7 +119,7 @@
 @media screen and (max-width: 495px) {
   .down-enter-from,
   .down-leave-to {
-    transform: translateY(300px);
+    transform: translateY(calc(100% + max(190px, 12vw)));
   }
 
   .down-enter-to,
@@ -120,7 +129,7 @@
 
   .up-enter-from,
   .up-leave-to {
-    transform: translateY(-300px) skew(-10deg);
+    transform: translateY(calc(-100% - max(48px, 3vw))) skew(-10deg);
   }
 
   .up-enter-to,
