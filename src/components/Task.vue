@@ -168,6 +168,25 @@ const skip = () => {
     transform 0.25s ease-in-out;
 }
 
+@media screen and (max-height: 630px) {
+  .task {
+    width: 160px;
+  }
+
+  /* 矮窗口下任务牌缩小：:before（背景）与 :after（文字）的 left/width/height 必须
+     成对覆写保持一致，否则文字会与背景错位；width: 100% + 4px 对应 left: 0（占满整宽并微突出右缘） */
+  .task:before,
+  .task:after {
+    left: 0;
+    width: calc(100% + 4px);
+    height: 40px;
+  }
+
+  .task:after {
+    font-size: 20px;
+  }
+}
+
 @media screen and (max-width: 1120px) {
   .task {
     right: 60px;
@@ -179,24 +198,6 @@ const skip = () => {
   .task {
     right: 40px;
     bottom: 140px;
-  }
-}
-
-@media screen and (max-height: 630px) {
-  .task {
-    width: 120px;
-    height: 120px;
-  }
-  .task:before {
-    width: calc(100% + 4px);
-    background: #003153;
-    transform: skewX(-10deg);
-    height: 40px;
-  }
-
-  .task:after {
-    height: 40px;
-    font-size: 20px;
   }
 }
 

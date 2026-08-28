@@ -171,6 +171,16 @@ onUnmounted(() => {
   -webkit-user-drag: none;
 }
 
+@media screen and (max-height: 630px) {
+  .time {
+    right: calc(clamp(160px, 10vw, 100vw) + clamp(20px, 1.25vw, 100vw));
+  }
+
+  .divide {
+    right: calc(clamp(160px, 10vw, 100vw) - clamp(1px, 0.0625vw, 100vw));
+  }
+}
+
 @media screen and (max-width: 1120px) {
   .time {
     right: 40px;
