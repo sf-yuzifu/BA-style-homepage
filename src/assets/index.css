@@ -66,6 +66,10 @@ a {
   flex: unset !important;
   font-size: clamp(20px, 1.25vw, 100vw);
   color: #003153;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .arco-modal-header .arco-modal-title:after {

@@ -423,6 +423,10 @@ onUnmounted(() => {
   color: #fff;
   font-size: clamp(24px, 1.5vw, 100vw);
   font-weight: medium;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .container .level span {
@@ -481,6 +485,10 @@ onUnmounted(() => {
 .intro-title .title {
   font-size: clamp(32px, 2.0625vw, 100vw);
   transform: skewX(10deg);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 #right .intro-content {

@@ -116,6 +116,10 @@ onUnmounted(() => {
 
 .time span {
   color: #525f72;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .divide {
@@ -146,6 +150,10 @@ onUnmounted(() => {
 }
 
 .project span {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   margin: clamp(5px, 0.3125vw, 100vw) 0 0;
   color: #003153;
   font-size: clamp(16px, 1vw, 100vw);

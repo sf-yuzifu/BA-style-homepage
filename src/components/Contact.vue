@@ -61,6 +61,10 @@ const contacts = computed(() => {
   color: #003153;
   font-weight: bold;
   position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .contact span::before {

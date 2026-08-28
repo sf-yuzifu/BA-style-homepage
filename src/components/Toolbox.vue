@@ -192,6 +192,10 @@ const pyroxene = computed(() => {
 .toolbox span {
   font-size: clamp(26px, 1.625vw, 100vw);
   transform: skew(10deg);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .toolbox-box .toolbox.about,

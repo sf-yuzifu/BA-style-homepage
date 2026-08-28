@@ -134,6 +134,10 @@ const goBack = () => {
   line-height: 133%;
   border-bottom: clamp(6px, 0.375vw, 100vw) solid #ffe433;
   color: #003153;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .back-icon {
@@ -166,6 +170,10 @@ const goBack = () => {
 
 .item p {
   margin: 0 clamp(8px, 0.5vw, 100vw);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .item img {
