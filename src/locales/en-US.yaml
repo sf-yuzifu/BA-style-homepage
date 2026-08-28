@@ -118,6 +118,10 @@ translate:
   nextPage: Next
   skipIntro: Skip intro
   carouselPage: Page {n}
+  walletApBattery: 'Battery sync: {percent}%'
+  walletApRecover: Recovers 1 AP every 6 minutes
+  walletGold: '{hours} hours spent together'
+  walletPyroxene: 'Daily sign-in streak: {days}'
 
 bio:
   bth:

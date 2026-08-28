@@ -119,6 +119,10 @@ translate:
   nextPage: 次へ
   skipIntro: オープニングをスキップ
   carouselPage: '{n} ページ目'
+  walletApBattery: バッテリー同期中（{percent}%）
+  walletApRecover: 6分ごとに1AP回復
+  walletGold: 一緒に過ごした時間：{hours}時間
+  walletPyroxene: '{days}日連続ログイン'
 
 bio:
   bth:

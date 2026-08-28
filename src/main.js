@@ -10,7 +10,7 @@ import { initApp } from '@/init/app'
 import { initPWA } from '@/init/pwa'
 import { initLinkHandler } from '@/init/links'
 import { useConfig } from '@/composables/useConfig'
-import { useAp } from '@/composables/useAp'
+import { useWallet } from '@/composables/useWallet'
 
 // 初始化应用
 initApp()
@@ -30,9 +30,9 @@ async function startApp() {
     // 等待配置加载完成
     await waitForConfig()
 
-    // 初始化 AP
-    const { initAp } = useAp()
-    initAp()
+    // 初始化钱包（体力/信用点/青辉石）
+    const { initWallet } = useWallet()
+    initWallet()
 
     console.log('main.js 初始化完成，等待useLoading管理')
 

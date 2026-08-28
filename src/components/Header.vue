@@ -1,10 +1,8 @@
 <script setup>
-import { computed } from 'vue'
 import { navigateWithCurtain } from '@/init/links.js'
 import { IconArrowLeft } from '@arco-design/web-vue/es/icon'
 
-import { useConfig } from '@/composables/useConfig'
-import { useAp } from '@/composables/useAp'
+import { useWallet } from '@/composables/useWallet'
 import { useIconFont } from '@/composables/useIconFont'
 
 const props = defineProps({
@@ -14,23 +12,9 @@ const props = defineProps({
   }
 })
 
-const { configs } = useConfig()
-const { ap, maxAp } = useAp()
-
-const currentConfig = computed(() => configs.value)
+const { ap, maxAp, gold, pyroxene, apTooltip, goldTooltip, pyroxeneTooltip } = useWallet()
 
 const { IconFont } = useIconFont()
-
-// Gold 和 Pyroxene 从配置读取
-const gold = computed(() => {
-  if (!currentConfig.value || currentConfig.value.gold === undefined) return 0
-  return currentConfig.value.gold
-})
-
-const pyroxene = computed(() => {
-  if (!currentConfig.value || currentConfig.value.pyroxene === undefined) return 0
-  return currentConfig.value.pyroxene
-})
 
 const goBack = () => {
   navigateWithCurtain('/')
@@ -58,6 +42,7 @@ const goBack = () => {
       <div class="item">
         <img src="/img/ap.png" alt="" />
         <p style="white-space: nowrap">{{ ap + '/' + maxAp }}</p>
+        <div class="wallet-tip">{{ apTooltip }}</div>
       </div>
 
       <a-divider direction="vertical" class="divider"></a-divider>
@@ -65,6 +50,7 @@ const goBack = () => {
       <div class="item">
         <img src="/img/gold.png" alt="" />
         <p>{{ gold.toLocaleString() }}</p>
+        <div class="wallet-tip">{{ goldTooltip }}</div>
       </div>
 
       <a-divider direction="vertical" class="divider"></a-divider>
@@ -72,6 +58,7 @@ const goBack = () => {
       <div class="item">
         <img src="/img/pyroxene.png" alt="" />
         <p>{{ pyroxene.toLocaleString() }}</p>
+        <div class="wallet-tip">{{ pyroxeneTooltip }}</div>
       </div>
 
       <a-divider direction="vertical" class="divider"></a-divider>
@@ -158,6 +145,7 @@ const goBack = () => {
 }
 
 .item {
+  position: relative;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -166,6 +154,29 @@ const goBack = () => {
   font-weight: bold;
   margin: 0 clamp(8px, 0.5vw, 100vw);
   font-size: clamp(26px, 1.625vw, 100vw);
+}
+
+/* 数值说明 tooltip：悬停显示（Header 在页面顶部，tooltip 向下展开） */
+.wallet-tip {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + clamp(8px, 0.5vw, 100vw));
+  transform: translateX(-50%);
+  padding: clamp(6px, 0.375vw, 100vw) clamp(12px, 0.75vw, 100vw);
+  background: #fff;
+  color: #003153;
+  font-size: clamp(18px, 1.125vw, 100vw);
+  border-radius: clamp(6px, 0.375vw, 100vw);
+  box-shadow: 0 clamp(2px, 0.125vw, 100vw) clamp(8px, 0.5vw, 100vw) 0 rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 3;
+}
+
+.item:hover .wallet-tip {
+  opacity: 1;
 }
 
 .item p {

@@ -117,6 +117,10 @@ translate:
   nextPage: 下一页
   skipIntro: 跳过开场动画
   carouselPage: 第 {n} 页
+  walletApBattery: 电量同步中（{percent}%）
+  walletApRecover: 每 6 分钟回复 1 点
+  walletGold: 已累计陪伴 {hours} 小时
+  walletPyroxene: 已连续签到 {days} 天
 
 bio:
   bth:

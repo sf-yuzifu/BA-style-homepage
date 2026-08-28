@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { live2dReady } from '@/init/live2d'
 
-// 模块级单例状态（与 useAp 模式一致），确保 useLoading 与 Loading.vue 共享同一实例
+// 模块级单例状态，确保 useLoading 与 Loading.vue 共享同一实例
 const resources = ref(new Map())
 const loadedCount = ref(0)
 const totalCount = ref(0)

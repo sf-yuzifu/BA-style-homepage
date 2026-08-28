@@ -4,10 +4,10 @@ import { IconInfoCircle } from '@arco-design/web-vue/es/icon'
 import { h, ref, computed, onMounted, onUnmounted } from 'vue'
 
 import { useConfig } from '@/composables/useConfig'
-import { useAp } from '@/composables/useAp'
+import { useWallet } from '@/composables/useWallet'
 
 const { configs } = useConfig()
-const { ap, maxAp } = useAp()
+const { ap, maxAp, gold, pyroxene, apTooltip, goldTooltip, pyroxeneTooltip } = useWallet()
 
 const emit = defineEmits(['switch'])
 const props = defineProps(['l2dOnly', 'canskip'])
@@ -90,17 +90,6 @@ onUnmounted(() => {
   document.body.removeEventListener('click', handleBodyClick)
   hoverMedia.removeEventListener('change', handleHoverChange)
 })
-
-// Gold 和 Pyroxene 从配置读取
-const gold = computed(() => {
-  if (!currentConfig.value || currentConfig.value.gold === undefined) return 0
-  return currentConfig.value.gold
-})
-
-const pyroxene = computed(() => {
-  if (!currentConfig.value || currentConfig.value.pyroxene === undefined) return 0
-  return currentConfig.value.pyroxene
-})
 </script>
 
 <template>
@@ -108,14 +97,17 @@ const pyroxene = computed(() => {
     <div class="toolbox" :class="{ 'toolbox-l2d': props.l2dOnly }">
       <img src="/img/ap.png" alt="" />
       <span>{{ ap + '/' + maxAp }}</span>
+      <div class="wallet-tip">{{ apTooltip }}</div>
     </div>
     <div class="toolbox" :class="{ 'toolbox-l2d': props.l2dOnly }">
       <img src="/img/gold.png" alt="" />
       <span>{{ gold.toLocaleString() }}</span>
+      <div class="wallet-tip">{{ goldTooltip }}</div>
     </div>
     <div class="toolbox" :class="{ 'toolbox-l2d': props.l2dOnly }">
       <img src="/img/pyroxene.png" alt="" />
       <span>{{ pyroxene.toLocaleString() }}</span>
+      <div class="wallet-tip">{{ pyroxeneTooltip }}</div>
     </div>
     <a
       class="about toolbox"
@@ -164,6 +156,7 @@ const pyroxene = computed(() => {
 }
 
 .toolbox-box .toolbox {
+  position: relative;
   min-width: 220px;
   min-height: 56px;
   width: 13.75vw;
@@ -179,6 +172,29 @@ const pyroxene = computed(() => {
     transform 0.3s;
   display: flex;
   align-items: center;
+}
+
+/* 数值说明 tooltip：悬停显示（skew(10deg) 用于抵消父盒子的倾斜） */
+.wallet-tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + clamp(8px, 0.5vw, 100vw));
+  transform: translateX(-50%) skew(10deg);
+  padding: clamp(6px, 0.375vw, 100vw) clamp(12px, 0.75vw, 100vw);
+  background: #fff;
+  color: #003153;
+  font-size: clamp(18px, 1.125vw, 100vw);
+  border-radius: clamp(6px, 0.375vw, 100vw);
+  filter: drop-shadow(0px clamp(2px, 0.125vw, 100vw) clamp(4px, 0.25vw, 100vw) #0003);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 3;
+}
+
+.toolbox:hover .wallet-tip {
+  opacity: 1;
 }
 
 .toolbox img {
