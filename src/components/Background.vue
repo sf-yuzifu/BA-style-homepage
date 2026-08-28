@@ -1047,7 +1047,6 @@ watch(
   margin: auto;
   width: 66%;
   height: 100%;
-  cursor: pointer;
   user-select: none;
   -webkit-user-drag: none;
   opacity: 0;
