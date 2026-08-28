@@ -47,17 +47,27 @@ const bioButtons = computed(() => {
 const openImageDialog = (btn) => {
   if (!btn.path) return
 
+  // 图片加载完成前显示加载占位（防止弹窗高度塌陷），完成后淡入；
+  // content 会被 Arco 包装为默认插槽在渲染期调用，loaded 的读写是响应式的
+  const loaded = ref(false)
+  const finish = () => {
+    loaded.value = true
+  }
+
   Modal.open({
     title: btn.name,
     modalClass: 'card',
     content: () =>
-      h('img', {
-        src: btn.path,
-        alt: btn.name,
-        style: {
-          width: '100%'
-        }
-      }),
+      h('div', { class: ['card-image-box', { loaded: loaded.value }] }, [
+        !loaded.value && h('div', { class: 'card-image-loading' }),
+        h('img', {
+          src: btn.path,
+          alt: btn.name,
+          // 加载失败同样结束占位，露出 alt 兜底
+          onLoad: finish,
+          onError: finish
+        })
+      ]),
     footer: false
   })
 }
@@ -571,9 +581,60 @@ onUnmounted(() => {
 </style>
 
 <style>
+/* 图片弹窗：给定响应式宽度（覆盖 Arco 内联的默认 520px），
+   弹窗尺寸不再依赖图片是否加载完成 */
+.card.arco-modal {
+  width: min(92vw, 1200px) !important;
+}
+
 .card.arco-modal .arco-modal-body {
-  max-width: 75vw !important;
+  max-width: none !important;
   max-height: calc(90vh - clamp(48px, 3vw, 100vw)) !important;
   padding: 0 !important;
+  overflow: hidden;
+}
+
+/* 图片加载前按名片图约 2:1 的比例占位，加载完成后切换为图片自然高度 */
+.card.arco-modal .card-image-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 2 / 1;
+  max-height: inherit;
+}
+
+.card.arco-modal .card-image-box.loaded {
+  aspect-ratio: auto;
+}
+
+.card.arco-modal .card-image-box img {
+  width: 100%;
+  height: auto;
+  max-height: inherit;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.card.arco-modal .card-image-box.loaded img {
+  opacity: 1;
+}
+
+/* 加载中转圈 */
+.card.arco-modal .card-image-loading {
+  position: absolute;
+  width: clamp(32px, 4vw, 48px);
+  height: clamp(32px, 4vw, 48px);
+  border: 3px solid #89d5fd33;
+  border-top-color: #89d5fd;
+  border-radius: 50%;
+  animation: card-image-spin 0.8s linear infinite;
+}
+
+@keyframes card-image-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
