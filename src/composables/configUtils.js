@@ -84,7 +84,12 @@ export function validateConfig(config) {
                 x: 0,
                 y: 0,
                 position: 'left'
-              }
+              },
+              // 交互动效配置（gaze/pat/dragBones，全部可选，缺省自动探测骨骼）
+              interactions:
+                lobby.interactions && typeof lobby.interactions === 'object'
+                  ? lobby.interactions
+                  : {}
             }
           })
         : DEFAULT_CONFIG.memorialLobbies,
