@@ -60,8 +60,8 @@ manifest:
 level: 90 # 当前等级
 exp: 8382 # 当前经验值
 nextExp: 8381 # 升级所需经验值
-gold: 11451419 # 信用点数量
-pyroxene: 24000 # 青辉石数量
+gold: 11451419 # 信用点初始值（首次访问后由本地「陪伴时长」累计接管）
+pyroxene: 24000 # 青辉石初始值（首次访问后由本地「每日签到」累计接管）
 
 # Iconfont字体库地址 - 阿里云图标字体库
 iconfont: 'https://at.alicdn.com/t/c/font_4336463_umq8x001wf9.js'
@@ -145,6 +145,22 @@ banner:
     - 1832392174
 
 # Live2D角色配置
+#
+# 每个角色可选配 interactions 段定制交互动效（全部缺省时按骨名自动探测，一般无需配置；
+# 默认数值取自官方资源包解包的 SpineDragIK 参数， bone 缺省自动探测 Touch_Eye/Touch_Point 等）：
+#   interactions:
+#     # 视线跟随：按住拖动时角色看向触点，伴随 Look_01_M 表情；false 可禁用
+#     gaze: { bone: Touch_Eye, smoothTime: 0.15, minX: -48.1, maxX: 79.0, minY: -57.2, maxY: 98.3 }
+#     # 摸头：长按头部区域触发，头部跟随手指；false 可禁用
+#     pat: { bone: Touch_Point, smoothTime: 0.1, minX: -9.6, maxX: 13.5, minY: -33.9, maxY: 32.6 }
+#     # 捏脸/特殊骨骼拖拽；false 禁用，数组则覆盖自动探测结果（默认自动探测 Face_IK/Neck_IK/breast_* 等）
+#     dragBones:
+#       - { bone: breast_01L, radius: 120, range: 30, smoothTime: 0.08 }
+#       # 面部家族骨骼的命中判定默认在面部锚点；可用 anchor 自定义判定骨（如 { bone: Face_IK, anchor: face, radius: 170 }）
+#       # 也可带动画链（如 aris 的 HandFollow）：{ bone: HandFollow, radius: 180, clips: { start: HandFollow_01_M, chain: HandFollow_02_M, end: HandFollowEnd_01_M } }
+#
+# bone 为骨骼名；minX/maxX/minY/maxY 为拖拽钳制范围（骨架单位，相对基准位置的偏移，可用 range 做对称简写）；
+# radius 为按下命中半径；smoothTime 为平滑时间（秒，越小越跟手）
 memorialLobbies:
   # 角色1 - Aris(Battle)
   - name: Aris(Battle)

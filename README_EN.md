@@ -9,6 +9,7 @@
   <a href='https://gitee.com/sf-yuzifu/homepage/members'><img src='https://gitee.com/sf-yuzifu/homepage/badge/fork.svg?theme=white' alt='Gitee forks' /></a>
   <a href='https://github.com/sf-yuzifu/homepage/stargazers'><img alt="GitHub stars" src="https://img.shields.io/github/stars/sf-yuzifu/homepage"></a>
   <a href='https://github.com/sf-yuzifu/homepage/forks'><img alt="GitHub forks" src="https://img.shields.io/github/forks/sf-yuzifu/homepage"></a>
+  <a href="./LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue"></a>
 </p>
 
 <div align="center">A Blue Archive-style personal homepage for me.</div>
@@ -16,48 +17,82 @@
 ![Fish Archive](shots/en/pic1.png)
 ![Fish Archive - bio](shots/en/pic2.png)
 
-## Preview Links
+## 📖 Introduction
+
+**Fish Archive** is a personal homepage that faithfully recreates the style of the game *Blue Archive*. Built with **Vue 3 + Vite**, it renders memorial lobby skeletal animations (Live2D) from the game via **PIXI.js + Spine**, and implements a series of interactive effects such as head-patting, gaze following, cheek dragging, and voice dialogue — striving to reproduce the immersive feeling of "spending time with students" right in your browser.
+
+All site content (site info, contacts, project showcase, music list, Live2D characters, etc.) can be customized through a single `_config.yaml` file in the root directory — deploy your own homepage without touching the source code.
+
+## ✨ Features
+
+### 🎮 Faithful Game UI Recreation
+
+- Loading screen (progress bar + random avatar)
+- Main interface recreation (Level / AP / Gold / Pyroxene and other game elements)
+- Popup recreation and the "Shittim Chest" curtain transition animation
+- Personal bio and other secondary pages
+
+### 🎭 Memorial Lobby Live2D Interactions (Spine Rendering)
+
+- Switch between multiple student memorial lobbies (previous / next page)
+- Global viewing mode (hide UI and enjoy the memorial lobby)
+- Head-patting: long-press the head area and the student's head follows your finger
+- Tap to talk: trigger character lines and voice
+- Gaze following: the student looks at your pointer while dragging (parameters extracted from official game resources)
+- Cheek dragging / special bone dragging interactions
+- Random blinking and idle motions
+
+### 🎵 Atmosphere
+
+- Banner music player (random playback from NetEase Cloud Music)
+- Blue Archive-style click effects
+- Custom game-style virtual cursor
+- Wallet system: AP syncs with your device battery (falls back to recovering 1 AP per 6 minutes), credits accumulate with time spent on site, and pyroxene comes from daily sign-in rewards (persisted in localStorage, hover for details)
+
+### 🌍 i18n & PWA
+
+- Built-in support for 简体中文 / 繁體中文 / English / 日本語
+- Automatic browser language detection, with language packs loaded on demand
+- PWA offline caching and site update prompts
+
+### ⚡ Performance Optimization
+
+- CJK fonts are subsetted at build time (cn-font-split) and loaded on demand via unicode-range
+- Arco Design imported on demand, route-level lazy loading, grouped vendor chunking
+- Automatic image optimization and gzip compression
+
+## 🔗 Preview
 
 - [Fish Archive](https://yzf.moe)
 - [Fish Archive - Backup](https://yuzifu.top/)
 
-## Current Implementation Status
+## 🛠️ Tech Stack
 
-- [x] Loading screen
-- [x] Main interface recreation
-- [x] Memorial lobby
-- [x] Popup recreation
-- [x] Shittim Chest transition
-- [x] Click effects and animations
-- [x] Multiple student memorial lobby L2D switching
-- [x] Student memorial lobby global viewing
-- [x] Student head-patting and dialogue interactions
-- [x] i18n support
-- [x] Personal information and other secondary interfaces
+| Technology | Purpose |
+| --- | --- |
+| [Vue 3](https://vuejs.org/) + [Vue Router](https://router.vuejs.org/) | Frontend framework and routing |
+| [Vite](https://vitejs.dev/) | Build tool |
+| [PIXI.js](https://github.com/pixijs/pixijs) + [spine-pixi-v7](https://www.npmjs.com/package/@esotericsoftware/spine-pixi-v7) | Memorial lobby Spine skeletal animation rendering |
+| [Arco Design](https://arco.design/) | UI component library (imported on demand) |
+| [APlayer](https://aplayer.js.org/#/) + [howler.js](https://github.com/goldfire/howler.js) | Music playback / character voice playback |
+| [js-yaml](https://github.com/nodeca/js-yaml) | YAML configuration parsing |
+| [vite-plugin-pwa](https://github.com/vite-pwa/vite-plugin-pwa) + Workbox | PWA offline caching |
+| [cn-font-split](https://github.com/KonghaYao/cn-font-split) (via vite-plugin-font) | CJK font subsetting |
+| [ba-click-fx](https://github.com/CialloKing/ba-click-fx) | Click effects |
+| [BlueArchive-Cursors](https://github.com/makipom/BlueArchive-Cursors) | Game-style cursors |
+| [Resource Han Rounded CN](https://github.com/CyanoHao/Resource-Han-Rounded) | Site font |
+| [Iconfont](https://www.iconfont.cn/) | Icon font library |
 
-## Projects Used
-
-- [Vue](https://vuejs.org/)
-- [Vite](https://vitejs.dev/)
-- [Arco Design](https://arco.design/)
-- [PIXIjs](https://github.com/pixijs/pixijs)
-- [spine-pixi-v7](https://www.npmjs.com/package/@esotericsoftware/spine-pixi-v7)
-- [Iconfont](https://www.iconfont.cn/)
-- [cn-font-split](https://github.com/KonghaYao/cn-font-split)
-- [APlayer](https://aplayer.js.org/#/)
-- [howler.js](https://github.com/goldfire/howler.js)
-- [Resource Han Rounded CN](https://github.com/CyanoHao/Resource-Han-Rounded)
-- [ba-click-fx](https://github.com/CialloKing/ba-click-fx)
-- [BlueArchive-Cursors](https://github.com/makipom/BlueArchive-Cursors)
-
-## Deployment Methods
+## 🚀 Deployment
 
 ### Using Third-Party Deployment Platforms
 
 #### 1. Vercel
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/sf-yuzifu/homepage)
 
 #### 2. Netlify
+
 1. `Fork` [this project](https://github.com/sf-yuzifu/homepage)
 2. [Log in to Netlify Console](https://app.netlify.com), select `Add new site` - `Import an exist project` to add a website
 3. Then select GitHub authentication to read our GitHub project list. Search for the repository name we just `Fork`ed in the list, click on the project to start creating our Netlify website based on that repository
@@ -66,8 +101,8 @@
 
 > **Recommended Environment:**
 >
-> node > 18.0.0  
-> npm > 8.15.0
+> - node > 18.0.0
+> - npm > 8.15.0
 
 1. Install yarn
 
@@ -94,14 +129,17 @@ yarn preview
 ```
 
 > After the build is complete, static resources will be generated in the **`dist` directory**. You can upload the **files in the `dist` directory** to your server.
+>
+> For how to deploy on BtPanel, see ([https://cloud.tencent.com/developer/article/1977167](https://cloud.tencent.com/developer/article/1977167))
 
-> For how to deploy on BtPanel ([https://cloud.tencent.com/developer/article/1977167](https://cloud.tencent.com/developer/article/1977167))
+## ⚙️ Customization
 
-## Customization
+All customization is done through **`_config.yaml`** in the root directory (YAML format for easy reading; to migrate from the legacy JSON format, you can use [this website](https://www.json.cn/json2yaml/) to quickly convert JSON to YAML).
 
-> The new version configuration file uses YAML format for easy reading. For quick migration, you can use [this website](https://www.json.cn/json2yaml/) to quickly convert JSON format to YAML format.
-> 
-> Open `_config.yaml` in the root directory, where you will see the following content:
+After modifying the configuration, rebuild and redeploy for changes to take effect.
+
+<details>
+<summary><b>Click to expand the _config.yaml configuration guide</b></summary>
 
 ```yaml
 # Website Basic Configuration
@@ -110,10 +148,18 @@ description: A personal homepage in Blue Archive style. # Website description - 
 favicon: /favicon144.png # Website icon path - small icon displayed in browser tab
 author: Yuzifu # Website author name
 keywords: 'Blue Archive, Xiaoyu yuzifu, Personal Homepage' # Website keywords - used for SEO, comma-separated
-ICP: '' # ICP number -  China registration number, empty if not registered or you're not in China
-gongan: '' # Public Security Registration Number - China registration number, empty if not registered or you're not in China
 
-# PWA Configuration - Progressive Web App configuration (https://developer.mozilla.org/en-US/docs/Web/Manifest)
+# Canonical site URL - used to build absolute URLs for og:image/og:url/canonical
+# (social share cards require absolute URLs). Leave empty to skip og:url/canonical
+# and fall back to a relative og:image path
+url: 'https://yzf.moe'
+
+# ICP number - China registration number, empty if not registered or you're not in China
+ICP: ''
+# Public Security Registration Number - China registration number, empty if not registered or you're not in China
+gongan: ''
+
+# PWA Configuration - Progressive Web App configuration
 manifest:
   name: Fish Archive # PWA app full name
   short_name: Fish Archive # PWA app short name - used for desktop display
@@ -132,12 +178,14 @@ manifest:
       sizes: 144x144
 
 # Personal game level information
-level: 90  # Current level
-exp: 8382   # Current experience points
-nextExp: 8381  # Experience points needed to level up
+level: 90 # Current level
+exp: 8382 # Current experience points
+nextExp: 8381 # Experience points needed to level up
+gold: 11451419 # Initial credits (taken over by the local "time spent together" accumulation after the first visit)
+pyroxene: 24000 # Initial pyroxene (taken over by the local "daily sign-in" accumulation after the first visit)
 
 # Iconfont font library address - Alibaba Cloud icon font library
-iconfont: 'https://at.alicdn.com/t/c/font_4336463_0i6ly0yvyzb.js'
+iconfont: 'https://at.alicdn.com/t/c/font_4336463_umq8x001wf9.js'
 
 # Bottom project showcase area - display related project links (recommended 5)
 dock:
@@ -167,6 +215,24 @@ banner:
     - 2059151619
 
 # Live2D Character Configuration
+#
+# Each character supports an optional `interactions` section to customize interaction effects
+# (when omitted, bones are auto-detected by name, so no configuration is usually needed;
+# default values come from the SpineDragIK parameters in the official resource packages,
+# and `bone` auto-detects Touch_Eye/Touch_Point, etc.):
+#   interactions:
+#     # Gaze following: character looks at the touch point while dragging; false to disable
+#     gaze: { bone: Touch_Eye, smoothTime: 0.15, minX: -48.1, maxX: 79.0, minY: -57.2, maxY: 98.3 }
+#     # Head-patting: triggered by long-pressing the head area, head follows the finger; false to disable
+#     pat: { bone: Touch_Point, smoothTime: 0.1, minX: -9.6, maxX: 13.5, minY: -33.9, maxY: 32.6 }
+#     # Cheek/special bone dragging; false to disable, an array overrides auto-detection
+#     # (by default auto-detects Face_IK/Neck_IK/breast_* etc.)
+#     dragBones:
+#       - { bone: breast_01L, radius: 120, range: 30, smoothTime: 0.08 }
+#
+# `bone` is the bone name; minX/maxX/minY/maxY are drag clamp ranges (in skeleton units,
+# offsets relative to the base position; `range` can be used as a symmetric shorthand);
+# `radius` is the press hit radius; `smoothTime` is the smoothing time (in seconds, smaller = more responsive)
 memorialLobbies:
   # Character 1 - Aris
   - name: Aris
@@ -203,12 +269,20 @@ bio:
     - name: Arknights
       path: /img/card/arknight.png
 ```
-> Modify the relevant content, then redeploy according to the above methods to complete the modification.
 
-## About i18n
-This project supports multilingual internationalization, with `Simplified Chinese` as the default language, located in `_config.yaml`. Built-in languages include `English`, `日本語`, and `繁體中文`, located in `src/locales/en-US.yaml`, `src/locales/ja-JP.yaml`, and `src/locales/zh-TW.yaml` respectively.
+</details>
+
+## 🌐 About i18n
+
+This project supports multilingual internationalization. The configuration adopts a two-layer structure of "**base config + language pack override**":
+
+- **`_config.yaml`**: the base configuration, holding language-agnostic content (resource paths, links, icons, etc.)
+- **`src/locales/*.yaml`**: per-language translation files, deep-merged over the text content of the base config
+
+The site automatically detects the visitor's browser language and loads the matching language pack, falling back to English when unmatched. Language packs are split into independent chunks and loaded on demand, so they won't slow down the first screen.
 
 ### Translation File Directory Structure
+
 ```
 src/locales/
 ├── zh-CN.yaml  # Simplified Chinese translation file
@@ -218,7 +292,9 @@ src/locales/
 ```
 
 ### Translation File Configuration Items
+
 Taking `src/locales/en-US.yaml` as an example, the translation file contains the following configuration items:
+
 ```yaml
 # Website title, description and keywords
 title: Website Title
@@ -234,7 +310,7 @@ manifest:
 # Author name
 author: Author Name
 
-# Bottom project showcase area
+# Bottom project showcase area (matches dock in _config.yaml by index)
 dock:
   - name: Project Name
 
@@ -250,7 +326,7 @@ task:
 memorialLobbies:
   - name: Character Name
 
-# Character voice dialogue translation
+# Character voice dialogue translation (configured per character index)
 memorialLobbies[0]:
   voice:
     dialogue_key: Dialogue Content
@@ -258,7 +334,7 @@ memorialLobbies[0]:
 # Common interface translation strings
 translate:
   about: About
-  projectWebsite: Project URL:
+  projectWebsite: 'Project URL:'
   info: Notification
   ifSkip: Skip?
   update: Site Update Notification
@@ -278,16 +354,20 @@ bio:
     - name: Arknights
 ```
 
-## About Student Memorial Lobby L2D File Acquisition
+## 🎁 About Student Memorial Lobby L2D File Acquisition
 
 1. Extract from the game yourself
 2. Go to [Kivotos Library](https://kivo.fun/), navigate to `Character Collection` — `Switch to Appreciation Mode` — `Memorial Lobby` to capture the files yourself
 
-## Best Practices Based on This Project
+## 💖 Best Practices Based on This Project
 
 > Thank you to all the experts who use this project for further improving it 😭😭😭
-> 
+>
 > Welcome other experts to submit best practices through Issues ❤❤❤
 
 1. [Home - 杏仁レモンティー](https://apricotlemontea.com/)
 2. [ElectroHeavenVN's Homepage](https://electroheavenvn.github.io/homepage/)
+
+## 📄 License
+
+This project is open source under the [MIT License](./LICENSE).
