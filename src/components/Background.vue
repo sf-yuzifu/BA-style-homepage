@@ -141,12 +141,17 @@ const dialogueDisplay = ref<{
   position: 'left'
 })
 
+// resolution 提高内部缓冲清晰度（CSS 仍负责铺满视口）
 const l2d = new PIXI.Application({
   width: 2560,
   height: 1440,
-  backgroundAlpha: 0
+  backgroundAlpha: 0,
+  antialias: true,
+  resolution: Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 2),
+  powerPreference: 'high-performance'
 })
 const canvas = l2d.view as unknown as HTMLCanvasElement
+const spineLayer = l2d.stage
 
 // 将 client 坐标换算为 spine 骨架世界坐标（骨骼 worldX/worldY 所在空间）：
 // 先按 canvas 缩放/偏移换算到 stage，再减去 Spine 容器位置并除以容器缩放（0.85）。
@@ -332,7 +337,7 @@ const doSetL2D = async (num: L2DTarget): Promise<void> => {
   // 卸载反而会使切回时重新下载/解码/上传 GPU，出现约 1s 卡顿）
   if (animation) {
     detachInteractions()
-    l2d.stage.removeChild(animation)
+    spineLayer.removeChild(animation)
     animation.destroy()
     animation = null
   }
@@ -362,7 +367,7 @@ const doSetL2D = async (num: L2DTarget): Promise<void> => {
     if (animation) {
       // 初始化辅助轨道：1=Idle_01_R（场景副动画，缺失时 Dummy 占位）、2/3=交互 M/A
       initTracks(animation)
-      l2d.stage.addChild(animation)
+      spineLayer.addChild(animation)
       // 记录已加载角色的资源标识，供语言切换时判重（资源未变则跳过重载）
       loadedL2DKey = skeletonPath + '|' + atlasPath
     } else {
@@ -730,7 +735,7 @@ const stopAllVoiceAndCleanup = () => {
     if (animation.state) {
       animation.state.listeners = []
     }
-    l2d.stage.removeChild(animation)
+    spineLayer.removeChild(animation)
     animation.destroy()
     animation = null
   }
@@ -821,7 +826,7 @@ const loadL2DSkipIdle = async (num: number): Promise<void> => {
     animation = Spine.from(skeletonAlias, atlasAlias)
     if (animation) {
       initTracks(animation)
-      l2d.stage.addChild(animation)
+      spineLayer.addChild(animation)
       // 记录已加载角色的资源标识，供语言切换时判重（资源未变则跳过重载）
       loadedL2DKey = skeletonPath + '|' + atlasPath
     } else {
@@ -879,7 +884,7 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleWindowResize)
   window.removeEventListener('blur', cancelPressSession)
 
-  // 销毁PIXI应用（destroy(true) 会自动将canvas从DOM中移除）
+  // destroy(true) 会自动将 canvas 从 DOM 中移除
   if (l2d) {
     l2d.destroy(true)
   }
