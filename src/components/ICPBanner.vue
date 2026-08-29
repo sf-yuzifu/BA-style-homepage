@@ -190,5 +190,9 @@ const icpTitle = computed(() => configs.value?.icp?.title || '备案信息')
   .title {
     color: #003153;
   }
+
+  #icp-container:active {
+    transform: scale(1);
+  }
 }
 </style>
