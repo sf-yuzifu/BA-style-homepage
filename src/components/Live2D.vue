@@ -1,10 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { Spine, SpineTexture } from '@esotericsoftware/spine-pixi-v7'
 import * as PIXI from 'pixi.js'
 import { ref, onMounted, onUnmounted, onActivated, onDeactivated, computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
 
 const { configs } = useConfig()
+const LIVE2D_TIME_SCALE = 0.8
 
 // 从配置中获取bio角色的Live2D配置
 const bioConfig = computed(() => {
@@ -19,13 +20,13 @@ const bioConfig = computed(() => {
   return configs.value.bio.student[0]
 })
 
-const l2dContainer = ref(null)
-let app = null
-let spine = null
+const l2dContainer = ref<HTMLDivElement | null>(null)
+let app: PIXI.Application<HTMLCanvasElement> | null = null
+let spine: Spine | null = null
 let isUnmounted = false // 组件卸载标记，await 加载期间卸载时阻止后续初始化
-let skeletonAlias = null
-let atlasAlias = null
-let pageTextureUrl = null
+let skeletonAlias: string | null = null
+let atlasAlias: string | null = null
+let pageTextureUrl: string | null = null
 
 onMounted(async () => {
   if (!l2dContainer.value) return
@@ -41,14 +42,15 @@ onMounted(async () => {
   const containerWidth = 2560
   const containerHeight = 1440
 
-  app = new PIXI.Application({
+  const pixiApp = new PIXI.Application<HTMLCanvasElement>({
     width: containerWidth,
     height: containerHeight,
     backgroundAlpha: 0,
     antialias: true
   })
+  app = pixiApp
 
-  l2dContainer.value.appendChild(app.view)
+  l2dContainer.value.appendChild(pixiApp.view)
 
   try {
     // 从配置构建资源路径
@@ -73,16 +75,17 @@ onMounted(async () => {
     if (isUnmounted) return
 
     // 创建 Spine 实例
-    spine = Spine.from({
+    const loadedSpine = Spine.from({
       skeleton: skeletonAlias,
       atlas: atlasAlias
     })
+    spine = loadedSpine
 
     // 添加到舞台
-    app.stage.addChild(spine)
+    pixiApp.stage.addChild(loadedSpine)
 
     // 等待一帧让 spine 初始化完成
-    app.ticker.addOnce(() => {
+    pixiApp.ticker.addOnce(() => {
       if (!spine) return
 
       // 设置缩放
@@ -94,6 +97,7 @@ onMounted(async () => {
 
       // 播放默认动画
       if (spine.state) {
+        spine.state.timeScale = LIVE2D_TIME_SCALE
         spine.state.setAnimation(0, 'Idle_01', true)
       }
     })
@@ -128,7 +132,7 @@ onUnmounted(() => {
   // 卸载资源并清理两层静态缓存（对齐 Background.vue 验证过的清理逻辑）：
   // 否则组件卸载后再次挂载（如 keep-alive 缓存被淘汰后重建）时，
   // Spine.from 会命中引用了已销毁贴图的缓存，渲染时报 alphaMode 空指针
-  if (skeletonAlias && atlasAlias) {
+  if (skeletonAlias && atlasAlias && pageTextureUrl) {
     // 贴图页由 atlas 加载器以 URL 为键缓存，需一并卸载
     PIXI.Assets.unload([skeletonAlias, atlasAlias, pageTextureUrl]).catch(() => {
       // 卸载失败不影响清理流程
@@ -136,9 +140,14 @@ onUnmounted(() => {
     // 清理 Spine 静态骨骼缓存（缓存键格式为 skeleton-atlas-scale，scale 默认为 1）
     delete Spine.skeletonCache[`${skeletonAlias}-${atlasAlias}-1`]
     // 清理 SpineTexture 静态缓存中已随图集释放的贴图
-    for (const [baseTexture, spineTexture] of SpineTexture.textureMap) {
-      if (spineTexture.texture?.destroyed) {
-        SpineTexture.textureMap.delete(baseTexture)
+    const textureMap = (
+      SpineTexture as unknown as {
+        textureMap: Map<PIXI.BaseTexture, SpineTexture>
+      }
+    ).textureMap
+    for (const [baseTexture, spineTexture] of textureMap) {
+      if (spineTexture.texture.destroyed) {
+        textureMap.delete(baseTexture)
       }
     }
     skeletonAlias = null

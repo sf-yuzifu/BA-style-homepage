@@ -1,7 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
 
-const props = defineProps(['percent'])
+defineProps<{ percent: number }>()
 
 const imgList = [
   'https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar1.c18ce793.png',
@@ -40,7 +40,7 @@ onUnmounted(() => {
     </div>
     <div class="progress_wrapper">
       <h1 class="title">connecting...</h1>
-      <div class="percent">{{ Math.floor(props.percent * 100) + '%' }}</div>
+      <div class="percent">{{ Math.floor(percent * 100) + '%' }}</div>
     </div>
   </div>
 </template>

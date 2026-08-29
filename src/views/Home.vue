@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
 import Footer from '@/components/Footer.vue'
 import Level from '@/components/Level.vue'
@@ -35,7 +35,7 @@ const switchL2D = () => {
   l2dOnly.value = !l2dOnly.value
 }
 
-const canSkip = (value) => {
+const canSkip = (value: boolean) => {
   canSkipit.value = value
 }
 </script>

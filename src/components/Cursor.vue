@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue'
 import { BAClickFX } from 'ba-click-fx'
 
 // 蔚蓝档案点击特效与光标拖尾实例
-let fx = null
+let fx: BAClickFX | null = null
 
 onMounted(() => {
   // 默认全屏挂载覆盖层，WebGL2 渲染，自动监听点击特效与拖拽拖尾

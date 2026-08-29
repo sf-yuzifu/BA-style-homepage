@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
 const { configs } = useConfig()
@@ -15,7 +15,7 @@ const taskInfo = computed(() => {
 const curtain = ref(false)
 const bg = ref(false)
 
-const props = defineProps(['l2dOnly'])
+const props = defineProps<{ l2dOnly: boolean }>()
 
 // 转场时序（毫秒）
 const CURTAIN_OPEN_DELAY = 700 // 开场视频开始播放后，幕布拉开的延迟

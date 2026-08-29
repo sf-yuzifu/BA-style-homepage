@@ -1,9 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, h } from 'vue'
 import { Modal } from '@arco-design/web-vue'
 import { useConfig } from '@/composables/useConfig'
 import Header from '@/components/Header.vue'
 import Live2D from '@/components/Live2D.vue'
+import type { BioBth } from '@/types/config'
 
 const { configs } = useConfig()
 
@@ -44,7 +45,7 @@ const bioButtons = computed(() => {
 })
 
 // 打开图片 Dialog（命令式 Modal，无需响应式状态）
-const openImageDialog = (btn) => {
+const openImageDialog = (btn: BioBth) => {
   if (!btn.path) return
 
   // 图片加载完成前显示加载占位（防止弹窗高度塌陷），完成后淡入；
@@ -92,7 +93,7 @@ const strokeWidth = computed(() => {
 
 // Carousel 指示器状态
 const currentSlide = ref(0)
-const carouselWrapper = ref(null)
+const carouselWrapper = ref<HTMLDivElement | null>(null)
 
 const updateCurrentSlide = () => {
   if (!carouselWrapper.value) return
@@ -101,7 +102,7 @@ const updateCurrentSlide = () => {
   currentSlide.value = Math.round(scrollLeft / slideWidth)
 }
 
-const goToSlide = (index) => {
+const goToSlide = (index: number) => {
   if (!carouselWrapper.value) return
   const slideWidth = carouselWrapper.value.clientWidth
   carouselWrapper.value.scrollTo({
@@ -111,8 +112,11 @@ const goToSlide = (index) => {
 }
 
 // 轮播圆点的无障碍标签（i18n，{n} 占位符替换为页码）
-const slideLabel = (index) =>
-  (translate.value.carouselPage || 'Page {n}').replace('{n}', String(index + 1))
+const slideLabel = (index: number) => {
+  const template = translate.value.carouselPage
+  const text = typeof template === 'string' ? template : 'Page {n}'
+  return text.replace('{n}', String(index + 1))
+}
 
 onMounted(() => {
   // 监听 carousel 滚动

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Modal } from '@arco-design/web-vue'
 import { IconInfoCircle } from '@arco-design/web-vue/es/icon'
 import { h, ref, computed, onMounted, onUnmounted } from 'vue'
@@ -9,8 +9,13 @@ import { useWallet } from '@/composables/useWallet'
 const { configs } = useConfig()
 const { ap, maxAp, gold, pyroxene, apTooltip, goldTooltip, pyroxeneTooltip } = useWallet()
 
-const emit = defineEmits(['switch'])
-const props = defineProps(['l2dOnly', 'canskip'])
+const emit = defineEmits<{
+  switch: []
+}>()
+const props = defineProps<{
+  l2dOnly?: boolean
+  canskip?: boolean
+}>()
 
 const currentConfig = computed(() => configs.value)
 const img = ref('/img/max.png')
@@ -36,13 +41,17 @@ const identifyOriginalAuthor = () => {
 const isOriginalAuthor = computed(() => identifyOriginalAuthor())
 
 const about = () => {
-  if (!currentConfig.value || !currentConfig.value.translate) {
+  const config = currentConfig.value
+  const translations = config?.translate
+  if (!config || !translations) {
     console.warn('配置未准备好，无法显示关于对话框')
     return
   }
 
   // 构建版权信息内容
-  const copyrightContent = [`© ${new Date().getFullYear()} ${currentConfig.value.author}`]
+  const copyrightContent: Array<string | ReturnType<typeof h>> = [
+    `© ${new Date().getFullYear()} ${config.author}`
+  ]
 
   // 如果不是原创者，添加"made by"信息
   if (!isOriginalAuthor.value) {
@@ -50,10 +59,10 @@ const about = () => {
   }
 
   Modal.open({
-    title: currentConfig.value.translate.about,
+    title: translations.about ?? '',
     content: () => [
       h('p', {}, copyrightContent),
-      h('span', {}, currentConfig.value.translate.projectWebsite),
+      h('span', {}, translations.projectWebsite),
       h('a', { href: 'https://github.com/sf-yuzifu/homepage', target: '_blank' }, 'Github')
     ],
     footer: false
@@ -77,7 +86,7 @@ const handleBodyClick = () => {
 }
 
 // 触屏状态变化时更新
-const handleHoverChange = (e) => {
+const handleHoverChange = (e: MediaQueryListEvent) => {
   hover.value = e.matches
 }
 
@@ -137,8 +146,8 @@ onUnmounted(() => {
         opacity: (!props.l2dOnly || (showMin && hover)) && !props.canskip ? 1 : 0,
         // canskip（开场动画）期间彻底禁用交互：不吞掉下方跳过遮罩的点击、不是 tab 停靠点
         // 注意不能对 l2dOnly 桌面端的透明状态禁用——那里依赖 :hover 显现按钮（.canHover:hover）
-        pointerEvents: props.canskip ? 'none' : '',
-        visibility: props.canskip ? 'hidden' : ''
+        pointerEvents: props.canskip ? ('none' as const) : undefined,
+        visibility: props.canskip ? ('hidden' as const) : undefined
       }"
     >
       <img alt="" :src="img" />

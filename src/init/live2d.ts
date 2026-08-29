@@ -2,12 +2,12 @@ import * as PIXI from 'pixi.js'
 import { useConfig } from '@/composables/useConfig'
 
 // Live2D 资源加载完成的共享 Promise（替代 window.l2d_complete 全局标记）
-let resolveLive2DReady
-export const live2dReady = new Promise((resolve) => {
+let resolveLive2DReady!: () => void
+export const live2dReady = new Promise<void>((resolve) => {
   resolveLive2DReady = resolve
 })
 
-export async function initLive2D() {
+export async function initLive2D(): Promise<boolean> {
   try {
     const { waitForConfig } = useConfig()
 

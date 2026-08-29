@@ -1,5 +1,7 @@
+import type { AppConfig, LocaleCode, MemorialLobby } from '@/types/config'
+
 // 语言映射配置
-const LANGUAGE_MAP = {
+const LANGUAGE_MAP: Record<string, LocaleCode> = {
   zh: 'zh-CN',
   'zh-CN': 'zh-CN',
   'zh-TW': 'zh-TW',
@@ -16,21 +18,26 @@ const DEFAULT_CONFIG = {
   level: 1,
   exp: 0,
   nextExp: 0,
-  dock: [],
-  contact: [],
-  memorialLobbies: [],
+  dock: [] as AppConfig['dock'],
+  contact: [] as AppConfig['contact'],
+  memorialLobbies: [] as NonNullable<AppConfig['memorialLobbies']>,
   banner: {
-    musicID: []
+    musicID: [] as number[]
   }
-}
+} as AppConfig
+
+export type LocaleConfigSource =
+  | AppConfig
+  | Promise<AppConfig>
+  | (() => AppConfig | Promise<AppConfig>)
 
 /**
  * 自动检测浏览器语言
  * @param {Object} supportedLanguages - 支持的语言列表
  * @returns {string} 检测到的语言代码
  */
-export function detectBrowserLanguage(supportedLanguages) {
-  const browserLang = navigator.language || navigator.userLanguage
+export function detectBrowserLanguage(supportedLanguages: string[]): LocaleCode | string {
+  const browserLang = navigator.language || navigator.userLanguage || ''
 
   // 精确匹配
   if (LANGUAGE_MAP[browserLang] && supportedLanguages.includes(LANGUAGE_MAP[browserLang])) {
@@ -52,26 +59,28 @@ export function detectBrowserLanguage(supportedLanguages) {
  * @param {Object} config - 原始配置
  * @returns {Object} 验证后的安全配置
  */
-export function validateConfig(config) {
+export function validateConfig(config: unknown): AppConfig {
   if (!config || typeof config !== 'object') {
     return DEFAULT_CONFIG
   }
 
+  const raw = config as Partial<AppConfig>
+
   try {
     return {
       ...DEFAULT_CONFIG,
-      ...config,
+      ...raw,
 
       // 确保数字字段安全
-      level: Number(config.level) || DEFAULT_CONFIG.level,
-      exp: Number(config.exp) || DEFAULT_CONFIG.exp,
-      nextExp: Number(config.nextExp) || DEFAULT_CONFIG.nextExp,
+      level: Number(raw.level) || DEFAULT_CONFIG.level,
+      exp: Number(raw.exp) || DEFAULT_CONFIG.exp,
+      nextExp: Number(raw.nextExp) || DEFAULT_CONFIG.nextExp,
 
       // 确保数组字段安全
-      dock: Array.isArray(config.dock) ? config.dock : DEFAULT_CONFIG.dock,
-      contact: Array.isArray(config.contact) ? config.contact : DEFAULT_CONFIG.contact,
-      memorialLobbies: Array.isArray(config.memorialLobbies)
-        ? config.memorialLobbies.map((lobby, index) => {
+      dock: Array.isArray(raw.dock) ? raw.dock : DEFAULT_CONFIG.dock,
+      contact: Array.isArray(raw.contact) ? raw.contact : DEFAULT_CONFIG.contact,
+      memorialLobbies: Array.isArray(raw.memorialLobbies)
+        ? raw.memorialLobbies.map((lobby: Partial<MemorialLobby>, index: number) => {
             // 确保每个纪念大厅配置都有必需的属性
             return {
               name: lobby.name || `角色${index}`,
@@ -97,10 +106,10 @@ export function validateConfig(config) {
       // 确保banner配置安全
       banner: {
         ...DEFAULT_CONFIG.banner,
-        ...config.banner,
-        musicID: Array.isArray(config.banner?.musicID)
-          ? config.banner.musicID.map((id) => Number(id) || 0)
-          : DEFAULT_CONFIG.banner.musicID
+        ...raw.banner,
+        musicID: Array.isArray(raw.banner?.musicID)
+          ? raw.banner.musicID.map((id) => Number(id) || 0)
+          : (DEFAULT_CONFIG.banner?.musicID ?? [])
       }
     }
   } catch (error) {
@@ -114,8 +123,8 @@ export function validateConfig(config) {
  * @param {Object} localeConfigs - 各语言配置文件
  * @returns {Object} 配置加载器方法
  */
-export function createConfigLoader(localeConfigs) {
-  const loaders = {}
+export function createConfigLoader(localeConfigs: Record<string, LocaleConfigSource>) {
+  const loaders: Record<string, () => Promise<AppConfig>> = {}
 
   // 预加载所有语言配置
   for (const [locale, config] of Object.entries(localeConfigs)) {
@@ -132,7 +141,7 @@ export function createConfigLoader(localeConfigs) {
   }
 
   return {
-    async getConfig(locale) {
+    async getConfig(locale: string): Promise<AppConfig> {
       const loader = loaders[locale]
       if (!loader) {
         console.warn(`不支持的语言: ${locale}`)
@@ -141,7 +150,7 @@ export function createConfigLoader(localeConfigs) {
       return await loader()
     },
 
-    getSupportedLocales() {
+    getSupportedLocales(): string[] {
       return Object.keys(localeConfigs)
     }
   }

@@ -1,21 +1,29 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, type Ref } from 'vue'
 import baseConfig from '/_config.yaml'
+import type { AppConfig, MemorialLobby } from '@/types/config'
 import { detectBrowserLanguage, createConfigLoader } from './configUtils'
 
 // 深度合并配置对象
-function deepMerge(base, override) {
-  if (typeof base !== 'object' || base === null) return override
-  if (typeof override !== 'object' || override === null) return override
+function deepMerge<T>(base: T, override: unknown): T {
+  if (typeof base !== 'object' || base === null) return override as T
+  if (typeof override !== 'object' || override === null) return override as T
 
-  const result = { ...base }
+  const result: Record<string, unknown> = { ...(base as Record<string, unknown>) }
+  const overrideObj = override as Record<string, unknown>
 
-  for (const key in override) {
-    if (key in result && typeof result[key] === 'object' && typeof override[key] === 'object') {
+  for (const key in overrideObj) {
+    if (
+      key in result &&
+      typeof result[key] === 'object' &&
+      typeof overrideObj[key] === 'object'
+    ) {
       // 特别处理数组类型的合并（memorialLobbies等）
-      if (Array.isArray(result[key]) && Array.isArray(override[key])) {
+      if (Array.isArray(result[key]) && Array.isArray(overrideObj[key])) {
         // 对于数组，按照索引进行对象合并
-        result[key] = result[key].map((baseItem, index) => {
-          const overrideItem = override[key][index]
+        const baseArr = result[key] as unknown[]
+        const overrideArr = overrideObj[key] as unknown[]
+        result[key] = baseArr.map((baseItem, index) => {
+          const overrideItem = overrideArr[index]
           if (overrideItem && typeof overrideItem === 'object') {
             return deepMerge(baseItem, overrideItem)
           }
@@ -23,24 +31,27 @@ function deepMerge(base, override) {
         })
 
         // 如果翻译数组比基础数组长，添加新的项目
-        if (override[key].length > result[key].length) {
-          for (let i = result[key].length; i < override[key].length; i++) {
-            result[key].push(override[key][i])
+        if (overrideArr.length > (result[key] as unknown[]).length) {
+          for (let i = (result[key] as unknown[]).length; i < overrideArr.length; i++) {
+            ;(result[key] as unknown[]).push(overrideArr[i])
           }
         }
       } else {
-        result[key] = deepMerge(result[key], override[key])
+        result[key] = deepMerge(result[key], overrideObj[key])
       }
     } else {
-      result[key] = override[key]
+      result[key] = overrideObj[key]
     }
   }
 
-  return result
+  return result as T
 }
 
 // 特殊处理YAML数组索引语法的合并（如 memorialLobbies[0]: voice: ...）
-function mergeArraysWithIndexOverrides(baseArray, translations) {
+function mergeArraysWithIndexOverrides(
+  baseArray: MemorialLobby[],
+  translations: Record<string, unknown>
+): MemorialLobby[] {
   if (!Array.isArray(baseArray)) {
     return baseArray
   }
@@ -66,17 +77,19 @@ function mergeArraysWithIndexOverrides(baseArray, translations) {
 }
 
 // 创建完整的配置（基础配置 + 翻译）
-function createLocaleConfig(base, translations) {
+function createLocaleConfig(base: AppConfig, translations: unknown): AppConfig {
   if (!translations || typeof translations !== 'object') {
     return base
   }
 
+  const translationsObj = translations as Record<string, unknown>
+
   // 首先进行基础合并
-  const result = deepMerge(base, translations)
+  const result = deepMerge(base, translationsObj)
 
   // 特别处理 memorialLobbies 的数组合并
-  if (Array.isArray(base.memorialLobbies) && translations) {
-    result.memorialLobbies = mergeArraysWithIndexOverrides(base.memorialLobbies, translations)
+  if (Array.isArray(base.memorialLobbies) && translationsObj) {
+    result.memorialLobbies = mergeArraysWithIndexOverrides(base.memorialLobbies, translationsObj)
   }
 
   return result
@@ -85,8 +98,8 @@ function createLocaleConfig(base, translations) {
 // 语言包动态加载：各语言拆为独立 chunk，仅按需加载当前语言，
 // 其余语言的翻译（含全部 voice 文案）不再打进主 chunk
 // 每个 loader 记忆化合并结果（Promise 缓存），重复切换语言时无需重新加载与合并
-const createLocaleLoader = (importFn) => {
-  let cached = null
+const createLocaleLoader = (importFn: () => Promise<{ default: AppConfig }>) => {
+  let cached: Promise<AppConfig> | null = null
   return () => {
     if (!cached) {
       cached = importFn().then((m) => createLocaleConfig(baseConfig, m.default))
@@ -107,11 +120,11 @@ const localeConfigs = {
 const configLoader = createConfigLoader(localeConfigs)
 
 // 全局状态（单例模式）
-let globalCurrentLocale = ref('en-US')
-let globalCurrentConfig = ref(null)
-let globalIsLoading = ref(false)
-let globalIsInitialized = ref(false)
-let globalIsInitializing = ref(false)
+const globalCurrentLocale = ref('en-US')
+const globalCurrentConfig: Ref<AppConfig | null> = ref(null)
+const globalIsLoading = ref(false)
+const globalIsInitialized = ref(false)
+const globalIsInitializing = ref(false)
 // 配置加载代际：每次发起新加载递增，仅最新一代的结果允许写入全局配置。
 // 修复语言切换竞态：旧实现在加载中直接 return 丢弃新语言请求，
 // 导致 locale 已是新语言、配置仍是旧语言（在途旧请求完成后覆盖）
@@ -197,7 +210,7 @@ export function useConfig() {
   const configs = computed(() => globalCurrentConfig.value)
 
   // 等待配置加载完成
-  const waitForConfig = () => {
+  const waitForConfig = (): Promise<AppConfig> => {
     return new Promise((resolve, reject) => {
       if (!globalIsLoading.value && globalCurrentConfig.value) {
         resolve(globalCurrentConfig.value)
@@ -224,7 +237,7 @@ export function useConfig() {
   }
 
   // 手动切换语言
-  const setLocale = (locale) => {
+  const setLocale = (locale: string) => {
     if (configLoader.getSupportedLocales().includes(locale)) {
       globalCurrentLocale.value = locale
       // 同步页面语言标记

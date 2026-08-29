@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onUnmounted } from 'vue'
 import { useConfig } from '@/composables/useConfig'
 import { useIconFont } from '@/composables/useIconFont'
@@ -14,7 +14,7 @@ const dockSites = computed(() => {
   return currentConfig.value.dock
 })
 
-const addZero = (time) => {
+const addZero = (time: number) => {
   return time < 10 ? '0' + time : time
 }
 

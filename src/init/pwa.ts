@@ -1,6 +1,7 @@
 import { Modal } from '@arco-design/web-vue'
 import { registerSW } from 'virtual:pwa-register'
 import { useConfig } from '@/composables/useConfig'
+import type { AppConfig } from '@/types/config'
 
 export function initPWA() {
   if ('serviceWorker' in navigator) {
@@ -9,7 +10,7 @@ export function initPWA() {
     const updateSW = registerSW({
       // onNeedRefresh 由 SW 触发，时机不可控（可能早于配置就绪），需先等待配置加载完成
       async onNeedRefresh() {
-        let config
+        let config: Pick<AppConfig, 'translate'> | AppConfig
         try {
           config = await waitForConfig()
         } catch (error) {
@@ -25,11 +26,12 @@ export function initPWA() {
           }
         }
 
+        const t = config.translate
         Modal.open({
-          title: config.translate.info,
-          content: config.translate.update,
-          okText: config.translate.ok,
-          cancelText: config.translate.cancel,
+          title: t?.info ?? 'Update',
+          content: t?.update ?? 'A new version is available. Refresh now?',
+          okText: t?.ok ?? 'Refresh',
+          cancelText: t?.cancel ?? 'Later',
           onOk: () => {
             updateSW(true)
           }

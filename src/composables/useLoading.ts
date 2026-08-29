@@ -11,7 +11,7 @@ export function useLoading() {
 
   // 添加平滑动画相关状态
   const targetPercent = ref(0)
-  const animationFrame = ref(null)
+  const animationFrame = ref<number | null>(null)
 
   // 使用资源加载管理器和配置
   const resourceLoader = useResourceLoader()

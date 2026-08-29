@@ -1,11 +1,11 @@
-<script setup>
-import { navigateWithCurtain } from '@/init/links.js'
+<script setup lang="ts">
+import { navigateWithCurtain } from '@/init/links'
 import { IconArrowLeft } from '@arco-design/web-vue/es/icon'
 
 import { useWallet } from '@/composables/useWallet'
 import { useIconFont } from '@/composables/useIconFont'
 
-const props = defineProps({
+defineProps({
   title: {
     type: String,
     default: ''

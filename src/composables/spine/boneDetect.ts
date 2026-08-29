@@ -1,3 +1,5 @@
+import type { Bone, Skeleton } from '@esotericsoftware/spine-core'
+
 // 骨骼自动探测：骨名与交互归属已经官方资源包（AssetStudio 解包 SpineDragIK 组件）证实：
 //   摸头 HairPatIK → Touch_Point（Head_Rot 的子骨，头部跟随目标点）
 //   视线 EyeIK    → Touch_Eye（Head_Rot 的子骨，视线注视目标点）
@@ -30,7 +32,7 @@ const DRAG_BONE_PATTERNS = [/^(Face|Neck)_IK$/i, /^breast_\d/i]
 const NON_INTERACTIVE_PATTERN = /^(root$|chair|Back_|Light|Touch_)/i
 
 /** 按候选名单顺序查找第一个存在的骨骼 */
-export function findBoneByCandidates(skeleton, candidates) {
+export function findBoneByCandidates(skeleton: Skeleton, candidates: string[]): Bone | null {
   for (const name of candidates) {
     const bone = skeleton.findBone(name)
     if (bone) return bone
@@ -39,26 +41,31 @@ export function findBoneByCandidates(skeleton, candidates) {
 }
 
 /** 是否为头部区域骨骼 */
-export function isHeadRegionBone(boneName) {
+export function isHeadRegionBone(boneName: string): boolean {
   return HEAD_REGION_PATTERN.test(boneName)
 }
 
 /** 是否不参与交互的骨骼（悬停/点按判定中跳过） */
-export function isNonInteractiveBone(boneName) {
+export function isNonInteractiveBone(boneName: string): boolean {
   return NON_INTERACTIVE_PATTERN.test(boneName)
 }
 
 /** 自动探测骨架中的可拖拽骨骼 */
-export function detectDragBones(skeleton) {
+export function detectDragBones(skeleton: Skeleton): Bone[] {
   return skeleton.bones.filter((bone) => DRAG_BONE_PATTERNS.some((p) => p.test(bone.data.name)))
 }
 
 /**
  * 世界坐标命中检测：找出所有距指针在 radius 内的可交互骨骼
- * @returns {Array<{bone: object, distance: number}>} 按距离升序
+ * @returns 按距离升序
  */
-export function hitTestBones(skeleton, worldX, worldY, radius) {
-  const hits = []
+export function hitTestBones(
+  skeleton: Skeleton,
+  worldX: number,
+  worldY: number,
+  radius: number
+): Array<{ bone: Bone; distance: number }> {
+  const hits: Array<{ bone: Bone; distance: number }> = []
   for (let i = skeleton.bones.length - 1; i >= 0; i--) {
     const bone = skeleton.bones[i]
     if (isNonInteractiveBone(bone.data.name)) continue
@@ -72,7 +79,12 @@ export function hitTestBones(skeleton, worldX, worldY, radius) {
 }
 
 /** 头部区域命中检测（摸头长按用） */
-export function hitTestHeadRegion(skeleton, worldX, worldY, radius) {
+export function hitTestHeadRegion(
+  skeleton: Skeleton,
+  worldX: number,
+  worldY: number,
+  radius: number
+): boolean {
   for (let i = skeleton.bones.length - 1; i >= 0; i--) {
     const bone = skeleton.bones[i]
     if (!isHeadRegionBone(bone.data.name)) continue

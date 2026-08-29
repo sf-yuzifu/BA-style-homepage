@@ -1,3 +1,4 @@
+import type { SpineInteractionContext } from './types'
 import { TRACK_BLINK, TRACK_IDLE_RANDOM, hasAnimation } from './useSpineTracks'
 
 // 随机播放间隔（毫秒）——数值来自官方 SpineClip 资产的 RandomDelayMin/Max 字段：
@@ -15,9 +16,9 @@ const IDLE_RANDOM_DELAY_SPAN = 10000
  *
  * @param {object} ctx 共享上下文（见 Background.vue）
  */
-export function useRandomClips(ctx) {
-  let blinkTimer = null
-  let idleRandomTimer = null
+export function useRandomClips(ctx: SpineInteractionContext) {
+  let blinkTimer: ReturnType<typeof setTimeout> | null = null
+  let idleRandomTimer: ReturnType<typeof setTimeout> | null = null
 
   // 仅待机且无任何交互进行时播放（对话/摸头/视线/拖拽期间动画由交互轨道负责）
   const canPlay = () =>
@@ -29,7 +30,7 @@ export function useRandomClips(ctx) {
     !(ctx.getBoneDrag()?.isActive() ?? false)
 
   // 播完后回 Dummy 占位（AddAnimation 的 delay<=0 表示紧接当前播完）
-  const playOnce = (track, name, mix) => {
+  const playOnce = (track: number, name: string, mix: number) => {
     const spine = ctx.getSpine()
     if (!spine?.state || !hasAnimation(spine, name)) return
     spine.state.setAnimation(track, name, false).mixDuration = mix

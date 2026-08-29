@@ -3,7 +3,14 @@
 // 直接 lerp 或瞬移会导致动作生硬、回弹跳变。
 
 // 单轴 SmoothDamp（与 UnityEngine.Vector3.SmoothDamp 逐分量算法一致）
-const smoothDampAxis = (current, target, velocity, smoothTime, maxSpeed, deltaTime) => {
+const smoothDampAxis = (
+  current: number,
+  target: number,
+  velocity: number,
+  smoothTime: number,
+  maxSpeed: number,
+  deltaTime: number
+): { value: number; velocity: number } => {
   smoothTime = Math.max(0.0001, smoothTime)
   const omega = 2 / smoothTime
   const x = omega * deltaTime
@@ -33,7 +40,7 @@ const smoothDampAxis = (current, target, velocity, smoothTime, maxSpeed, deltaTi
  * @param {number} smoothTime 平滑时间（秒），越小跟随越快
  * @param {number} maxSpeed 最大速度
  */
-export function createSmoothDamp2(smoothTime, maxSpeed = Infinity) {
+export function createSmoothDamp2(smoothTime: number, maxSpeed = Infinity) {
   let vx = 0
   let vy = 0
   return {
@@ -43,9 +50,16 @@ export function createSmoothDamp2(smoothTime, maxSpeed = Infinity) {
     },
     /**
      * 推进一帧
-     * @returns {{x: number, y: number}} 平滑后的新位置
+     * @returns 平滑后的新位置
      */
-    update(cx, cy, tx, ty, deltaTime, smoothTimeOverride) {
+    update(
+      cx: number,
+      cy: number,
+      tx: number,
+      ty: number,
+      deltaTime: number,
+      smoothTimeOverride?: number
+    ): { x: number; y: number } {
       const st = smoothTimeOverride ?? smoothTime
       const rx = smoothDampAxis(cx, tx, vx, st, maxSpeed, deltaTime)
       vx = rx.velocity
@@ -55,3 +69,5 @@ export function createSmoothDamp2(smoothTime, maxSpeed = Infinity) {
     }
   }
 }
+
+export type SmoothDamp2 = ReturnType<typeof createSmoothDamp2>

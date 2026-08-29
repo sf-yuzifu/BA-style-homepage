@@ -1,11 +1,16 @@
 import { watch } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import {
+  createRouter,
+  createWebHistory,
+  type RouteLocationNormalized,
+  type RouteRecordRaw
+} from 'vue-router'
 import Home from '@/views/Home.vue'
 // Bio 页（含其 Live2D 组件依赖）按需懒加载，不占用首屏 chunk
 const Bio = () => import('@/views/Bio.vue')
 import { useConfig } from '@/composables/useConfig'
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Home',
@@ -28,10 +33,11 @@ const router = createRouter({
 const { configs, waitForConfig } = useConfig()
 
 // 根据路由与当前语言配置生成页面标题
-const updateTitle = (to) => {
+const updateTitle = (to: RouteLocationNormalized) => {
   const baseTitle = configs.value?.title || '个人主页'
-  const key = to?.meta?.titleKey
-  const subTitle = key ? configs.value?.translate?.[key] : ''
+  const key = to?.meta?.titleKey as string | undefined
+  const translated = key ? configs.value?.translate?.[key] : ''
+  const subTitle = typeof translated === 'string' ? translated : ''
   document.title = subTitle ? `${subTitle} - ${baseTitle}` : baseTitle
 }
 
@@ -39,7 +45,7 @@ const updateTitle = (to) => {
 router.afterEach(async (to) => {
   try {
     await waitForConfig()
-  } catch (error) {
+  } catch {
     // 配置加载失败时使用默认标题
   }
   updateTitle(to)

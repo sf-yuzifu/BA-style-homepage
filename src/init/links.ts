@@ -1,8 +1,8 @@
 import router from '@/router'
 
 // 独立的幕布跳转函数，可以直接导出使用
-export function navigateWithCurtain(path) {
-  const curtain = document.querySelector('#curtain')
+export function navigateWithCurtain(path: string) {
+  const curtain = document.querySelector('#curtain') as HTMLElement | null
   if (curtain) {
     curtain.style.display = 'block'
     setTimeout(() => {
@@ -15,7 +15,7 @@ export function navigateWithCurtain(path) {
 }
 
 function showCurtain() {
-  const curtain = document.querySelector('#curtain')
+  const curtain = document.querySelector('#curtain') as HTMLElement | null
   if (curtain) {
     curtain.style.display = 'block'
     setTimeout(() => {
@@ -24,7 +24,7 @@ function showCurtain() {
   }
 }
 
-function openLinkWithDelay(url) {
+function openLinkWithDelay(url: string) {
   setTimeout(() => {
     const a = document.createElement('a')
     a.href = url
@@ -35,7 +35,7 @@ function openLinkWithDelay(url) {
 }
 
 // document 级 click 事件委托：一次注册、无需轮询、天然支持动态新增的 <a>
-function handleDocumentClick(e) {
+function handleDocumentClick(e: MouseEvent) {
   const link = e.target instanceof Element ? e.target.closest('a[href]') : null
   if (!link) return
 

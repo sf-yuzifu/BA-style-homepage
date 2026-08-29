@@ -1,3 +1,7 @@
+import type { AnimationStateListener } from '@esotericsoftware/spine-core'
+import type { Spine } from '@esotericsoftware/spine-pixi-v7'
+import type { PatConfig } from '@/types/config'
+import type { SpineInteractionContext } from './types'
 import { DragBoneController } from './useDragBone'
 import { PAT_BONE_CANDIDATES } from './boneDetect'
 import { TRACK_M, TRACK_A, hasAnimation, queueDummyPair, clearInteractPair } from './useSpineTracks'
@@ -27,34 +31,34 @@ const PAT_SMOOTH_TIME = 0.1
  *
  * @param {object} ctx 共享上下文（见 Background.vue）
  */
-export function useHeadPat(ctx) {
-  let controller = null
-  let endListener = null
+export function useHeadPat(ctx: SpineInteractionContext) {
+  let controller: DragBoneController | null = null
+  let endListener: AnimationStateListener | null = null
   let available = false
   let holding = false // 手指仍按住（松开→进入 PatEnd 阶段，打断判定用）
 
-  const config = () => {
+  const config = (): PatConfig | null => {
     const cfg = ctx.getLobby()?.interactions?.pat
     if (cfg === false) return null
     return cfg && typeof cfg === 'object' ? cfg : {}
   }
 
-  const attach = (spine) => {
+  const attach = (spine: Spine) => {
     detach()
     const cfg = config()
     // 摸头动画存在性检查（无 Pat 动画的角色整体禁用摸头）
     available = !!cfg && (hasAnimation(spine, 'Pat_01_M') || hasAnimation(spine, 'Pat_01_A'))
     if (!available) return
     controller = new DragBoneController({
-      boneName: cfg.bone ?? null,
+      boneName: cfg!.bone ?? null,
       boneCandidates: PAT_BONE_CANDIDATES,
-      rangeX: cfg.range,
-      rangeY: cfg.range,
-      minOffsetX: cfg.minX ?? PAT_MIN_OFFSET_X,
-      maxOffsetX: cfg.maxX ?? PAT_MAX_OFFSET_X,
-      minOffsetY: cfg.minY ?? PAT_MIN_OFFSET_Y,
-      maxOffsetY: cfg.maxY ?? PAT_MAX_OFFSET_Y,
-      smoothTime: cfg.smoothTime ?? PAT_SMOOTH_TIME,
+      rangeX: cfg!.range,
+      rangeY: cfg!.range,
+      minOffsetX: cfg!.minX ?? PAT_MIN_OFFSET_X,
+      maxOffsetX: cfg!.maxX ?? PAT_MAX_OFFSET_X,
+      minOffsetY: cfg!.minY ?? PAT_MIN_OFFSET_Y,
+      maxOffsetY: cfg!.maxY ?? PAT_MAX_OFFSET_Y,
+      smoothTime: cfg!.smoothTime ?? PAT_SMOOTH_TIME,
       releaseSmoothRatio: 0.3
     })
     if (!controller.attach(spine)) controller = null
@@ -87,7 +91,7 @@ export function useHeadPat(ctx) {
     !(ctx.getBoneDrag()?.isActive() ?? false)
 
   /** 开始摸头（长按命中头部区域后由状态机调用） */
-  const start = (worldX, worldY) => {
+  const start = (worldX: number, worldY: number) => {
     const spine = ctx.getSpine()
     if (!canStart() || !spine?.state) return false
 
@@ -111,7 +115,7 @@ export function useHeadPat(ctx) {
   }
 
   /** 摸头中跟随手指 */
-  const move = (worldX, worldY) => controller?.move(worldX, worldY)
+  const move = (worldX: number, worldY: number) => controller?.move(worldX, worldY)
 
   /** 松开结束摸头：播放 PatEnd 并平滑回正 */
   const end = () => {
@@ -138,7 +142,7 @@ export function useHeadPat(ctx) {
     if (hasEndM || hasEndA) {
       endListener = {
         complete: (entry) => {
-          if (entry.trackIndex === endTrack && entry.animation.name.startsWith('PatEnd')) {
+          if (entry.trackIndex === endTrack && entry.animation!.name.startsWith('PatEnd')) {
             ctx.flags.ifPetting.value = false
             removeEndListener()
           }
@@ -160,7 +164,7 @@ export function useHeadPat(ctx) {
     ctx.flags.ifPetting.value = false
   }
 
-  const update = (dt) => controller?.update(dt)
+  const update = (dt: number) => controller?.update(dt)
   /** 手指仍按住摸头中 */
   const isActive = () => holding
   /** 摸头会话未结束（按住中或 PatEnd 播放中） */

@@ -1,3 +1,5 @@
+import type { Spine } from '@esotericsoftware/spine-pixi-v7'
+import type { SpineInteractionContext, DragTarget, DragClips } from './types'
 import { DragBoneController } from './useDragBone'
 import { detectDragBones, findBoneByCandidates, HAND_FOLLOW_BONE_CANDIDATES } from './boneDetect'
 import { TRACK_M, hasAnimation } from './useSpineTracks'
@@ -40,12 +42,11 @@ const FACE_HIT_RADIUS = 170
  *
  * @param {object} ctx 共享上下文（见 Background.vue）
  */
-export function useBoneDrag(ctx) {
-  /** @type {Array<{controller: DragBoneController, radius: number, clips: object|null}>} */
-  let dragTargets = []
-  let activeTarget = null
+export function useBoneDrag(ctx: SpineInteractionContext) {
+  let dragTargets: DragTarget[] = []
+  let activeTarget: DragTarget | null = null
 
-  const attach = (spine) => {
+  const attach = (spine: Spine) => {
     detach()
     const cfg = ctx.getLobby()?.interactions?.dragBones
     if (cfg === false) return
@@ -53,7 +54,7 @@ export function useBoneDrag(ctx) {
     if (Array.isArray(cfg) && cfg.length > 0) {
       // 显式配置优先（clips 可选：{ start, chain, end }；anchor 可选：命中判定用锚点骨名）
       dragTargets = cfg
-        .map((item) => {
+        .map((item): DragTarget | null => {
           const controller = new DragBoneController({
             boneName: item.bone,
             rangeX: item.range ?? DRAG_RANGE,
@@ -67,16 +68,16 @@ export function useBoneDrag(ctx) {
             controller,
             radius: item.radius ?? DRAG_RADIUS,
             anchorBone,
-            clips: item.clips ?? null
-          }
+            clips: (item.clips as DragClips | undefined) ?? null
+          } satisfies DragTarget
         })
-        .filter(Boolean)
+        .filter((t): t is DragTarget => t !== null)
       return
     }
 
     // 自动探测：捏脸/特殊骨骼
     dragTargets = detectDragBones(spine.skeleton)
-      .map((bone) => {
+      .map((bone): DragTarget | null => {
         const controller = new DragBoneController({
           boneName: bone.data.name,
           rangeX: DRAG_RANGE,
@@ -94,9 +95,9 @@ export function useBoneDrag(ctx) {
             ? findBoneByCandidates(spine.skeleton, FACE_ANCHOR_CANDIDATES)
             : null,
           clips: null
-        }
+        } satisfies DragTarget
       })
-      .filter(Boolean)
+      .filter((t): t is DragTarget => t !== null)
 
     // 同一锚点的面部家族骨骼并列时优先 Face_IK（脸变形目标），其次 Neck_IK
     dragTargets.sort((a, b) => {
@@ -140,8 +141,8 @@ export function useBoneDrag(ctx) {
   const available = () => dragTargets.length > 0
 
   /** 按下点附近找可拖拽骨骼（世界坐标，取最近且在半径内的；有锚点骨则按锚点位置判定） */
-  const findAt = (worldX, worldY) => {
-    let best = null
+  const findAt = (worldX: number, worldY: number): DragTarget | null => {
+    let best: { target: DragTarget; distance: number } | null = null
     for (const t of dragTargets) {
       const hitBone = t.anchorBone ?? t.controller.bone
       if (!hitBone) continue
@@ -164,10 +165,10 @@ export function useBoneDrag(ctx) {
   /**
    * 在按下点预探测可拖拽骨骼（状态机在按下时调用，拖动阈值通过后再 start）
    */
-  const probe = (worldX, worldY) => (canStart() ? findAt(worldX, worldY) : null)
+  const probe = (worldX: number, worldY: number) => (canStart() ? findAt(worldX, worldY) : null)
 
   /** 开始拖拽指定目标（带动画链的目标播放 start → chain） */
-  const start = (target, worldX, worldY) => {
+  const start = (target: DragTarget | null, worldX: number, worldY: number) => {
     if (!target || !canStart()) return false
     activeTarget = target
     const spine = ctx.getSpine()
@@ -180,7 +181,7 @@ export function useBoneDrag(ctx) {
     return target.controller.press(worldX, worldY)
   }
 
-  const move = (worldX, worldY) => activeTarget?.controller.move(worldX, worldY)
+  const move = (worldX: number, worldY: number) => activeTarget?.controller.move(worldX, worldY)
 
   /** 结束拖拽（带动画链的目标播放 end 后回 Dummy） */
   const end = () => {
@@ -197,7 +198,7 @@ export function useBoneDrag(ctx) {
     activeTarget = null
   }
 
-  const update = (dt) => {
+  const update = (dt: number) => {
     for (const t of dragTargets) t.controller.update(dt)
   }
 

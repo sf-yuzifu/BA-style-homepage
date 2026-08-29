@@ -1,4 +1,11 @@
 import { Howl } from 'howler'
+import type {
+  AnimationState,
+  AnimationStateListener,
+  Event,
+  TrackEntry
+} from '@esotericsoftware/spine-core'
+import type { SpineInteractionContext } from './types'
 import { TRACK_M, TRACK_A, hasAnimation, queueDummyPair } from './useSpineTracks'
 
 /**
@@ -16,34 +23,35 @@ import { TRACK_M, TRACK_A, hasAnimation, queueDummyPair } from './useSpineTracks
  * @param {() => boolean} ctx.isIdleMode 轨道 0 是否处于 Idle_01（可交互状态）
  * @param {() => object} ctx.getPat 摸头模块（talk 可打断摸头结束阶段）
  */
-export function useTalkPlayer(ctx) {
+export function useTalkPlayer(ctx: SpineInteractionContext) {
   const talking = ctx.flags.talking
   let talkIndex = 1
-  let soundList = []
+  let soundList: Howl[] = []
   // 语音会话代际：stopAllVoices 清理时递增，异步错误回调据此识别过期会话
   let voiceEpoch = 0
 
   /** spine 事件回调（注册到 AnimationState 的 event 监听） */
-  const handleEvent = (entry, event) => {
-    if (event.stringValue === '') return
+  const handleEvent = (_entry: TrackEntry, event: Event) => {
+    const voiceKey = event.stringValue
+    if (!voiceKey) return
 
     const lobby = ctx.getLobby()
     if (!lobby) return
     const voiceSource = lobby.voice
-    if (!voiceSource || !voiceSource[event.stringValue]) {
+    if (!voiceSource || !voiceSource[voiceKey]) {
       // 没有语音配置，静默处理
       return
     }
 
-    ctx.dialogue.value = voiceSource[event.stringValue]
+    ctx.dialogue.value = voiceSource[voiceKey]
     ctx.showDialogue.value = true
 
     // 播放语音
-    const jpPath = lobby.path + 'ja-JP/' + event.stringValue + '.ogg'
+    const jpPath = lobby.path + 'ja-JP/' + voiceKey + '.ogg'
     let voicePath = jpPath
     if (ctx.getLocale() === 'zh-CN') {
       // 只有简体中文优先尝试使用中文语音
-      voicePath = lobby.path + 'zh-CN/' + event.stringValue + '.ogg'
+      voicePath = lobby.path + 'zh-CN/' + voiceKey + '.ogg'
     }
 
     // onloaderror/onplayerror 是异步回调（且构造阶段可能同步触发，回调内不能引用 voice 自身——TDZ），
@@ -69,7 +77,7 @@ export function useTalkPlayer(ctx) {
   }
 
   // 中文语音失败时降级创建日文语音（代际不一致说明组件已清理，直接放弃）
-  const playFallbackVoice = (jpPath, epoch) => {
+  const playFallbackVoice = (jpPath: string, epoch: number) => {
     if (epoch !== voiceEpoch) return
 
     const fallbackVoice = new Howl({
@@ -93,7 +101,7 @@ export function useTalkPlayer(ctx) {
   }
 
   // 单条语音播放完毕后自动释放（含解码后的 PCM 缓冲），避免长时间互动后 soundList 只进不出
-  const releaseVoice = (target) => {
+  const releaseVoice = (target: Howl) => {
     target.unload()
     soundList = soundList.filter((s) => s !== target)
   }
@@ -106,12 +114,12 @@ export function useTalkPlayer(ctx) {
   }
 
   /** 注册 spine event 监听（轨道监听器被整体重置后由 Background 重新调用） */
-  const attachEventListener = (state) => {
+  const attachEventListener = (state: AnimationState) => {
     state.addListener({ event: handleEvent })
   }
 
   /** 确保 event 监听存在（对话动画完成等只清自身监听器的场景下兜底） */
-  const ensureEventListener = (state) => {
+  const ensureEventListener = (state: AnimationState) => {
     if (!state.listeners.some((l) => l.event === handleEvent)) {
       attachEventListener(state)
     }
@@ -138,9 +146,9 @@ export function useTalkPlayer(ctx) {
     spine.state.addAnimation(TRACK_A, 'Talk_0' + talkIndex + '_A' + suffix).mixDuration = 0.3
     queueDummyPair(spine, 0.3)
 
-    const listener = {
+    const listener: AnimationStateListener = {
       complete: (entry) => {
-        if (entry.trackIndex === TRACK_M && entry.animation.name.startsWith('Talk_')) {
+        if (entry.trackIndex === TRACK_M && entry.animation!.name.startsWith('Talk_')) {
           // 只移除当前对话动画的监听器，保留其他监听器
           spine.state.listeners = spine.state.listeners.filter((l) => l !== listener)
           ensureEventListener(spine.state)

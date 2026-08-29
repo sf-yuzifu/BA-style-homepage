@@ -1,5 +1,30 @@
-import { createSmoothDamp2 } from './smoothDamp'
+import type { Bone, Vector2 } from '@esotericsoftware/spine-core'
+import type { Spine } from '@esotericsoftware/spine-pixi-v7'
+import { createSmoothDamp2, type SmoothDamp2 } from './smoothDamp'
 import { findBoneByCandidates } from './boneDetect'
+
+export interface DragBoneOptions {
+  /** 显式指定骨骼名（配置覆盖时优先） */
+  boneName?: string | null
+  /** 自动探测候选骨名（按顺序取第一个存在的） */
+  boneCandidates?: string[]
+  /** 相对基准位置的 X 最小偏移（非对称钳制，官方数值即非对称） */
+  minOffsetX?: number
+  /** X 最大偏移 */
+  maxOffsetX?: number
+  /** Y 最小偏移 */
+  minOffsetY?: number
+  /** Y 最大偏移 */
+  maxOffsetY?: number
+  /** 简易对称范围（minOffset/maxOffset 未指定时使用） */
+  rangeX?: number
+  /** 缺省同 rangeX */
+  rangeY?: number
+  /** 按压跟随平滑时间（秒） */
+  smoothTime?: number
+  /** 回弹平滑时间倍率（原游戏为 0.3） */
+  releaseSmoothRatio?: number
+}
 
 /**
  * SpineDragIK 的 Web 等价原语（参考 Shittim_Canvas 的 SpineDragIK.cs）：
@@ -12,21 +37,31 @@ import { findBoneByCandidates } from './boneDetect'
  * 坐标钳制在骨骼父级的局部空间进行（bone.worldToParent 换算），与原游戏一致。
  */
 export class DragBoneController {
+  boneName: string | null
+  boneCandidates: string[]
+  minOffsetX: number
+  maxOffsetX: number
+  minOffsetY: number
+  maxOffsetY: number
+  smoothTime: number
+  releaseSmoothRatio: number
+  onReturnEnd: (() => void) | null
+
+  spine: Spine | null
+  bone: Bone | null
+  origLocal: { x: number; y: number }
+  pressStart: { x: number; y: number }
+  destLocal: { x: number; y: number }
+  active: boolean // 按压拖拽中
+  engaged: boolean // 需要逐帧更新（拖拽中或回弹中）
+  current: { x: number; y: number } | null // 自维护的平滑位置（避免与被 key 住的动画值打架）
+  damp: SmoothDamp2
+
   /**
-   * @param {object} options
-   * @param {string} [options.boneName] 显式指定骨骼名（配置覆盖时优先）
-   * @param {string[]} [options.boneCandidates] 自动探测候选骨名（按顺序取第一个存在的）
-   * @param {number} [options.minOffsetX] 相对基准位置的 X 最小偏移（非对称钳制，官方数值即非对称）
-   * @param {number} [options.maxOffsetX] X 最大偏移
-   * @param {number} [options.minOffsetY] Y 最小偏移
-   * @param {number] [options.maxOffsetY] Y 最大偏移
-   * @param {number} [options.rangeX] 简易对称范围（minOffset/maxOffset 未指定时使用）
-   * @param {number} [options.rangeY] 缺省同 rangeX
-   * @param {number} [options.smoothTime] 按压跟随平滑时间（秒）
-   * @param {number} [options.releaseSmoothRatio] 回弹平滑时间倍率（原游戏为 0.3）
-   * @param {() => void} [onReturnEnd] 回弹完全结束后的回调
+   * @param options
+   * @param onReturnEnd 回弹完全结束后的回调
    */
-  constructor(options = {}, onReturnEnd = null) {
+  constructor(options: DragBoneOptions = {}, onReturnEnd: (() => void) | null = null) {
     this.boneName = options.boneName ?? null
     this.boneCandidates = options.boneCandidates ?? []
     const rangeX = options.rangeX ?? 60
@@ -51,7 +86,7 @@ export class DragBoneController {
   }
 
   /** 绑定到新的 Spine 实例（切换角色时调用）；骨骼不存在则返回 false（该交互自动禁用） */
-  attach(spine) {
+  attach(spine: Spine): boolean {
     this.detach()
     const bone = this.boneName
       ? spine.skeleton.findBone(this.boneName)
@@ -65,17 +100,17 @@ export class DragBoneController {
   }
 
   /** 骨骼当前绑定的名字（attach 失败为 null），供调试/日志 */
-  get boundBoneName() {
+  get boundBoneName(): string | null {
     return this.bone?.data?.name ?? null
   }
 
   /** 按压开始（世界坐标） */
-  press(worldX, worldY) {
+  press(worldX: number, worldY: number): boolean {
     if (!this.bone || !this.bone.parent) return false
     this.active = true
     this.engaged = true
     // 记录按压起点（骨骼父级局部坐标），后续拖拽按差值偏移，与原游戏算法一致
-    const start = this.bone.worldToParent({ x: worldX, y: worldY })
+    const start = this.bone.worldToParent({ x: worldX, y: worldY } as Vector2)
     this.pressStart = { x: start.x, y: start.y }
     this.destLocal = { x: this.origLocal.x, y: this.origLocal.y }
     this.current = null // 首帧从动画当前值起步，避免跳变
@@ -84,9 +119,9 @@ export class DragBoneController {
   }
 
   /** 拖拽移动（世界坐标） */
-  move(worldX, worldY) {
+  move(worldX: number, worldY: number): void {
     if (!this.active || !this.bone || !this.bone.parent) return
-    const cur = this.bone.worldToParent({ x: worldX, y: worldY })
+    const cur = this.bone.worldToParent({ x: worldX, y: worldY } as Vector2)
     this.destLocal = {
       x: clamp(
         this.origLocal.x + (cur.x - this.pressStart.x),
@@ -102,12 +137,12 @@ export class DragBoneController {
   }
 
   /** 松开：进入回弹阶段（平滑返回基准位置） */
-  release() {
+  release(): void {
     this.active = false
   }
 
   /** 立即脱离（切换角色/离开路由时），不做回弹 */
-  detach() {
+  detach(): void {
     this.spine = null
     this.bone = null
     this.active = false
@@ -116,20 +151,20 @@ export class DragBoneController {
   }
 
   /** 是否正在按压拖拽 */
-  isActive() {
+  isActive(): boolean {
     return this.active
   }
 
   /** 是否仍占用骨骼（拖拽中或回弹中） */
-  isEngaged() {
+  isEngaged(): boolean {
     return this.engaged
   }
 
   /**
    * 逐帧更新（由 Spine.beforeUpdateWorldTransforms 调用）
-   * @param {number} dt 秒
+   * @param dt 秒
    */
-  update(dt) {
+  update(dt: number): void {
     if (!this.engaged || !this.bone) return
 
     const target = this.active ? this.destLocal : this.origLocal
@@ -158,4 +193,4 @@ export class DragBoneController {
   }
 }
 
-const clamp = (v, min, max) => Math.min(max, Math.max(min, v))
+const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))

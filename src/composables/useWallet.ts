@@ -1,11 +1,21 @@
 import { ref, computed } from 'vue'
 import { useConfig } from './useConfig'
 
+interface WalletPersistedState {
+  ap?: number
+  apSettleAt?: number
+  gold?: number
+  dwellSeconds?: number
+  pyroxene?: number
+  signInDays?: number
+  lastSignIn?: string
+}
+
 // 钱包状态（模块级单例：Toolbox 与 Header 共享同一份数据）
 const apLocal = ref(0) // 时间恢复模型的体力值（电池模式下不使用）
 const gold = ref(0)
 const pyroxene = ref(0)
-const batteryLevel = ref(null) // 设备电量 0-1；null 表示不支持 Battery API，走时间恢复模型
+const batteryLevel = ref<number | null>(null) // 设备电量 0-1；null 表示不支持 Battery API，走时间恢复模型
 const dwellSeconds = ref(0) // 累计停留秒数（信用点 tooltip 展示用）
 const signInDays = ref(0) // 连续签到天数（青辉石 tooltip 展示用）
 
@@ -18,13 +28,12 @@ const SAVE_INTERVAL_TICKS = 5 // 每 5 个 tick（5 秒）持久化一次
 let apSettleAt = Date.now() // 时间恢复模型的上次结算时间
 let lastSignIn = '' // 上次签到日期（本地时区 YYYY-MM-DD）
 let tickCount = 0
-let battery = null
 let initialized = false
 
 // localStorage 在隐私模式等场景可能不可用，静默降级为仅本次会话生效
-const loadState = () => {
+const loadState = (): WalletPersistedState => {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) as string) || {}
   } catch {
     return {}
   }
@@ -64,7 +73,7 @@ const checkSignIn = () => {
 
 // 体力时间恢复模型（Battery API 不可用时的降级方案）：
 // 每 6 分钟回复 1 点，结算时间持久化，离线期间也会补算
-const settleAp = (maxApValue) => {
+const settleAp = (maxApValue: number) => {
   if (batteryLevel.value !== null) return
   const now = Date.now()
   const recovered = Math.floor((now - apSettleAt) / AP_RECOVER_MS)
@@ -87,7 +96,7 @@ export function useWallet() {
     batteryLevel.value !== null ? Math.round(batteryLevel.value * maxAp.value) : apLocal.value
   )
 
-  // 初始化钱包（需在配置加载完成后调用，main.js 已保证顺序；应用生命周期内只执行一次）
+  // 初始化钱包（需在配置加载完成后调用，main.ts 已保证顺序；应用生命周期内只执行一次）
   const initWallet = () => {
     if (initialized) return
     initialized = true
@@ -111,7 +120,6 @@ export function useWallet() {
       navigator
         .getBattery()
         .then((b) => {
-          battery = b
           batteryLevel.value = b.level
           b.addEventListener('levelchange', () => {
             batteryLevel.value = b.level

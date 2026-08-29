@@ -5,9 +5,11 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build",
+    "build": "yarn typecheck && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write src/"
   },
   "resolutions": {
@@ -21,12 +23,15 @@
     "@isaacs/brace-expansion": "^5.0.1",
     "glob": "^11.0.1",
     "got": "^14.4.6",
-    "ajv": "^8.17.1",
     "esbuild": "^0.25.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "koffi": "2.10.0",
+    "@esotericsoftware/spine-core": "4.2.76",
+    "@esotericsoftware/spine-pixi-v7": "4.2.76"
   },
   "dependencies": {
     "@arco-design/web-vue": "^2.56.3",
+    "@esotericsoftware/spine-core": "4.2.76",
     "@esotericsoftware/spine-pixi-v7": "^4.2.76",
     "@pixi/assets": "^7.4.3",
     "@pixi/core": "^7.4.3",
@@ -51,17 +56,27 @@
     "workbox-window": "^7.4.0"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "^1.10.5",
+    "@eslint/js": "^9.39.0",
+    "@types/howler": "^2.2.12",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.13.10",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.1",
-    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/tsconfig": "^0.7.0",
     "eslint": "^9.21.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^9.32.0",
+    "globals": "^17.11.0",
+    "jiti": "^2.7.0",
     "prettier": "^3.5.2",
     "sharp": "^0.34.5",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.68.0",
     "vite": "^6.2.0",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-html": "^3.2.2",
-    "vite-plugin-image-optimizer": "^2.0.3"
+    "vite-plugin-image-optimizer": "^2.0.3",
+    "vue-eslint-parser": "^10.4.1",
+    "vue-tsc": "~2.2.10"
   }
 }

@@ -1,3 +1,6 @@
+import type { Spine } from '@esotericsoftware/spine-pixi-v7'
+import type { TrackEntry } from '@esotericsoftware/spine-core'
+
 // 轨道约定（对齐原游戏，各轨编号已经官方 SpineClip 资产的 Track 字段证实）：
 //   0 = 主轨道（Start_Idle_01 入场 → Idle_01 待机）
 //   1 = 交互 M 轨道（Talk_XX_M / Pat / Look / HandFollow 主动画共用）
@@ -13,7 +16,7 @@ export const TRACK_BLINK = 3
 export const TRACK_IDLE_RANDOM = 4
 
 /** 查找动画是否存在（兜底骨架差异，如 hina 无 Idle_01_R、各角色 Pat/Talk 数量不同） */
-export function hasAnimation(spine, name) {
+export function hasAnimation(spine: Spine | null | undefined, name: string): boolean {
   return !!spine?.state?.data?.skeletonData?.findAnimation(name)
 }
 
@@ -22,7 +25,7 @@ export function hasAnimation(spine, name) {
  * 注意：Idle_01_R 不在此循环播放——它是随机小动作（官方 SpineClip 配置 PlayMode=MaskedRandomTiming、
  * RandomDelay 60~70s），由 useRandomClips 定时触发；眨眼 Eye_Close_01 同理（10~15s）。
  */
-export function initTracks(spine) {
+export function initTracks(spine: Spine | null | undefined): void {
   if (!spine?.state || !hasAnimation(spine, 'Dummy')) return
   spine.state.setAnimation(TRACK_M, 'Dummy', true)
   spine.state.setAnimation(TRACK_A, 'Dummy', true)
@@ -33,11 +36,16 @@ export function initTracks(spine) {
 /**
  * 在交互轨道上播放 M/A 动画对（不存在的半边自动跳过，兼容骨架差异）
  * @param {object} opts { loop, mix } loop 是否循环；mix 淡入时长
- * @returns {TrackEntry|null} M 轨 entry（供 complete 监听），M 动画缺失时为 null
+ * @returns M 轨 entry（供 complete 监听），M 动画缺失时为 null
  */
-export function setInteractPair(spine, mName, aName, { loop = false, mix = 0.3 } = {}) {
+export function setInteractPair(
+  spine: Spine | null | undefined,
+  mName: string | null | undefined,
+  aName: string | null | undefined,
+  { loop = false, mix = 0.3 }: { loop?: boolean; mix?: number } = {}
+): TrackEntry | null {
   if (!spine?.state) return null
-  let mEntry = null
+  let mEntry: TrackEntry | null = null
   if (mName && hasAnimation(spine, mName)) {
     mEntry = spine.state.setAnimation(TRACK_M, mName, loop)
     mEntry.mixDuration = mix
@@ -49,14 +57,14 @@ export function setInteractPair(spine, mName, aName, { loop = false, mix = 0.3 }
 }
 
 /** 交互轨道排队播完后回到 Dummy 占位（保持当前动画不被打断，末尾追加） */
-export function queueDummyPair(spine, mix = 0.3) {
+export function queueDummyPair(spine: Spine | null | undefined, mix = 0.3): void {
   if (!spine?.state || !hasAnimation(spine, 'Dummy')) return
   spine.state.addAnimation(TRACK_M, 'Dummy', true).mixDuration = mix
   spine.state.addAnimation(TRACK_A, 'Dummy', true).mixDuration = mix
 }
 
 /** 立即清空交互轨道回 Dummy（打断用） */
-export function clearInteractPair(spine, mix = 0.3) {
+export function clearInteractPair(spine: Spine | null | undefined, mix = 0.3): void {
   if (!spine?.state || !hasAnimation(spine, 'Dummy')) return
   spine.state.setAnimation(TRACK_M, 'Dummy', true).mixDuration = mix
   spine.state.setAnimation(TRACK_A, 'Dummy', true).mixDuration = mix

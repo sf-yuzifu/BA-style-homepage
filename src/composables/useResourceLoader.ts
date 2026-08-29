@@ -1,8 +1,21 @@
 import { ref, computed } from 'vue'
 import { live2dReady } from '@/init/live2d'
 
+export type ResourceStatus = 'pending' | 'loading' | 'loaded' | 'error'
+export type ResourceType = 'font' | 'live2d' | 'generic'
+
+export interface ResourceItem {
+  id: string
+  url: string
+  type: ResourceType
+  status: ResourceStatus
+  startTime: number | null
+  endTime: number | null
+  error: unknown
+}
+
 // 模块级单例状态，确保 useLoading 与 Loading.vue 共享同一实例
-const resources = ref(new Map())
+const resources = ref(new Map<string, ResourceItem>())
 const loadedCount = ref(0)
 const totalCount = ref(0)
 const isLoading = ref(false)
@@ -34,7 +47,7 @@ export function useResourceLoader() {
   }
 
   // 添加资源到加载队列
-  const addResource = (id, url, type = 'generic') => {
+  const addResource = (id: string, url: string, type: ResourceType = 'generic') => {
     if (resources.value.has(id)) {
       console.warn(`资源 ${id} 已存在，跳过添加`)
       return
@@ -55,7 +68,7 @@ export function useResourceLoader() {
   }
 
   // 开始加载资源
-  const loadResource = async (id) => {
+  const loadResource = async (id: string) => {
     const resource = resources.value.get(id)
     if (!resource || resource.status !== 'pending') {
       return
@@ -104,8 +117,8 @@ export function useResourceLoader() {
   }
 
   // 获取不同类型资源的最小加载时间
-  const getMinLoadTime = (type) => {
-    const baseTimes = {
+  const getMinLoadTime = (type: ResourceType) => {
+    const baseTimes: Partial<Record<ResourceType, number>> = {
       font: 10, // 字体：10ms
       live2d: 10 // Live2D：10ms
     }
@@ -114,7 +127,7 @@ export function useResourceLoader() {
   }
 
   // 加载字体
-  const loadFont = async (resource) => {
+  const loadFont = async (resource: ResourceItem) => {
     try {
       console.log(`开始加载字体资源: ${resource.id}`)
 
@@ -131,8 +144,8 @@ export function useResourceLoader() {
     }
   }
 
-  // 加载Live2D资源（实际加载在 init/live2d.js 中进行，这里等待共享 Promise 完成）
-  const loadLive2D = async (resource) => {
+  // 加载Live2D资源（实际加载在 init/live2d.ts 中进行，这里等待共享 Promise 完成）
+  const loadLive2D = async (resource: ResourceItem) => {
     console.log(`Live2D资源准备就绪: ${resource.id}`)
     await live2dReady
   }

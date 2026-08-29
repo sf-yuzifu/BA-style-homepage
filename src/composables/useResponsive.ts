@@ -1,7 +1,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 export function useResponsive() {
-  const changeDirection = ref('left')
+  const changeDirection = ref<'left' | 'right'>('left')
   const isMobile = ref(false)
 
   const updateResponsive = () => {

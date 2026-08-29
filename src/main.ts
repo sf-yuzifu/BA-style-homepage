@@ -34,7 +34,7 @@ async function startApp() {
     const { initWallet } = useWallet()
     initWallet()
 
-    console.log('main.js 初始化完成，等待useLoading管理')
+    console.log('main.ts 初始化完成，等待useLoading管理')
 
     // 注意：不再在这里加载字体和Live2D，让useLoading来处理
     // 这样可以确保加载顺序正确

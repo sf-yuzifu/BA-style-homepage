@@ -2,7 +2,6 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { load } from 'js-yaml'
 import fs from 'fs'
-const config = load(fs.readFileSync('_config.yaml', 'utf8'))
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -10,9 +9,24 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import viteCompression from 'vite-plugin-compression'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { VitePWA } from 'vite-plugin-pwa'
+import type { ManifestOptions } from 'vite-plugin-pwa'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import Font from 'vite-plugin-font'
 import yaml from '@rollup/plugin-yaml'
+
+type FontViteOptions = Parameters<typeof Font.vite>[0]
+
+interface BuildConfig {
+  title?: string
+  favicon?: string
+  author?: string
+  description?: string
+  keywords?: string
+  url?: string
+  manifest?: Partial<ManifestOptions>
+}
+
+const config = load(fs.readFileSync('_config.yaml', 'utf8')) as BuildConfig
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -60,14 +74,14 @@ export default defineConfig({
       css: {
         fontFamily: 'Resource Han Rounded CN'
       }
-    }),
+    } as FontViteOptions),
     createHtmlPlugin({
       inject: {
         data: {
           title: config.title,
           favicon: config.favicon,
           author: config.author,
-          themeColor: config.manifest.theme_color,
+          themeColor: config.manifest?.theme_color,
           description: config.description,
           keywords: config.keywords,
           // 站点规范地址（去除尾部斜杠），供 og:image/og:url/canonical 拼绝对 URL

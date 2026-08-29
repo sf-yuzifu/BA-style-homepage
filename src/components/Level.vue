@@ -1,7 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useConfig } from '@/composables/useConfig'
-import { navigateWithCurtain } from '@/init/links.js'
+import { navigateWithCurtain } from '@/init/links'
 
 const { configs } = useConfig()
 

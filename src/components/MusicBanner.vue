@@ -1,11 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import axios from 'axios'
 import 'aplayer/dist/APlayer.min.css'
 import APlayer from 'aplayer'
+import type { APlayerAudio } from 'aplayer'
 import { useConfig } from '@/composables/useConfig'
 
-const ap = ref(null)
+const aplayerContainer = ref<HTMLDivElement | null>(null)
+const ap = ref<APlayer | null>(null)
 const songTimes = ref(0)
 const retryCount = ref(0)
 const MAX_RETRY_COUNT = 3
@@ -18,26 +20,30 @@ const ifICP = computed(() => configs.value?.ICP || '')
 const songlist = computed(() => configs.value?.banner?.musicID || [])
 
 const checkScreenSize = () => {
-  if (!ap.value) return
+  const player = ap.value
+  if (!player) return
 
   if (ifICP.value) {
-    ap.value.setMode('mini')
+    player.setMode('mini')
     return
   }
 
   isMiniMode.value = window.innerWidth <= 768
 
   if (isMiniMode.value) {
-    ap.value.setMode('mini')
+    player.setMode('mini')
   } else {
-    ap.value.setMode('normal')
+    player.setMode('normal')
   }
 }
 
 // 初始化播放器
 onMounted(() => {
-  ap.value = new APlayer({
-    container: document.getElementById('aplayer'),
+  const container = aplayerContainer.value
+  if (!container) return
+
+  const player = new APlayer({
+    container,
     autoplay: false,
     mini: false,
     order: 'random',
@@ -46,9 +52,10 @@ onMounted(() => {
     loop: 'none',
     audio: []
   })
+  ap.value = player
 
   // 歌曲结束事件监听
-  ap.value.on('ended', addRandomSong)
+  player.on('ended', addRandomSong)
 
   // 初始加载一首歌
   addRandomSong()
@@ -66,10 +73,18 @@ onBeforeUnmount(() => {
   }
 })
 
+const isRecord = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === 'object' && value !== null
+}
+
+const readString = (value: unknown): string | undefined => {
+  return typeof value === 'string' ? value : undefined
+}
+
 // 获取歌曲数据
-const fetchSongData = async (songId) => {
+const fetchSongData = async (songId: number): Promise<APlayerAudio | null> => {
   try {
-    const response = await axios.get(
+    const response = await axios.get<unknown>(
       `https://api.injahow.cn/meting/?server=netease&type=song&id=${songId}`,
       { timeout: 8000 }
     )
@@ -81,17 +96,17 @@ const fetchSongData = async (songId) => {
     const data = Array.isArray(response.data) ? response.data[0] : response.data
 
     // 验证数据结构
-    if (!data) {
+    if (!isRecord(data)) {
       throw new Error('无效的响应数据')
     }
 
     // 检查必要的字段
-    const songInfo = {
-      name: data.title || data.name || '未知歌曲',
-      artist: data.author || data.artist || '未知艺术家',
-      url: data.url,
-      cover: data.pic,
-      lrc: data.lrc || ''
+    const songInfo: APlayerAudio = {
+      name: readString(data.title) || readString(data.name) || '未知歌曲',
+      artist: readString(data.author) || readString(data.artist) || '未知艺术家',
+      url: readString(data.url) || '',
+      cover: readString(data.pic),
+      lrc: readString(data.lrc) || ''
     }
 
     // 验证URL字段
@@ -136,13 +151,15 @@ const addRandomSong = async () => {
 
     // 获取歌曲数据
     const songData = await fetchSongData(songId)
+    const player = ap.value
+    if (!player) return
 
     if (songData) {
       songTimes.value++
       retryCount.value = 0
-      ap.value.list.add(songData)
-      ap.value.lrc.show()
-      ap.value.play()
+      player.list.add(songData)
+      player.lrc.show()
+      player.play()
       console.log('歌曲加载成功:', songData.name)
     } else {
       throw new Error('无法获取歌曲数据')
@@ -153,8 +170,10 @@ const addRandomSong = async () => {
     // 如果是第一次尝试失败，销毁播放器
     if (songTimes.value === 0) {
       console.log('首次加载失败，销毁播放器')
-      ap.value.destroy()
-      ap.value = null
+      if (ap.value) {
+        ap.value.destroy()
+        ap.value = null
+      }
     } else {
       // 如果不是第一次，尝试加载其他歌曲（统计连续失败次数，成功时清零）
       retryCount.value++
@@ -170,7 +189,7 @@ const addRandomSong = async () => {
 </script>
 
 <template>
-  <div id="aplayer" :class="{ 'aplayer-mini': ifICP }"></div>
+  <div id="aplayer" ref="aplayerContainer" :class="{ 'aplayer-mini': ifICP }"></div>
 </template>
 
 <style scoped>

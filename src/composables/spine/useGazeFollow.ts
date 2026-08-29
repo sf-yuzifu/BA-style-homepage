@@ -1,3 +1,6 @@
+import type { Spine } from '@esotericsoftware/spine-pixi-v7'
+import type { GazeConfig } from '@/types/config'
+import type { SpineInteractionContext } from './types'
 import { DragBoneController } from './useDragBone'
 import { GAZE_BONE_CANDIDATES } from './boneDetect'
 import { TRACK_M, TRACK_BLINK, hasAnimation } from './useSpineTracks'
@@ -24,16 +27,16 @@ const GAZE_SMOOTH_TIME = 0.15
  *
  * @param {object} ctx 共享上下文（见 Background.vue）
  */
-export function useGazeFollow(ctx) {
-  let controller = null
+export function useGazeFollow(ctx: SpineInteractionContext) {
+  let controller: DragBoneController | null = null
 
-  const config = () => {
+  const config = (): GazeConfig | null => {
     const cfg = ctx.getLobby()?.interactions?.gaze
     if (cfg === false) return null // 显式禁用
     return cfg && typeof cfg === 'object' ? cfg : {}
   }
 
-  const attach = (spine) => {
+  const attach = (spine: Spine) => {
     detach()
     const cfg = config()
     if (!cfg) return
@@ -68,7 +71,7 @@ export function useGazeFollow(ctx) {
     !(ctx.getBoneDrag()?.isActive() ?? false)
 
   /** 开始跟随（拖拽阈值判定通过后由状态机调用）：骨骼跟随 + Look 表情动画 */
-  const start = (worldX, worldY) => {
+  const start = (worldX: number, worldY: number) => {
     if (!canStart()) return false
     const spine = ctx.getSpine()
     if (!spine?.state) return false
@@ -89,10 +92,10 @@ export function useGazeFollow(ctx) {
     if (hasAnimation(spine, 'Look_01_M')) {
       spine.state.setAnimation(TRACK_M, 'Look_01_M', false)
     }
-    return controller.press(worldX, worldY)
+    return controller!.press(worldX, worldY)
   }
 
-  const move = (worldX, worldY) => controller?.move(worldX, worldY)
+  const move = (worldX: number, worldY: number) => controller?.move(worldX, worldY)
 
   /** 松开：骨骼回弹 + LookEnd_01_M 收尾回 Dummy */
   const end = () => {
@@ -106,7 +109,7 @@ export function useGazeFollow(ctx) {
     }
   }
 
-  const update = (dt) => controller?.update(dt)
+  const update = (dt: number) => controller?.update(dt)
   const isActive = () => controller?.isActive() ?? false
   const isEngaged = () => controller?.isEngaged() ?? false
   const boneName = () => controller?.boundBoneName ?? null

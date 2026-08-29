@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useLoading } from '@/composables/useLoading'
 import Loading from '@/components/Loading.vue'
 import Cursor from '@/components/Cursor.vue'

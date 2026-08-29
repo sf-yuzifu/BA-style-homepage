@@ -1,10 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { Spine } from '@esotericsoftware/spine-pixi-v7'
+import type { AnimationStateListener } from '@esotericsoftware/spine-core'
 import * as PIXI from 'pixi.js'
 import { Modal } from '@arco-design/web-vue'
+import type { ModalReturn } from '@arco-design/web-vue'
 import { useConfig } from '@/composables/useConfig'
 const { configs, locale } = useConfig()
-const emit = defineEmits(['canskip', 'update:changeL2D'])
+const emit = defineEmits<{
+  canskip: [value: boolean]
+  'update:changeL2D': [value: boolean]
+}>()
 import { ref, computed, watch, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useTalkPlayer } from '@/composables/spine/useTalkPlayer'
@@ -14,19 +19,48 @@ import { useBoneDrag } from '@/composables/spine/useBoneDrag'
 import { useRandomClips } from '@/composables/spine/useRandomClips'
 import { initTracks } from '@/composables/spine/useSpineTracks'
 import { hitTestBones, hitTestHeadRegion, isHeadRegionBone } from '@/composables/spine/boneDetect'
+import type { DragTarget, SpineInteractionContext } from '@/composables/spine/types'
 
-const props = defineProps(['l2dOnly'])
+const props = defineProps<{
+  l2dOnly: boolean
+}>()
 
-let animation = null
+type L2DTarget = number | '+' | '-'
+type DialoguePosition =
+  | 'left'
+  | 'right'
+  | 'br'
+  | 'rt'
+  | 'tr'
+  | 'rb'
+  | 'top'
+  | 'tl'
+  | 'bottom'
+  | 'bl'
+  | 'lt'
+  | 'lb'
+
+interface PressSession {
+  sx: number
+  sy: number
+  world: { x: number; y: number }
+  moved: boolean
+  longPressed: boolean
+  kind: 'pat' | 'drag' | 'gaze' | null
+  dragTarget: DragTarget | null
+  longPressTimer: number | null
+}
+
+let animation: Spine | null = null
 let id = 0
 const canSkip = ref(true)
 let animationReady = false // 动画初始化状态
-let modalRef = null
+let modalRef: ModalReturn | null = null
 let originalOffsetPercent = 70 // 默认值，等待配置加载后更新
 // 当前已加载角色的资源标识（path+skel|atlas）：语言切换只换翻译/语音文案时，
 // config 对象整体替换但角色资源未变，据此跳过整只重载，避免重播 Start_Idle
-let loadedL2DKey = null
-let canvasRetryTimer = null // canvas添加重试定时器
+let loadedL2DKey: string | null = null
+let canvasRetryTimer: number | null = null // canvas添加重试定时器
 let isComponentUnmounted = false // 组件卸载标记，用于停止重试
 
 // 骨骼交互检测半径（spine 骨架世界坐标，见 clientToWorld）
@@ -37,20 +71,40 @@ const BONE_HIT_FALLBACK_RADIUS = 160
 const DRAG_START_THRESHOLD = 12
 // 长按阈值（毫秒）：静止按住头部区域触发摸头
 const LONG_PRESS_THRESHOLD = 500
+// Live2D 动画播放速度：1 为原速
+const LIVE2D_TIME_SCALE = 0.6
 
 const dialogue = ref('')
 const showDialogue = ref(false)
 const currentConfig = computed(() => configs.value)
 
-// 直接使用eval解析分数表达式
-const parseFraction = (fractionString) => {
-  return eval(fractionString)
+// 仅解析配置所需的数字、分数及加减表达式，避免执行任意 JavaScript
+const parseFraction = (value: string | number | undefined): number => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0
+  if (!value) return 0
+
+  const expression = value.replace(/\s+/g, '')
+  const terms = expression.match(/[+-]?[^+-]+/g)
+  if (!terms || terms.join('') !== expression) return 0
+
+  return terms.reduce((sum, term) => {
+    const sign = term.startsWith('-') ? -1 : 1
+    const unsigned = term.replace(/^[+-]/, '')
+    const parts = unsigned.split('/')
+    if (parts.length > 2) return sum
+    const numerator = Number(parts[0])
+    const denominator = parts.length === 2 ? Number(parts[1]) : 1
+    if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator === 0) {
+      return sum
+    }
+    return sum + sign * (numerator / denominator)
+  }, 0)
 }
 
 // 解析角色横向偏移：offset: 0 是合法配置值（贴左边缘），不能用 || 判 falsy 吞掉；
 // 仅当解析失败（undefined/非法字符串 → NaN）时才回退默认值
-const parseOffset = (offset, fallback = 0.7) => {
-  const parsed = parseFloat(offset)
+const parseOffset = (offset: number | string | undefined, fallback = 0.7): number => {
+  const parsed = Number(offset)
   return Number.isNaN(parsed) ? fallback : parsed
 }
 
@@ -61,10 +115,12 @@ const updateDialoguePosition = () => {
     currentConfig.value.memorialLobbies[id]
   ) {
     const lobby = currentConfig.value.memorialLobbies[id]
+    const display = lobby.dialogueDisplay
+    if (!display) return
     dialogueDisplay.value.x =
-      parseFraction(lobby.dialogueDisplay.x) * document.documentElement.clientWidth
+      parseFraction(display.x) * document.documentElement.clientWidth
     dialogueDisplay.value.y =
-      parseFraction(lobby.dialogueDisplay.y) * document.documentElement.clientHeight
+      parseFraction(display.y) * document.documentElement.clientHeight
   }
 }
 
@@ -75,7 +131,11 @@ const handleWindowResize = () => {
   updateDialoguePosition()
 }
 
-const dialogueDisplay = ref({
+const dialogueDisplay = ref<{
+  x: number
+  y: number
+  position: DialoguePosition
+}>({
   x: 0,
   y: 0,
   position: 'left'
@@ -86,11 +146,12 @@ const l2d = new PIXI.Application({
   height: 1440,
   backgroundAlpha: 0
 })
+const canvas = l2d.view as unknown as HTMLCanvasElement
 
 // 将 client 坐标换算为 spine 骨架世界坐标（骨骼 worldX/worldY 所在空间）：
 // 先按 canvas 缩放/偏移换算到 stage，再减去 Spine 容器位置并除以容器缩放（0.85）。
 // 旧实现漏除容器缩放，导致离容器原点越远的骨骼命中/跟随误差越大（最远约 15%）
-const clientToWorld = (clientX, clientY, rect) => {
+const clientToWorld = (clientX: number, clientY: number, rect: DOMRect) => {
   if (!animation) return { x: 0, y: 0 }
   const scaleX = rect.width / l2d.screen.width
   const scaleY = rect.height / l2d.screen.height
@@ -101,7 +162,7 @@ const clientToWorld = (clientX, clientY, rect) => {
 }
 
 // ===== 交互共享上下文（spine 各交互模块通过它访问当前实例与彼此） =====
-const ctx = {
+const ctx: SpineInteractionContext = {
   getSpine: () => animation,
   getLobby: () => currentConfig.value?.memorialLobbies?.[id],
   getLocale: () => locale.value,
@@ -131,7 +192,7 @@ const handleBeforeUpdateWorldTransforms = () => {
 }
 
 // 绑定交互动效到新的 Spine 实例（创建后调用）
-const attachInteractions = (spine) => {
+const attachInteractions = (spine: Spine) => {
   spine.beforeUpdateWorldTransforms = handleBeforeUpdateWorldTransforms
   gaze.attach(spine)
   pat.attach(spine)
@@ -151,34 +212,34 @@ const detachInteractions = () => {
 // 安全地将canvas添加到background div中的函数
 const addCanvasToBackground = () => {
   // 组件已卸载或PIXI视图已销毁时，停止重试
-  if (isComponentUnmounted || !l2d.view) return
+  if (isComponentUnmounted || !canvas) return
 
   try {
     // 查找background元素
     const backgroundElement = document.querySelector('#background')
     if (backgroundElement) {
       // 检查canvas是否已经在background中
-      if (!l2d.view.parentNode || l2d.view.parentNode !== backgroundElement) {
+      if (!canvas.parentNode || canvas.parentNode !== backgroundElement) {
         // 先移除canvas从当前父节点（如果有的话）
-        if (l2d.view.parentNode) {
-          l2d.view.parentNode.removeChild(l2d.view)
+        if (canvas.parentNode) {
+          canvas.parentNode.removeChild(canvas)
         }
         // 将canvas添加到background div
-        backgroundElement.appendChild(l2d.view)
+        backgroundElement.appendChild(canvas)
 
         // 设置canvas样式和id
-        l2d.view.id = 'l2d-canvas'
-        l2d.view.style.position = 'relative'
-        l2d.view.style.pointerEvents = 'auto'
-        l2d.view.style.zIndex = '1' // 提高canvas的z-index，使其可以接收点击事件
+        canvas.id = 'l2d-canvas'
+        canvas.style.position = 'relative'
+        canvas.style.pointerEvents = 'auto'
+        canvas.style.zIndex = '1' // 提高canvas的z-index，使其可以接收点击事件
       }
     } else {
       // 如果找不到background元素，延迟重试
-      canvasRetryTimer = setTimeout(addCanvasToBackground, 100)
+      canvasRetryTimer = window.setTimeout(addCanvasToBackground, 100)
     }
-  } catch (error) {
+  } catch {
     // 发生错误时也延迟重试
-    canvasRetryTimer = setTimeout(addCanvasToBackground, 100)
+    canvasRetryTimer = window.setTimeout(addCanvasToBackground, 100)
   }
 }
 
@@ -196,12 +257,12 @@ onBeforeRouteLeave((to, from, next) => {
   next()
 })
 
-const changeL2D = (value) => {
+const changeL2D = (value: boolean) => {
   emit('update:changeL2D', value)
 }
 
-// 注册资源别名（若已被 init/live2d.js 预加载注册则跳过，避免重复 add 触发 resolver 覆盖警告）
-const addAssetAlias = (alias, src) => {
+// 注册资源别名（若已被 init/live2d.ts 预加载注册则跳过，避免重复 add 触发 resolver 覆盖警告）
+const addAssetAlias = (alias: string, src: string) => {
   if (!PIXI.Assets.resolver.hasKey(alias)) {
     PIXI.Assets.add({ alias, src })
   }
@@ -212,8 +273,8 @@ const addAssetAlias = (alias, src) => {
 // （两个 Spine 实例同上屏，先完成的实例丢失引用但永久留在 stage 上，
 //  切换角色卸载资源后，孤儿实例仍持有已销毁贴图，渲染时报 alphaMode 空指针），
 // 同时防止切换途中重复点击造成的资源竞争
-let setL2DInFlight = null
-const setL2D = (num) => {
+let setL2DInFlight: Promise<void> | null = null
+const setL2D = (num: L2DTarget): Promise<void> => {
   if (setL2DInFlight) return setL2DInFlight
   setL2DInFlight = doSetL2D(num).finally(() => {
     setL2DInFlight = null
@@ -221,7 +282,7 @@ const setL2D = (num) => {
   return setL2DInFlight
 }
 
-const doSetL2D = async (num) => {
+const doSetL2D = async (num: L2DTarget): Promise<void> => {
   // 确保canvas已经添加到background div
   addCanvasToBackground()
 
@@ -233,7 +294,7 @@ const doSetL2D = async (num) => {
 
   // 先解析目标 id 并完成全部校验：通过前不触碰旧角色与任何交互状态，
   // 否则传入非法 id/配置时旧角色已销毁、新角色不加载，页面只剩空 canvas
-  let newId
+  let newId: number
   switch (num) {
     case '-':
       newId = id === 0 ? lobbies.length - 1 : id - 1
@@ -266,7 +327,7 @@ const doSetL2D = async (num) => {
   cancelPressSession()
   talkPlayer.stopAllVoices()
   // 销毁旧角色动画实例（资源保留在缓存中不卸载：
-  // 全部角色在加载屏阶段已由 init/live2d.js 预加载，数量有限、占用有界，
+  // 全部角色在加载屏阶段已由 init/live2d.ts 预加载，数量有限、占用有界，
   // 保留缓存（含 skeletonCache / 贴图 / GPU 纹理）让来回切换完全无缝；
   // 卸载反而会使切回时重新下载/解码/上传 GPU，出现约 1s 卡顿）
   if (animation) {
@@ -276,18 +337,19 @@ const doSetL2D = async (num) => {
     animation = null
   }
 
+  const display = lobby.dialogueDisplay
   dialogueDisplay.value.x =
-    parseFraction(lobby.dialogueDisplay.x) * document.documentElement.clientWidth
+    parseFraction(display?.x) * document.documentElement.clientWidth
   dialogueDisplay.value.y =
-    parseFraction(lobby.dialogueDisplay.y) * document.documentElement.clientHeight
-  dialogueDisplay.value.position = lobby.dialogueDisplay.position
+    parseFraction(display?.y) * document.documentElement.clientHeight
+  dialogueDisplay.value.position = (display?.position || 'left') as DialoguePosition
 
   try {
     // 使用配置文件中定义的实际资源路径
     const skeletonPath = lobby.path + lobby.skel
     const atlasPath = lobby.path + lobby.atlas
 
-    // 先预加载资源（别名与 init/live2d.js 的预加载保持一致，可直接命中其缓存）
+    // 先预加载资源（别名与 init/live2d.ts 的预加载保持一致，可直接命中其缓存）
     const skeletonAlias = `skeleton_${id}`
     const atlasAlias = `atlas_${id}`
 
@@ -306,12 +368,12 @@ const doSetL2D = async (num) => {
     } else {
       return
     }
-  } catch (error) {
+  } catch {
     return
   }
   animation.scale.set(0.85)
   animation.state.setAnimation(0, 'Idle_01', true)
-  animation.state.timeScale = 1
+  animation.state.timeScale = LIVE2D_TIME_SCALE
   animation.autoUpdate = true
   animation.y = 1440
   animation.x = 2560 / 2
@@ -320,7 +382,7 @@ const doSetL2D = async (num) => {
   attachInteractions(animation)
 
   originalOffsetPercent = parseOffset(lobby.offset) * 100
-  l2d.view.style.transform = `translateX(calc((50% - ${originalOffsetPercent} * 1%) * (1 - min(1, 100vw / 1200px))))`
+  canvas.style.transform = `translateX(calc((50% - ${originalOffsetPercent} * 1%) * (1 - min(1, 100vw / 1200px))))`
   // 角色偏移改变，画布布局缓存失效
   cachedViewRect = null
 
@@ -340,12 +402,13 @@ const doSetL2D = async (num) => {
     ) {
       animation.state.addAnimation(0, 'Idle_01', true)
     }
-    let listener = {
+    const targetAnimation = animation
+    const listener: AnimationStateListener = {
       complete: (entry) => {
-        if (entry.trackIndex === 0 && entry.animation.name !== 'Idle_01') {
+        if (entry.trackIndex === 0 && entry.animation?.name !== 'Idle_01') {
           changeL2D(false)
-          animation.state.listeners = []
-          talkPlayer.attachEventListener(animation.state)
+          targetAnimation.state.listeners = []
+          talkPlayer.attachEventListener(targetAnimation.state)
           canSkip.value = false
           emit('canskip', false)
           if (modalRef) {
@@ -380,7 +443,7 @@ const doSetL2D = async (num) => {
   // 标记动画初始化完成
   animationReady = true
 
-  // 直接在l2d.view上添加事件监听，因为现在canvas有了正确的层级
+  // 直接在canvas上添加事件监听，因为现在canvas有了正确的层级
   addEventListenersToCanvas()
 }
 
@@ -388,12 +451,12 @@ const doSetL2D = async (num) => {
 //   快速点按身体 = 对话（Talk）
 //   按住拖动 = 命中特殊骨骼则捏脸拖拽，否则视线跟随（EyeIK）
 //   静止长按头部 = 摸头（HairPatIK），摸头中移动 = 头部跟随手指
-let pressSession = null
+let pressSession: PressSession | null = null
 
-const onPressDown = (event) => {
+const onPressDown = (event: MouseEvent) => {
   if (!animation || !animationReady || !ctx.isIdleMode()) return
-  const world = clientToWorld(event.clientX, event.clientY, l2d.view.getBoundingClientRect())
-  const session = {
+  const world = clientToWorld(event.clientX, event.clientY, canvas.getBoundingClientRect())
+  const session: PressSession = {
     sx: event.clientX,
     sy: event.clientY,
     world,
@@ -404,7 +467,7 @@ const onPressDown = (event) => {
     dragTarget: boneDrag.probe(world.x, world.y),
     longPressTimer: null
   }
-  session.longPressTimer = setTimeout(() => {
+  session.longPressTimer = window.setTimeout(() => {
     if (pressSession !== session || session.moved) return
     session.longPressed = true
     // 静止长按命中头部区域 → 摸头
@@ -424,11 +487,11 @@ const onPressDown = (event) => {
   window.addEventListener('mouseup', onPressUp)
 }
 
-const onPressMove = (event) => {
+const onPressMove = (event: MouseEvent) => {
   const session = pressSession
   if (!session || !animation) return
   // 复用悬停路径的画布布局缓存（窗口尺寸/角色偏移变化时失效重建）
-  if (!cachedViewRect) cachedViewRect = l2d.view.getBoundingClientRect()
+  if (!cachedViewRect) cachedViewRect = canvas.getBoundingClientRect()
   const world = clientToWorld(event.clientX, event.clientY, cachedViewRect)
 
   // 摸头中直接跟随（不受拖拽阈值限制）
@@ -441,7 +504,7 @@ const onPressMove = (event) => {
     const dist = Math.hypot(event.clientX - session.sx, event.clientY - session.sy)
     if (dist < DRAG_START_THRESHOLD) return
     session.moved = true
-    clearTimeout(session.longPressTimer)
+    if (session.longPressTimer !== null) clearTimeout(session.longPressTimer)
     // 拖动开始：优先捏脸/特殊骨骼，否则视线跟随
     if (
       session.dragTarget &&
@@ -459,11 +522,11 @@ const onPressMove = (event) => {
   else if (session.kind === 'gaze') gaze.move(world.x, world.y)
 }
 
-const onPressUp = (event) => {
+const onPressUp = (event: MouseEvent) => {
   const session = pressSession
   if (!session) return
   pressSession = null
-  clearTimeout(session.longPressTimer)
+  if (session.longPressTimer !== null) clearTimeout(session.longPressTimer)
   window.removeEventListener('mousemove', onPressMove)
   window.removeEventListener('mouseup', onPressUp)
 
@@ -489,7 +552,7 @@ const onPressUp = (event) => {
 const cancelPressSession = () => {
   if (!pressSession) return
   const kind = pressSession.kind
-  clearTimeout(pressSession.longPressTimer)
+  if (pressSession.longPressTimer !== null) clearTimeout(pressSession.longPressTimer)
   pressSession = null
   window.removeEventListener('mousemove', onPressMove)
   window.removeEventListener('mouseup', onPressUp)
@@ -500,7 +563,7 @@ const cancelPressSession = () => {
 }
 
 // 点按对话：命中骨骼（半径 100）→ 宽松半径（160）兜底
-const handleTap = (event) => {
+const handleTap = (event: MouseEvent) => {
   if (
     !animation ||
     !animation.state ||
@@ -513,7 +576,7 @@ const handleTap = (event) => {
   // 摸头按住中不触发（结束阶段的打断由 playTalk 内部处理）
   if (pat.isEngaged() && pat.isActive()) return
 
-  const world = clientToWorld(event.clientX, event.clientY, l2d.view.getBoundingClientRect())
+  const world = clientToWorld(event.clientX, event.clientY, canvas.getBoundingClientRect())
   if (hitTestBones(animation.skeleton, world.x, world.y, BONE_HIT_RADIUS).length > 0) {
     talkPlayer.playTalk()
     return
@@ -525,40 +588,40 @@ const handleTap = (event) => {
 
 // 在canvas上添加事件监听
 const addEventListenersToCanvas = () => {
-  if (l2d.view) {
+  if (canvas) {
     // 移除可能存在的旧监听
     removeEventListenersFromCanvas()
 
     // 添加事件监听
-    l2d.view.addEventListener('mousedown', onPressDown)
-    l2d.view.addEventListener('mouseup', onPressUp)
-    l2d.view.addEventListener('mouseleave', handleMouseLeave)
+    canvas.addEventListener('mousedown', onPressDown)
+    canvas.addEventListener('mouseup', onPressUp)
+    canvas.addEventListener('mouseleave', handleMouseLeave)
     // 统一 mousemove：按压中走状态机，未按压走悬停检测
-    l2d.view.addEventListener('mousemove', handleMouseMove)
+    canvas.addEventListener('mousemove', handleMouseMove)
     // touch 处理器均不调用 preventDefault，声明 passive 消除 scroll-blocking 警告
-    l2d.view.addEventListener('touchstart', handleTouchStart, { passive: true })
-    l2d.view.addEventListener('touchmove', handleTouchMove, { passive: true })
-    l2d.view.addEventListener('touchend', handleTouchEnd)
-    l2d.view.addEventListener('touchcancel', handleTouchEnd)
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: true })
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: true })
+    canvas.addEventListener('touchend', handleTouchEnd)
+    canvas.addEventListener('touchcancel', handleTouchEnd)
   }
 }
 
 // 移除canvas上的事件监听
 const removeEventListenersFromCanvas = () => {
-  if (l2d.view) {
-    l2d.view.removeEventListener('mousedown', onPressDown)
-    l2d.view.removeEventListener('mouseup', onPressUp)
-    l2d.view.removeEventListener('mouseleave', handleMouseLeave)
-    l2d.view.removeEventListener('mousemove', handleMouseMove)
-    l2d.view.removeEventListener('touchstart', handleTouchStart)
-    l2d.view.removeEventListener('touchmove', handleTouchMove)
-    l2d.view.removeEventListener('touchend', handleTouchEnd)
-    l2d.view.removeEventListener('touchcancel', handleTouchEnd)
+  if (canvas) {
+    canvas.removeEventListener('mousedown', onPressDown)
+    canvas.removeEventListener('mouseup', onPressUp)
+    canvas.removeEventListener('mouseleave', handleMouseLeave)
+    canvas.removeEventListener('mousemove', handleMouseMove)
+    canvas.removeEventListener('touchstart', handleTouchStart)
+    canvas.removeEventListener('touchmove', handleTouchMove)
+    canvas.removeEventListener('touchend', handleTouchEnd)
+    canvas.removeEventListener('touchcancel', handleTouchEnd)
   }
 }
 
 // 鼠标移动：按压会话期间由 window 监听驱动（此处不再重复处理），未按压做悬停检测
-const handleMouseMove = (event) => {
+const handleMouseMove = (event: MouseEvent) => {
   if (!pressSession) handleBoneHover(event)
 }
 
@@ -567,13 +630,13 @@ const handleMouseMove = (event) => {
 const handleMouseLeave = () => {
   // 确保鼠标离开canvas时恢复光标状态
   isL2dHovering = false
-  if (l2d.view) {
-    l2d.view.classList.remove('l2d-hover')
+  if (canvas) {
+    canvas.classList.remove('l2d-hover')
   }
 }
 
 // 触摸事件处理
-const handleTouchStart = (event) => {
+const handleTouchStart = (event: TouchEvent) => {
   if (event.touches.length > 0) {
     const touchEvent = event.touches[0]
     const mouseEvent = new MouseEvent('mousedown', {
@@ -585,7 +648,7 @@ const handleTouchStart = (event) => {
 }
 
 // 处理触摸移动事件
-const handleTouchMove = (event) => {
+const handleTouchMove = (event: TouchEvent) => {
   if (pressSession && event.touches.length > 0) {
     const touchEvent = event.touches[0]
     const mouseEvent = new MouseEvent('mousemove', {
@@ -596,7 +659,7 @@ const handleTouchMove = (event) => {
   }
 }
 
-const handleTouchEnd = (event) => {
+const handleTouchEnd = (event: TouchEvent) => {
   if (event.changedTouches.length > 0) {
     const touchEvent = event.changedTouches[0]
     const mouseEvent = new MouseEvent('mouseup', {
@@ -608,12 +671,12 @@ const handleTouchEnd = (event) => {
 }
 
 // 骨骼悬停检测：rAF 节流 + 布局缓存 + 状态变化才写 DOM
-let hoverRafId = null
-let lastHoverEvent = null
-let cachedViewRect = null
+let hoverRafId: number | null = null
+let lastHoverEvent: MouseEvent | null = null
+let cachedViewRect: DOMRect | null = null
 let isL2dHovering = false
 
-const handleBoneHover = (event) => {
+const handleBoneHover = (event: MouseEvent) => {
   lastHoverEvent = event
   if (hoverRafId !== null) return
   hoverRafId = requestAnimationFrame(() => {
@@ -624,14 +687,14 @@ const handleBoneHover = (event) => {
   })
 }
 
-const processBoneHover = (event) => {
+const processBoneHover = (event: MouseEvent) => {
   if (!animation || !animation.skeleton || !animationReady) {
     return
   }
 
   // 获取鼠标位置（rect 在窗口尺寸/角色偏移变化时失效重建）
   if (!cachedViewRect) {
-    cachedViewRect = l2d.view.getBoundingClientRect()
+    cachedViewRect = canvas.getBoundingClientRect()
   }
 
   // 计算实际的世界坐标
@@ -644,9 +707,9 @@ const processBoneHover = (event) => {
   if (isHovering !== isL2dHovering) {
     isL2dHovering = isHovering
     if (isHovering) {
-      l2d.view.classList.add('l2d-hover')
+      canvas.classList.add('l2d-hover')
     } else {
-      l2d.view.classList.remove('l2d-hover')
+      canvas.classList.remove('l2d-hover')
     }
   }
 }
@@ -707,7 +770,7 @@ onDeactivated(() => {
 })
 
 // 加载Live2D并跳过初始动画
-const loadL2DSkipIdle = async (num) => {
+const loadL2DSkipIdle = async (num: number): Promise<void> => {
   // 确保canvas已经添加到background div
   addCanvasToBackground()
 
@@ -734,18 +797,19 @@ const loadL2DSkipIdle = async (num) => {
     return
   }
 
+  const display = lobby.dialogueDisplay
   dialogueDisplay.value.x =
-    parseFraction(lobby.dialogueDisplay.x) * document.documentElement.clientWidth
+    parseFraction(display?.x) * document.documentElement.clientWidth
   dialogueDisplay.value.y =
-    parseFraction(lobby.dialogueDisplay.y) * document.documentElement.clientHeight
-  dialogueDisplay.value.position = lobby.dialogueDisplay.position
+    parseFraction(display?.y) * document.documentElement.clientHeight
+  dialogueDisplay.value.position = (display?.position || 'left') as DialoguePosition
 
   try {
     // 使用配置文件中定义的实际资源路径
     const skeletonPath = lobby.path + lobby.skel
     const atlasPath = lobby.path + lobby.atlas
 
-    // 先预加载资源（别名与 init/live2d.js 的预加载保持一致，可直接命中其缓存）
+    // 先预加载资源（别名与 init/live2d.ts 的预加载保持一致，可直接命中其缓存）
     const skeletonAlias = `skeleton_${num}`
     const atlasAlias = `atlas_${num}`
 
@@ -763,13 +827,13 @@ const loadL2DSkipIdle = async (num) => {
     } else {
       return
     }
-  } catch (error) {
+  } catch {
     return
   }
   animation.scale.set(0.85)
   // 直接播放Idle_01，跳过Start_Idle
   animation.state.setAnimation(0, 'Idle_01', true)
-  animation.state.timeScale = 1
+  animation.state.timeScale = LIVE2D_TIME_SCALE
   animation.autoUpdate = true
   animation.y = 1440
   animation.x = 2560 / 2
@@ -778,7 +842,7 @@ const loadL2DSkipIdle = async (num) => {
   attachInteractions(animation)
 
   originalOffsetPercent = parseOffset(lobby.offset) * 100
-  l2d.view.style.transform = `translateX(calc((50% - ${originalOffsetPercent} * 1%) * (1 - min(1, 100vw / 1200px))))`
+  canvas.style.transform = `translateX(calc((50% - ${originalOffsetPercent} * 1%) * (1 - min(1, 100vw / 1200px))))`
   // 角色偏移改变，画布布局缓存失效
   cachedViewRect = null
 
@@ -789,7 +853,7 @@ const loadL2DSkipIdle = async (num) => {
   // 标记动画初始化完成
   animationReady = true
 
-  // 直接在l2d.view上添加事件监听
+  // 直接在canvas上添加事件监听
   addEventListenersToCanvas()
 }
 
@@ -850,7 +914,7 @@ const skipStartIdle = () => {
 
       modalRef = Modal.open({
         title: currentConfig.value.translate.info,
-        content: currentConfig.value.translate.ifSkip,
+        content: currentConfig.value.translate.ifSkip || '',
         okText: currentConfig.value.translate.ok,
         cancelText: currentConfig.value.translate.cancel,
         onOk: () => {
@@ -874,7 +938,7 @@ const skipStartIdle = () => {
         }
       })
     }
-  } catch (error) {
+  } catch {
     changeL2D(false)
   }
 }
@@ -900,28 +964,33 @@ const initLive2DWhenReady = () => {
 // （生产构建中 import.meta.env.DEV 恒为 false，整块会被 treeshake 移除，不进产物）
 if (import.meta.env.DEV) {
   window.__l2dDebug = {
-    getState: () => ({
-      ready: animationReady,
-      idle: ctx.isIdleMode(),
-      talking: ctx.flags.talking.value,
-      petting: ctx.flags.ifPetting.value,
-      gazing: gaze.isActive(),
-      dragging: boneDrag.isActive(),
-      gazeBone: gaze.boneName(),
-      pat: pat.debugInfo(),
-      dragBones: boneDrag.targetNames(),
-      // 轨道当前动画名（验证随机小动作/眨眼调度）
-      tracks: animation?.state
-        ? [0, 1, 2, 3, 4].map((t) => animation.state.getCurrent(t)?.animation?.name ?? null)
-        : [],
-      character: animation?.skeleton?.data?.name ?? null
-    }),
+    getState: () => {
+      const currentAnimation = animation
+      return {
+        ready: animationReady,
+        idle: ctx.isIdleMode(),
+        talking: ctx.flags.talking.value,
+        petting: ctx.flags.ifPetting.value,
+        gazing: gaze.isActive(),
+        dragging: boneDrag.isActive(),
+        gazeBone: gaze.boneName(),
+        pat: pat.debugInfo(),
+        dragBones: boneDrag.targetNames(),
+        // 轨道当前动画名（验证随机小动作/眨眼调度）
+        tracks: currentAnimation?.state
+          ? [0, 1, 2, 3, 4].map(
+              (track) => currentAnimation.state.getCurrent(track)?.animation?.name ?? null
+            )
+          : [],
+        character: currentAnimation?.skeleton?.data?.name ?? null
+      }
+    },
     // 骨骼世界坐标 → 页面 client 坐标（clientToWorld 的逆运算）
     boneClientPos: (name) => {
-      if (!animation || !l2d.view) return null
+      if (!animation || !canvas) return null
       const bone = animation.skeleton.findBone(name)
       if (!bone) return null
-      const rect = l2d.view.getBoundingClientRect()
+      const rect = canvas.getBoundingClientRect()
       const scaleX = rect.width / l2d.screen.width
       const scaleY = rect.height / l2d.screen.height
       return {
@@ -931,9 +1000,9 @@ if (import.meta.env.DEV) {
     },
     // 头部区域代表点（取第一个头部区域骨骼）
     headClientPos: () => {
-      if (!animation || !l2d.view) return null
+      if (!animation || !canvas) return null
       const bone = animation.skeleton.bones.find((b) => isHeadRegionBone(b.data.name))
-      return bone ? window.__l2dDebug.boneClientPos(bone.data.name) : null
+      return bone ? window.__l2dDebug?.boneClientPos(bone.data.name) ?? null : null
     },
     // 切换角色（供多角色用例）
     switchCharacter: (index) => setL2D(index),
@@ -988,7 +1057,7 @@ watch(
     style="position: fixed; width: 100%; height: 100%; z-index: 2"
     role="button"
     tabindex="0"
-    :aria-label="currentConfig?.translate?.skipIntro"
+    :aria-label="typeof currentConfig?.translate?.skipIntro === 'string' ? currentConfig.translate.skipIntro : undefined"
     @click="skipStartIdle()"
     @keydown.enter.prevent="skipStartIdle()"
     @keydown.space.prevent="skipStartIdle()"
