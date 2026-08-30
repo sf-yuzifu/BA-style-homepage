@@ -204,10 +204,9 @@ const addRandomSong = async () => {
 
 <template>
   <div
-    v-if="visible"
     id="aplayer"
     ref="aplayerContainer"
-    :class="{ 'aplayer-mini': ifICP }"
+    :class="{ 'aplayer-mini': ifICP, 'is-hidden': !visible }"
   ></div>
 </template>
 
@@ -221,6 +220,10 @@ const addRandomSong = async () => {
   opacity: 0.9;
   z-index: 2;
   transition: transform 0.3s;
+}
+
+#aplayer.is-hidden {
+  display: none !important;
 }
 
 #aplayer:active {

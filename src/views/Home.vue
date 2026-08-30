@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from 'vue'
+import { ref, computed, watch, defineAsyncComponent } from 'vue'
 import Footer from '@/components/Footer.vue'
 import Level from '@/components/Level.vue'
 import Toolbox from '@/components/Toolbox.vue'
@@ -16,6 +16,11 @@ const MusicBanner = defineAsyncComponent(() => import('@/components/MusicBanner.
 // 状态管理
 const l2dOnly = ref(true)
 const canSkipit = ref(true)
+/** 首次离开全屏后再挂载；之后用 v-show 隐藏，避免卸载打断播放 */
+const musicReady = ref(false)
+watch(l2dOnly, (only) => {
+  if (!only) musicReady.value = true
+})
 
 // 使用composables
 const { changeDirection } = useResponsive()
@@ -73,10 +78,12 @@ const canSkip = (value: boolean) => {
     <!-- 任务 -->
     <Task :l2dOnly="l2dOnly" />
 
-    <!-- 横幅（v-if 延迟挂载，首屏 L2D 观赏模式不拉 media chunk） -->
-    <transition :name="bannerDirection">
-      <MusicBanner v-if="!l2dOnly" />
-    </transition>
+    <!-- 横幅：首次离开全屏才挂载 chunk；之后 v-show 隐藏，不停播 -->
+    <template v-if="musicReady">
+      <transition :name="bannerDirection">
+        <MusicBanner v-show="!l2dOnly" />
+      </transition>
+    </template>
 
     <!-- 页脚 -->
     <transition name="down">
