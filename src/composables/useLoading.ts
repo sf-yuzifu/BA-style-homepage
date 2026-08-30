@@ -5,6 +5,18 @@ import { loadFonts } from '@/init/fonts'
 import { initLive2D } from '@/init/live2d'
 import { prefersReducedMotionNow } from './useReducedMotion'
 
+/** 全量预加载：超时随角色数量放宽，避免慢网 15s 就进空大厅 */
+const LOAD_TIMEOUT_BASE_MS = 30_000
+const LOAD_TIMEOUT_PER_LOBBY_MS = 25_000
+const LOAD_TIMEOUT_MIN_MS = 60_000
+const LOAD_TIMEOUT_MAX_MS = 180_000
+
+const loadTimeoutMs = (lobbyCount: number) =>
+  Math.min(
+    LOAD_TIMEOUT_MAX_MS,
+    Math.max(LOAD_TIMEOUT_MIN_MS, LOAD_TIMEOUT_BASE_MS + lobbyCount * LOAD_TIMEOUT_PER_LOBBY_MS)
+  )
+
 export function useLoading() {
   const loading = ref(true)
   const percent = ref(0)
@@ -13,6 +25,23 @@ export function useLoading() {
   // 添加平滑动画相关状态
   const targetPercent = ref(0)
   const animationFrame = ref<number | null>(null)
+  let loadTimeoutId: ReturnType<typeof setTimeout> | null = null
+
+  const clearLoadTimeout = () => {
+    if (loadTimeoutId === null) return
+    clearTimeout(loadTimeoutId)
+    loadTimeoutId = null
+  }
+
+  const armLoadTimeout = (ms: number) => {
+    clearLoadTimeout()
+    loadTimeoutId = setTimeout(() => {
+      loadTimeoutId = null
+      if (!loading.value) return
+      console.warn(`资源加载超过 ${Math.round(ms / 1000)}s 仍未完成，强制进入大厅`)
+      forceComplete()
+    }, ms)
+  }
 
   // 使用资源加载管理器和配置
   const resourceLoader = useResourceLoader()
@@ -128,13 +157,17 @@ export function useLoading() {
     resourceLoader.addResource('fonts_ready', '', 'font')
 
     // 添加Live2D资源（根据实际配置动态添加）
+    const lobbyCount = Array.isArray(config.memorialLobbies) ? config.memorialLobbies.length : 0
     if (config.memorialLobbies && Array.isArray(config.memorialLobbies)) {
       config.memorialLobbies.forEach((lobby, index) => {
         resourceLoader.addResource(`live2d_skeleton_${index}`, lobby.path + lobby.skel, 'live2d')
         resourceLoader.addResource(`live2d_atlas_${index}`, lobby.path + lobby.atlas, 'live2d')
       })
-      console.log(`添加了 ${config.memorialLobbies.length} 个Live2D角色的资源`)
+      console.log(`添加了 ${lobbyCount} 个Live2D角色的资源`)
     }
+
+    // 真正的 PIXI 预加载在 initLive2D，此时 loadedCount 还不会涨；超时按角色数给够
+    armLoadTimeout(loadTimeoutMs(lobbyCount))
 
     console.log(`资源加载器初始化完成，共 ${resourceLoader.totalCount.value} 个资源`)
 
@@ -167,6 +200,7 @@ export function useLoading() {
 
   // 完成加载
   const finishLoading = () => {
+    clearLoadTimeout()
     // 清理动画
     if (animationFrame.value) {
       cancelAnimationFrame(animationFrame.value)
@@ -188,23 +222,10 @@ export function useLoading() {
 
   onMounted(() => {
     const begin = () => {
-      startLoading()
-
-      // 设置超时机制，防止无限等待
-      const timeoutId = setTimeout(() => {
-        console.warn('资源加载超时，强制完成加载')
+      startLoading().catch((error) => {
+        console.error('资源加载失败，强制进入大厅:', error)
         forceComplete()
-      }, 15000) // 15秒超时
-
-      // 如果正常完成加载，取消超时
-      watch(
-        () => loading.value,
-        (newLoading) => {
-          if (!newLoading) {
-            clearTimeout(timeoutId)
-          }
-        }
-      )
+      })
     }
     // 减少动效时跳过人为延迟，否则让 Loading 先亮起再从 0% 开始
     if (prefersReducedMotionNow()) {
@@ -215,6 +236,7 @@ export function useLoading() {
   })
 
   onUnmounted(() => {
+    clearLoadTimeout()
     resourceLoader.reset()
   })
 
