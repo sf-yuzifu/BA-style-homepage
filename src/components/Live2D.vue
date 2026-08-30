@@ -26,7 +26,8 @@ let spine: Spine | null = null
 let isUnmounted = false // 组件卸载标记，await 加载期间卸载时阻止后续初始化
 let skeletonAlias: string | null = null
 let atlasAlias: string | null = null
-let pageTextureUrl: string | null = null
+/** atlas 页贴图在 Assets 中的 URL 键（生产构建可能为 .webp） */
+let pageTextureUrls: string[] = []
 
 onMounted(async () => {
   if (!l2dContainer.value) return
@@ -63,7 +64,8 @@ onMounted(async () => {
     skeletonAlias = `skeleton_${config.name}`
     atlasAlias = `atlas_${config.name}`
     // 贴图页在 Assets 缓存中的键（atlas 加载器以解析后的 URL 为键），供卸载时使用
-    pageTextureUrl = basePath + skelFile.replace('.skel', '.png')
+    const textureStem = skelFile.replace(/\.skel$/i, '')
+    pageTextureUrls = [`${basePath}${textureStem}.png`, `${basePath}${textureStem}.webp`]
 
     PIXI.Assets.add({ alias: skeletonAlias, src: basePath + skelFile })
     PIXI.Assets.add({ alias: atlasAlias, src: basePath + atlasFile })
@@ -132,9 +134,9 @@ onUnmounted(() => {
   // 卸载资源并清理两层静态缓存（对齐 Background.vue 验证过的清理逻辑）：
   // 否则组件卸载后再次挂载（如 keep-alive 缓存被淘汰后重建）时，
   // Spine.from 会命中引用了已销毁贴图的缓存，渲染时报 alphaMode 空指针
-  if (skeletonAlias && atlasAlias && pageTextureUrl) {
-    // 贴图页由 atlas 加载器以 URL 为键缓存，需一并卸载
-    PIXI.Assets.unload([skeletonAlias, atlasAlias, pageTextureUrl]).catch(() => {
+  if (skeletonAlias && atlasAlias && pageTextureUrls.length > 0) {
+    // 贴图页由 atlas 加载器以 URL 为键缓存，需一并卸载（开发 .png / 生产 .webp）
+    PIXI.Assets.unload([skeletonAlias, atlasAlias, ...pageTextureUrls]).catch(() => {
       // 卸载失败不影响清理流程
     })
     // 清理 Spine 静态骨骼缓存（缓存键格式为 skeleton-atlas-scale，scale 默认为 1）
@@ -152,7 +154,7 @@ onUnmounted(() => {
     }
     skeletonAlias = null
     atlasAlias = null
-    pageTextureUrl = null
+    pageTextureUrls = []
   }
 })
 </script>

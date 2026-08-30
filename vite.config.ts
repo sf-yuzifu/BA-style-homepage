@@ -13,6 +13,7 @@ import type { ManifestOptions } from 'vite-plugin-pwa'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import Font from 'vite-plugin-font'
 import yaml from '@rollup/plugin-yaml'
+import { l2dWebpPlugin } from './build/vite-plugin-l2d-webp'
 
 type FontViteOptions = Parameters<typeof Font.vite>[0]
 
@@ -182,6 +183,8 @@ export default defineConfig({
     viteCompression({
       threshold: 10240 // the unit is Bytes
     }),
+    // 须在 viteCompression 之后注册，closeBundle 时先转 WebP 再 gzip 新产物
+    l2dWebpPlugin(),
     yaml()
   ],
   resolve: {
