@@ -187,9 +187,7 @@ const localeOverlaySchema = z.strictObject({
       title: z.string().optional()
     })
     .optional(),
-  translate: z
-    .record(z.string(), z.union([z.string(), z.array(z.string())]))
-    .optional(),
+  translate: z.record(z.string(), z.string()).optional(),
   bio: z
     .strictObject({
       student: z.array(bioStudentSchema.partial()).optional(),
@@ -279,6 +277,16 @@ export function validateProjectConfig(root: string): string[] {
 
   if (!fs.existsSync(configPath)) {
     return [`  _config.yaml: 文件不存在`]
+  }
+
+  const bioDir = path.join(root, 'bio')
+  if (!fs.existsSync(bioDir) || !fs.statSync(bioDir).isDirectory()) {
+    errors.push('  bio/: 目录不存在（请创建 bio/{locale}.md，例如 bio/en-US.md）')
+  } else {
+    const bioFiles = fs.readdirSync(bioDir).filter((name) => name.toLowerCase().endsWith('.md'))
+    if (bioFiles.length === 0) {
+      errors.push('  bio/: 至少需要一个 .md 文件（缺语言时回退到 en-US）')
+    }
   }
 
   let raw: unknown
@@ -387,7 +395,7 @@ export function assertProjectConfig(root: string): void {
   )
 }
 
-/** 启动 / 构建时校验 _config.yaml 与语言包，字段拼写错误直接失败 */
+/** 启动 / 构建时校验 _config.yaml、语言包与 bio/ 简介，字段拼写错误直接失败 */
 export function configValidatePlugin(): Plugin {
   return {
     name: 'vite-plugin-config-validate',

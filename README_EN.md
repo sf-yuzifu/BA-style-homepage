@@ -21,7 +21,7 @@
 
 **Fish Archive** is a personal homepage that faithfully recreates the style of the game *Blue Archive*. Built with **Vue 3 + Vite**, it renders memorial lobby skeletal animations (Live2D) from the game via **PIXI.js + Spine**, and implements a series of interactive effects such as head-patting, gaze following, cheek dragging, and voice dialogue — striving to reproduce the immersive feeling of "spending time with students" right in your browser.
 
-All site content (site info, contacts, project showcase, music list, Live2D characters, etc.) can be customized through a single `_config.yaml` file in the root directory — deploy your own homepage without touching the source code.
+All site content (site info, contacts, project showcase, music list, Live2D characters, etc.) can be customized through `_config.yaml` in the root directory. The bio page body lives in `bio/{locale}.md` — deploy your own homepage without touching the source code.
 
 ## ✨ Features
 
@@ -134,9 +134,11 @@ yarn preview
 
 ## ⚙️ Customization
 
-All customization is done through **`_config.yaml`** in the root directory (YAML format for easy reading; to migrate from the legacy JSON format, you can use [this website](https://www.json.cn/json2yaml/) to quickly convert JSON to YAML).
+Customization is done through **`_config.yaml`** (site config) and **`bio/`** (bio page body) in the root directory (YAML / Markdown for easy reading; to migrate config from the legacy JSON format, you can use [this website](https://www.json.cn/json2yaml/) to quickly convert JSON to YAML).
 
 After modifying the configuration, rebuild and redeploy for changes to take effect.
+
+The right-hand bio text comes from **`bio/{locale}.md`** (e.g. `bio/en-US.md`). It supports GitHub-flavored Markdown and inline HTML (e.g. GitHub Stats images), and follows the visitor's language. Missing locales fall back to `bio/en-US.md`, then to any file in the folder — forks only need to add the languages they use.
 
 <details>
 <summary><b>Click to expand the _config.yaml configuration guide</b></summary>
@@ -274,9 +276,10 @@ bio:
 
 ## 🌐 About i18n
 
-This project supports multilingual internationalization. The configuration adopts a two-layer structure of "**base config + language pack override**":
+This project supports multilingual internationalization. The configuration adopts a "**base config + language pack override**" structure, with the bio body split by language:
 
 - **`_config.yaml`**: the base configuration, holding language-agnostic content (resource paths, links, icons, etc.)
+- **`bio/{locale}.md`**: bio page body (Markdown); follows the UI language
 - **`src/locales/*.yaml`**: per-language translation files, deep-merged over the text content of the base config
 
 The site automatically detects the visitor's browser language and loads the matching language pack, falling back to English when unmatched. Language packs are split into independent chunks and loaded on demand, so they won't slow down the first screen.
@@ -289,6 +292,12 @@ src/locales/
 ├── zh-TW.yaml  # Traditional Chinese translation file
 ├── en-US.yaml  # English translation file
 └── ja-JP.yaml  # Japanese translation file
+
+bio/
+├── zh-CN.md    # Simplified Chinese bio body
+├── zh-TW.md    # Traditional Chinese bio body
+├── en-US.md    # English bio body
+└── ja-JP.md    # Japanese bio body
 ```
 
 ### Translation File Configuration Items
@@ -342,9 +351,6 @@ translate:
   cancel: Cancel
   bio: Biography
   bioTitle: Self Introduction
-  bioContent:
-    - This is yuzifu, nice to meet you >_<!
-    - <br/>
   prevPage: Previous
   nextPage: Next
 

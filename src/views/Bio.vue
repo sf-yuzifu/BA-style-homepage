@@ -6,7 +6,28 @@ import Header from '@/components/Header.vue'
 import Live2D from '@/components/Live2D.vue'
 import type { BioBth } from '@/types/config'
 
-const { configs } = useConfig()
+const BIO_FALLBACK_LOCALE = 'en-US'
+
+const bioPages = import.meta.glob('../../bio/*.md', {
+  eager: true,
+  import: 'default'
+}) as Record<string, string>
+
+const bioByLocale: Record<string, string> = {}
+for (const [key, html] of Object.entries(bioPages)) {
+  const locale = key.split(/[/\\]/).pop()?.replace(/\.md$/i, '') ?? ''
+  if (locale) bioByLocale[locale] = html
+}
+
+const { configs, currentLocale } = useConfig()
+
+const bioHtml = computed(
+  () =>
+    bioByLocale[currentLocale.value] ||
+    bioByLocale[BIO_FALLBACK_LOCALE] ||
+    Object.values(bioByLocale)[0] ||
+    ''
+)
 
 const currentConfig = computed(() => configs.value)
 
@@ -218,11 +239,9 @@ onUnmounted(() => {
               <div class="title">{{ translate.bioTitle || '' }}</div>
             </div>
             <div class="intro-content">
-              <div class="content">
-                <!-- v-html 渲染的是仓库内受信任的 YAML 配置（translate.bioContent），
-                     仅项目维护者可修改；切勿改为渲染外部输入（XSS 风险） -->
-                <p v-for="(item, index) in translate.bioContent" :key="index" v-html="item"></p>
-              </div>
+              <!-- v-html 渲染的是仓库 bio/{locale}.md（构建时编译为 HTML），
+                   仅项目维护者可修改；切勿改为渲染外部输入（XSS 风险） -->
+              <div class="content" v-html="bioHtml"></div>
             </div>
             <div class="btn-container">
               <a-button
@@ -522,6 +541,28 @@ onUnmounted(() => {
   height: 101%;
   overflow-y: auto;
   font-size: clamp(24px, 1.5vw, 100vw);
+  color: #003153;
+}
+
+#right .intro-content .content :deep(p) {
+  margin: 0 0 0.5em;
+}
+
+#right .intro-content .content :deep(ul),
+#right .intro-content .content :deep(ol) {
+  margin: 0.4em 0 0.8em;
+  padding-left: 1.25em;
+}
+
+#right .intro-content .content :deep(li) {
+  margin: 0.15em 0;
+}
+
+#right .intro-content .content :deep(img) {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.6em 0;
 }
 
 #right .intro-content .content::-webkit-scrollbar {

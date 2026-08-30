@@ -18,6 +18,11 @@ declare module '/_config.yaml' {
   export default config
 }
 
+declare module '*.md' {
+  const html: string
+  export default html
+}
+
 declare module '@/assets/font/ResourceHanRoundedCN-Medium.ttf' {
   export const css: { family: string; weight: string | number }
 }

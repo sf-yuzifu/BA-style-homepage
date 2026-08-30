@@ -130,7 +130,7 @@ export interface BioConfig {
   bth?: BioBth[]
 }
 
-/** 翻译文案；已知键为可选 string，另支持 bioContent 数组与任意扩展键 */
+/** 翻译文案；已知键为可选 string，另支持任意扩展键。简介正文在 bio/{locale}.md */
 export interface TranslateConfig {
   about?: string
   projectWebsite?: string
@@ -141,14 +141,13 @@ export interface TranslateConfig {
   cancel?: string
   bio?: string
   bioTitle?: string
-  bioContent?: string[]
   prevPage?: string
   nextPage?: string
   walletApBattery?: string
   walletApRecover?: string
   walletGold?: string
   walletPyroxene?: string
-  [key: string]: string | string[] | undefined
+  [key: string]: string | undefined
 }
 
 export interface AppConfig {

@@ -15,6 +15,7 @@ import Font from 'vite-plugin-font'
 import yaml from '@rollup/plugin-yaml'
 import { l2dWebpPlugin } from './build/vite-plugin-l2d-webp'
 import { configValidatePlugin } from './build/validate-config'
+import { bioMarkdownPlugin } from './build/bio-markdown'
 
 type FontViteOptions = Parameters<typeof Font.vite>[0]
 
@@ -34,6 +35,7 @@ const config = load(fs.readFileSync('_config.yaml', 'utf8')) as BuildConfig
 export default defineConfig(async ({ mode }): Promise<UserConfig> => {
   const plugins: PluginOption[] = [
     configValidatePlugin(),
+    bioMarkdownPlugin(),
     vue(),
     vueJsx(),
     Font.vite({
