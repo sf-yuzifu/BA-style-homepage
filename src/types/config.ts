@@ -178,7 +178,9 @@ export interface AppConfig {
 }
 
 /** Compatibility aliases for parallel migrations / older call sites */
-export type BoneOffsetConfig = GazeConfig & PatConfig & Partial<Pick<DragBoneConfig, 'radius' | 'anchor' | 'clips' | 'bone'>>
+export type BoneOffsetConfig = GazeConfig &
+  PatConfig &
+  Partial<Pick<DragBoneConfig, 'radius' | 'anchor' | 'clips' | 'bone'>>
 export type BoneInteractionConfig = BoneOffsetConfig
 export type BoneFollowConfig = BoneOffsetConfig
 export type BoneRangeConfig = BoneOffsetConfig

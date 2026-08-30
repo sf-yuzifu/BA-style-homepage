@@ -27,9 +27,7 @@ const DEFAULT_CONFIG = {
 } as AppConfig
 
 export type LocaleConfigSource =
-  | AppConfig
-  | Promise<AppConfig>
-  | (() => AppConfig | Promise<AppConfig>)
+  AppConfig | Promise<AppConfig> | (() => AppConfig | Promise<AppConfig>)
 
 /**
  * 自动检测浏览器语言

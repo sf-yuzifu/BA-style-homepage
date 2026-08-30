@@ -30,18 +30,24 @@ export interface SpineInteractionContext {
   dialogue: Ref<string>
   showDialogue: Ref<boolean>
   flags: InteractionFlags
-  getPat: () => {
-    isEngaged: () => boolean
-    isActive: () => boolean
-    interrupt: () => void
-  } | undefined
-  getGaze: () => {
-    isActive: () => boolean
-    isEngaged: () => boolean
-  } | undefined
-  getBoneDrag: () => {
-    isActive: () => boolean
-  } | undefined
+  getPat: () =>
+    | {
+        isEngaged: () => boolean
+        isActive: () => boolean
+        interrupt: () => void
+      }
+    | undefined
+  getGaze: () =>
+    | {
+        isActive: () => boolean
+        isEngaged: () => boolean
+      }
+    | undefined
+  getBoneDrag: () =>
+    | {
+        isActive: () => boolean
+      }
+    | undefined
 }
 
 /** Compatibility aliases */

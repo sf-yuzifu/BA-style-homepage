@@ -12,11 +12,7 @@ function deepMerge<T>(base: T, override: unknown): T {
   const overrideObj = override as Record<string, unknown>
 
   for (const key in overrideObj) {
-    if (
-      key in result &&
-      typeof result[key] === 'object' &&
-      typeof overrideObj[key] === 'object'
-    ) {
+    if (key in result && typeof result[key] === 'object' && typeof overrideObj[key] === 'object') {
       // 特别处理数组类型的合并（memorialLobbies等）
       if (Array.isArray(result[key]) && Array.isArray(overrideObj[key])) {
         // 对于数组，按照索引进行对象合并
