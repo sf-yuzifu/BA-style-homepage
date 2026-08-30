@@ -14,6 +14,7 @@ import { createHtmlPlugin } from 'vite-plugin-html'
 import Font from 'vite-plugin-font'
 import yaml from '@rollup/plugin-yaml'
 import { l2dWebpPlugin } from './build/vite-plugin-l2d-webp'
+import { configValidatePlugin } from './build/validate-config'
 
 type FontViteOptions = Parameters<typeof Font.vite>[0]
 
@@ -32,6 +33,7 @@ const config = load(fs.readFileSync('_config.yaml', 'utf8')) as BuildConfig
 // https://vitejs.dev/config/
 export default defineConfig(async ({ mode }): Promise<UserConfig> => {
   const plugins: PluginOption[] = [
+    configValidatePlugin(),
     vue(),
     vueJsx(),
     Font.vite({

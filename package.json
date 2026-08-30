@@ -79,6 +79,7 @@
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-image-optimizer": "^2.0.3",
     "vue-eslint-parser": "^10.4.1",
-    "vue-tsc": "~2.2.10"
+    "vue-tsc": "~2.2.10",
+    "zod": "^4.5.4"
   }
 }
