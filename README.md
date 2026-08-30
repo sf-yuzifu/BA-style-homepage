@@ -97,6 +97,28 @@
 2. [登录 Netlify 控制台](https://app.netlify.com)，选择 `Add new site` - `Import an exist project` 添加网站
 3. 接着选择 GitHub 认证来读取我们的 GitHub 项目列表。在列表中搜索我们刚才 `Fork` 生成的仓库名，点击该项目开始基于该仓库创建我们的 Netlify 网站
 
+### History 路由（刷新 `/bio` 不 404）
+
+本站用 Vue Router 的 `createWebHistory`。构建会写出 **`dist/bio/index.html`**（独立 OG 卡片），GitHub Pages 等按目录索引的托管刷新 `/bio` 即可。
+
+其它主机若只认根目录 `index.html`，刷新 `/bio` 会 404。仓库已带回退规则（有真实文件时仍走文件，不会盖掉 `bio/index.html` 和静态资源）：
+
+| 平台 | 文件 |
+| --- | --- |
+| Vercel | 根目录 `vercel.json`（导入本仓库一般已按 Vite 自动配置；静态上传 `dist` 时靠这份） |
+| Netlify / Cloudflare Pages | `public/_redirects`（构建后进入 `dist`） |
+| Apache | `public/.htaccess`（构建后进入 `dist`） |
+
+Nginx / 宝塔把站点根指到 `dist` 后，在 server 里加上：
+
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+子路径部署（如 `https://user.github.io/homepage/`）还需把 Vite `base` 改成对应前缀，本仓库默认站点在域名根路径 `/`。
+
 ### 本地构建网页文件
 
 > **推荐环境：**
@@ -140,7 +162,7 @@ yarn preview
 
 个人简介页右侧正文来自 **`bio/{语言}.md`**（如 `bio/zh-CN.md`），支持 GitHub 风格 Markdown 与内嵌 HTML（例如 GitHub Stats 图片），并随浏览器语言切换。缺某个语言时回退到 `bio/en-US.md`，再缺则用目录里的任意一份；fork 后按需只写自己要用的语言即可。
 
-社交分享卡片由构建时用 sharp 将 **`shots/zh/pic1.png`**（首页）与 **`pic2.png`**（简介页）等比裁切为 1200×630 生成；`/bio` 有独立 `og` 标签（部署时需让该路径落到 `bio/index.html`）。
+社交分享卡片由构建时用 sharp 将 **`shots/zh/pic1.png`**（首页）与 **`pic2.png`**（简介页）等比裁切为 1200×630 生成；`/bio` 有独立 `og` 标签（产物为 `dist/bio/index.html`）。刷新该路径的主机配置见上方「History 路由」。
 
 <details>
 <summary><b>点击展开 _config.yaml 配置说明</b></summary>

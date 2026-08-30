@@ -97,6 +97,28 @@ All site content (site info, contacts, project showcase, music list, Live2D char
 2. [Log in to Netlify Console](https://app.netlify.com), select `Add new site` - `Import an exist project` to add a website
 3. Then select GitHub authentication to read our GitHub project list. Search for the repository name we just `Fork`ed in the list, click on the project to start creating our Netlify website based on that repository
 
+### History routes (refresh `/bio` without 404)
+
+The app uses Vue Router `createWebHistory`. The build writes **`dist/bio/index.html`** (its own OG tags), so hosts that serve directory indexes (GitHub Pages, etc.) already work on refresh.
+
+Hosts that only know about the root `index.html` will 404 on `/bio`. This repo ships SPA fallbacks (real files still win, so `bio/index.html` and assets are not overwritten):
+
+| Platform | File |
+| --- | --- |
+| Vercel | `vercel.json` at the repo root (the Vite preset usually covers git imports; this file matters when you upload `dist` as static files) |
+| Netlify / Cloudflare Pages | `public/_redirects` (copied into `dist`) |
+| Apache | `public/.htaccess` (copied into `dist`) |
+
+Nginx / BtPanel — point the site root at `dist` and add:
+
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+Subpath deploys (e.g. `https://user.github.io/homepage/`) also need Vite `base` set to that prefix. This repo assumes the site lives at `/`.
+
 ### Local Build
 
 > **Recommended Environment:**
@@ -140,7 +162,7 @@ After modifying the configuration, rebuild and redeploy for changes to take effe
 
 The right-hand bio text comes from **`bio/{locale}.md`** (e.g. `bio/en-US.md`). It supports GitHub-flavored Markdown and inline HTML (e.g. GitHub Stats images), and follows the visitor's language. Missing locales fall back to `bio/en-US.md`, then to any file in the folder — forks only need to add the languages they use.
 
-Share cards are 1200×630 JPEGs cover-cropped at build time with sharp from **`shots/zh/pic1.png`** (home) and **`pic2.png`** (bio). `/bio` has its own Open Graph tags (the host must serve `bio/index.html` for that path).
+Share cards are 1200×630 JPEGs cover-cropped at build time with sharp from **`shots/zh/pic1.png`** (home) and **`pic2.png`** (bio). `/bio` has its own Open Graph tags (`dist/bio/index.html`). See **History routes** above for refresh/404 hosting.
 
 <details>
 <summary><b>Click to expand the _config.yaml configuration guide</b></summary>
