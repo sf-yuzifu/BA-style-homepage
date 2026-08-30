@@ -13,6 +13,9 @@ const retryCount = ref(0)
 const MAX_RETRY_COUNT = 3
 const songName = ref('')
 const isMiniMode = ref(false)
+/** API 最终失败后隐藏整个 Banner，不留空白占位 */
+const visible = ref(true)
+let retryTimer: ReturnType<typeof setTimeout> | null = null
 
 // 使用i18n配置系统
 const { configs } = useConfig()
@@ -67,11 +70,27 @@ onMounted(() => {
 // 组件卸载时销毁播放器
 onBeforeUnmount(() => {
   window.removeEventListener('resize', checkScreenSize)
+  if (retryTimer) {
+    clearTimeout(retryTimer)
+    retryTimer = null
+  }
   if (ap.value) {
     ap.value.destroy()
     ap.value = null
   }
 })
+
+const hideBanner = () => {
+  if (retryTimer) {
+    clearTimeout(retryTimer)
+    retryTimer = null
+  }
+  if (ap.value) {
+    ap.value.destroy()
+    ap.value = null
+  }
+  visible.value = false
+}
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null
@@ -132,6 +151,7 @@ const addRandomSong = async () => {
     // 检查歌曲列表是否有效
     if (!songlist.value || songlist.value.length === 0) {
       console.warn('歌曲列表为空')
+      hideBanner()
       return
     }
 
@@ -167,29 +187,28 @@ const addRandomSong = async () => {
   } catch (error) {
     console.error('添加歌曲失败:', error)
 
-    // 如果是第一次尝试失败，销毁播放器
     if (songTimes.value === 0) {
-      console.log('首次加载失败，销毁播放器')
-      if (ap.value) {
-        ap.value.destroy()
-        ap.value = null
-      }
+      hideBanner()
+      return
+    }
+
+    retryCount.value++
+    if (retryCount.value < MAX_RETRY_COUNT) {
+      retryTimer = setTimeout(() => addRandomSong(), 1000)
     } else {
-      // 如果不是第一次，尝试加载其他歌曲（统计连续失败次数，成功时清零）
-      retryCount.value++
-      if (retryCount.value < MAX_RETRY_COUNT) {
-        console.log(`尝试加载其他歌曲（第 ${retryCount.value} 次重试）`)
-        setTimeout(() => addRandomSong(), 1000)
-      } else {
-        console.warn('连续加载失败次数已达上限，停止重试')
-      }
+      hideBanner()
     }
   }
 }
 </script>
 
 <template>
-  <div id="aplayer" ref="aplayerContainer" :class="{ 'aplayer-mini': ifICP }"></div>
+  <div
+    v-if="visible"
+    id="aplayer"
+    ref="aplayerContainer"
+    :class="{ 'aplayer-mini': ifICP }"
+  ></div>
 </template>
 
 <style scoped>

@@ -2,10 +2,10 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <!-- 第三方域名连接预热（preconnect + dns-prefetch 兜底）：
-         webcnstatic.yostar.net - Loading 首屏头像/背景/TTF 字体
-         api.injahow.cn - 音乐 API
-         at.alicdn.com - Iconfont 脚本 -->
+    <!-- Third-party preconnect (dns-prefetch as fallback):
+         webcnstatic.yostar.net - Loading avatars/background/fonts
+         api.injahow.cn - music API
+         at.alicdn.com - Iconfont script -->
     <link rel="preconnect" href="https://webcnstatic.yostar.net" />
     <link rel="dns-prefetch" href="https://webcnstatic.yostar.net" />
     <link rel="preconnect" href="https://api.injahow.cn" />
@@ -21,11 +21,11 @@
     <meta name="description" content="<%- description %>" />
     <meta name="keywords" content="<%- keywords %>" />
     <meta name="author" content="<%- author %>" />
-    <!-- Open Graph / 社交分享卡片 -->
+    <!-- Open Graph / social share card -->
     <meta property="og:title" content="<%- title %>" />
     <meta property="og:description" content="<%- description %>" />
     <meta property="og:type" content="website" />
-    <!-- 爬虫要求 og:image 为绝�?URL（相对路径会导致分享卡片无图�?-->
+    <!-- og:image must be an absolute URL for crawlers (relative paths break share previews) -->
     <meta property="og:image" content="<%- siteUrl %>/favicon512.png" />
     <% if (siteUrl) { %>
     <meta property="og:url" content="<%- siteUrl %>/" />
