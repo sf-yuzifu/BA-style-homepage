@@ -3,7 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { load } from 'js-yaml'
 import fs from 'fs'
 
-import { defineConfig } from 'vite'
+import { defineConfig, type PluginOption, type UserConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import viteCompression from 'vite-plugin-compression'
@@ -30,45 +30,8 @@ interface BuildConfig {
 const config = load(fs.readFileSync('_config.yaml', 'utf8')) as BuildConfig
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  // 生产环境剔除调试输出（保留 console.error 以便线上排障）
-  esbuild: {
-    drop: ['debugger'],
-    pure: ['console.log', 'console.info', 'console.warn']
-  },
-  build: {
-    assetsInlineLimit: 0,
-    minify: 'esbuild',
-    chunkSizeWarningLimit: 700,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return
-
-          const pkg = id.toString().split('node_modules/')[1].split('/')[0]
-
-          // Vue 框架核心
-          if (['vue', 'vue-router', '@vue'].includes(pkg)) return 'vue-core'
-          // PIXI 渲染引擎与 Spine 骨骼动画
-          if (
-            ['pixi.js', '@pixi', '@esotericsoftware', 'eventemitter3', 'earcut', 'ismobilejs'].includes(pkg)
-          )
-            return 'pixi'
-          // Arco 组件库及其内部依赖
-          if (
-            ['@arco-design', 'dayjs', 'number-precision', 'b-tween', 'b-validate',
-             'compute-scroll-into-view', 'scroll-into-view-if-needed', 'resize-observer-polyfill'].includes(pkg)
-          )
-            return 'arco'
-          // 音视频播放
-          if (['aplayer', 'axios', 'howler'].includes(pkg)) return 'media'
-          // 其余第三方依赖合并为一个 vendor chunk，避免按包拆出过碎的文件
-          return 'vendor'
-        }
-      }
-    }
-  },
-  plugins: [
+export default defineConfig(async ({ mode }): Promise<UserConfig> => {
+  const plugins: PluginOption[] = [
     vue(),
     vueJsx(),
     Font.vite({
@@ -92,16 +55,16 @@ export default defineConfig({
     }),
     ViteImageOptimizer({
       png: {
-        quality: 85,
+        quality: 85
       },
       jpeg: {
-        quality: 85,
+        quality: 85
       },
       jpg: {
-        quality: 85,
+        quality: 85
       },
       webp: {
-        quality: 85,
+        quality: 85
       },
       svg: {
         multipass: true,
@@ -110,12 +73,12 @@ export default defineConfig({
             name: 'preset-default',
             params: {
               overrides: {
-                removeViewBox: false,
-              },
-            },
-          },
-        ],
-      },
+                removeViewBox: false
+              }
+            }
+          }
+        ]
+      }
     }),
     VitePWA({
       mode: 'production',
@@ -186,10 +149,80 @@ export default defineConfig({
     // 须在 viteCompression 之后注册，closeBundle 时先转 WebP 再 gzip 新产物
     l2dWebpPlugin(),
     yaml()
-  ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+  ]
+
+  if (mode === 'analyze') {
+    const { visualizer } = await import('rollup-plugin-visualizer')
+    plugins.push(
+      visualizer({
+        filename: 'dist/stats.html',
+        gzipSize: true,
+        brotliSize: true,
+        open: false
+      })
+    )
+  }
+
+  return {
+    // 生产环境剔除调试输出（保留 console.error 以便线上排障）
+    esbuild: {
+      drop: ['debugger'],
+      pure: ['console.log', 'console.info', 'console.warn']
+    },
+    build: {
+      assetsInlineLimit: 0,
+      minify: 'esbuild',
+      chunkSizeWarningLimit: 700,
+      rollupOptions: {
+        output: {
+          manualChunks(id: string) {
+            if (!id.includes('node_modules')) return
+
+            const pkg = id.toString().split('node_modules/')[1].split('/')[0]
+
+            // Vue 框架核心
+            if (['vue', 'vue-router', '@vue'].includes(pkg)) return 'vue-core'
+            // PIXI 渲染引擎与 Spine 骨骼动画
+            if (
+              [
+                'pixi.js',
+                '@pixi',
+                '@esotericsoftware',
+                'eventemitter3',
+                'earcut',
+                'ismobilejs'
+              ].includes(pkg)
+            )
+              return 'pixi'
+            // Arco 组件库及其内部依赖
+            if (
+              [
+                '@arco-design',
+                'dayjs',
+                'number-precision',
+                'b-tween',
+                'b-validate',
+                'compute-scroll-into-view',
+                'scroll-into-view-if-needed',
+                'resize-observer-polyfill'
+              ].includes(pkg)
+            )
+              return 'arco'
+            // 音视频播放
+            if (['aplayer', 'axios', 'howler'].includes(pkg)) return 'media'
+            // BA 点击特效（桌面按需动态 import，独立 chunk）
+            if (pkg === 'ba-click-fx') return 'click-fx'
+            // 其余第三方依赖合并为一个 vendor chunk，避免按包拆出过碎的文件
+            return 'vendor'
+          }
+        }
+      }
+    },
+    plugins,
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      }
     }
   }
 })

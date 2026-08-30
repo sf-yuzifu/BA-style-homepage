@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, defineAsyncComponent } from 'vue'
 import Footer from '@/components/Footer.vue'
 import Level from '@/components/Level.vue'
 import Toolbox from '@/components/Toolbox.vue'
 import Contact from '@/components/Contact.vue'
 import Task from '@/components/Task.vue'
 import Background from '@/components/Background.vue'
-import MusicBanner from '@/components/MusicBanner.vue'
 import { useResponsive } from '@/composables/useResponsive'
 import { useConfig } from '@/composables/useConfig'
 import ICPBanner from '@/components/ICPBanner.vue'
+
+// 退出 L2D 全屏观赏后再加载（media chunk：APlayer + axios + howler）
+const MusicBanner = defineAsyncComponent(() => import('@/components/MusicBanner.vue'))
 
 // 状态管理
 const l2dOnly = ref(true)
@@ -71,9 +73,9 @@ const canSkip = (value: boolean) => {
     <!-- 任务 -->
     <Task :l2dOnly="l2dOnly" />
 
-    <!-- 横幅 -->
+    <!-- 横幅（v-if 延迟挂载，首屏 L2D 观赏模式不拉 media chunk） -->
     <transition :name="bannerDirection">
-      <MusicBanner v-show="!l2dOnly" />
+      <MusicBanner v-if="!l2dOnly" />
     </transition>
 
     <!-- 页脚 -->

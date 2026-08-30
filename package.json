@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "yarn typecheck && vite build",
+    "build:analyze": "yarn typecheck && vite build --mode analyze",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "lint": "eslint .",
@@ -69,6 +70,7 @@
     "globals": "^17.11.0",
     "jiti": "^2.7.0",
     "prettier": "^3.5.2",
+    "rollup-plugin-visualizer": "^7.1.1",
     "sharp": "^0.34.5",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.68.0",
