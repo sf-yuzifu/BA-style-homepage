@@ -79,16 +79,18 @@ const goBack = () => {
 
 <style scoped>
 .header {
-  width: calc(100% - 2 * clamp(32px, 2vw, 100vw));
+  width: calc(100% - 2 * clamp(32px, 2vw, 100vw) - var(--safe-left) - var(--safe-right));
   height: clamp(58px, 3.625vw, 100vw);
   box-shadow: 0px clamp(2px, 0.125vw, 100vw) clamp(8px, 0.5vw, 100vw) clamp(2px, 0.125vw, 100vw)
     rgba(0, 0, 0, 0.3);
-  padding: 0 clamp(32px, 2vw, 100vw);
+  padding: var(--safe-top) calc(clamp(32px, 2vw, 100vw) + var(--safe-right)) 0
+    calc(clamp(32px, 2vw, 100vw) + var(--safe-left));
   background-color: white;
   background-image: var(--deco2);
   background-repeat: no-repeat;
   background-position: left;
   background-size: contain;
+  background-origin: content-box;
   display: flex;
 }
 

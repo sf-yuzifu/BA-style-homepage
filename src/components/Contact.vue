@@ -32,8 +32,8 @@ const contacts = computed(() => {
 <style scoped>
 .contact-box {
   position: absolute;
-  left: clamp(20px, 1.25vw, 100vw);
-  top: clamp(186px, 11.625vw, 100vw);
+  left: calc(clamp(20px, 1.25vw, 100vw) + var(--safe-left));
+  top: calc(clamp(186px, 11.625vw, 100vw) + var(--safe-top));
   display: grid;
   grid-template-columns: repeat(2, clamp(130px, 8.125vw, 100vw));
   grid-gap: clamp(20px, 1.25vw, 100vw);

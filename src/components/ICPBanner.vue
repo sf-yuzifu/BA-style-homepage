@@ -44,8 +44,8 @@ const icpTitle = computed(() => configs.value?.icp?.title || '备案信息')
 <style scoped>
 #icp-container {
   position: absolute;
-  left: clamp(50px, 3.125vw, 100vw);
-  bottom: clamp(180px, 11.25vw, 100vw);
+  left: calc(clamp(50px, 3.125vw, 100vw) + var(--safe-left));
+  bottom: calc(clamp(180px, 11.25vw, 100vw) + var(--safe-bottom));
   width: clamp(300px, 18.75vw, 100vw);
   aspect-ratio: 446 / 158;
   opacity: 0.9;
@@ -145,6 +145,7 @@ const icpTitle = computed(() => configs.value?.icp?.title || '备案信息')
     width: 100%;
     height: 50px;
     bottom: 0;
+    padding-bottom: var(--safe-bottom);
     box-shadow: unset;
     background: #e8f3ffee;
     opacity: 1;

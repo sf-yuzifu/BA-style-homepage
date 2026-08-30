@@ -161,8 +161,8 @@ onUnmounted(() => {
 <style scoped>
 .toolbox-box {
   position: absolute;
-  right: clamp(20px, 1.25vw, 100vw);
-  top: clamp(40px, 2.5vw, 100vw);
+  right: calc(clamp(20px, 1.25vw, 100vw) + var(--safe-right));
+  top: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-top));
   display: inline-flex;
   z-index: 2;
 }

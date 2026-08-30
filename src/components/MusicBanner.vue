@@ -213,8 +213,8 @@ const addRandomSong = async () => {
 <style scoped>
 #aplayer {
   position: absolute;
-  left: clamp(50px, 3.125vw, 100vw);
-  bottom: clamp(180px, 11.25vw, 100vw);
+  left: calc(clamp(50px, 3.125vw, 100vw) + var(--safe-left));
+  bottom: calc(clamp(180px, 11.25vw, 100vw) + var(--safe-bottom));
   width: clamp(300px, 18.75vw, 100vw);
   aspect-ratio: 446 / 158;
   opacity: 0.9;
@@ -231,8 +231,8 @@ const addRandomSong = async () => {
 }
 
 #aplayer.aplayer-mini {
-  right: clamp(20px, 1.25vw, 100vw);
-  top: clamp(192px, 12vw, 100vw);
+  right: calc(clamp(20px, 1.25vw, 100vw) + var(--safe-right));
+  top: calc(clamp(192px, 12vw, 100vw) + var(--safe-top));
   left: unset;
   bottom: unset;
   width: clamp(120px, 7.5vw, 100vw);
@@ -243,8 +243,8 @@ const addRandomSong = async () => {
 
 @media screen and (max-width: 768px) {
   #aplayer {
-    right: clamp(20px, 1.25vw, 100vw);
-    top: clamp(192px, 12vw, 100vw);
+    right: calc(clamp(20px, 1.25vw, 100vw) + var(--safe-right));
+    top: calc(clamp(192px, 12vw, 100vw) + var(--safe-top));
     left: unset;
     bottom: unset;
     width: clamp(120px, 7.5vw, 100vw);

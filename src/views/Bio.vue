@@ -284,7 +284,7 @@ onUnmounted(() => {
 
 .bio-container {
   width: 100vw;
-  height: calc(100dvh - clamp(120px, 7.5vw, 100vw));
+  height: calc(100dvh - clamp(120px, 7.5vw, 100vw) - var(--safe-top) - var(--safe-bottom));
   display: flex;
   padding-top: clamp(60px, 3.75vw, 100vw);
 }
@@ -312,7 +312,7 @@ onUnmounted(() => {
 .carousel-dots {
   display: none;
   position: absolute;
-  bottom: 20px;
+  bottom: calc(20px + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -418,7 +418,7 @@ onUnmounted(() => {
   height: clamp(96px, 6vw, 100vw);
   background: #003153dd;
   position: absolute;
-  bottom: clamp(40px, 2.5vw, 100vw);
+  bottom: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-bottom));
   border-radius: clamp(8px, 0.5vw, 100vw);
   transform: skewX(-10deg);
   display: flex;
@@ -629,6 +629,8 @@ onUnmounted(() => {
   .level-box {
     width: 80%;
     position: relative;
+    /* relative 时 bottom 会把元素顶上去；安全区已从容器高度扣除，勿再叠一层 */
+    bottom: clamp(40px, 2.5vw, 100vw);
   }
 
   /* 调整右侧内容 */

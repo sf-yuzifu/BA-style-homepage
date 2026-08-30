@@ -90,8 +90,8 @@ const goToBio = () => {
   height: clamp(96px, 6vw, 100vw);
   background: linear-gradient(120deg, #003153, #2265bb 15%, #003153 70%, #003153);
   position: absolute;
-  left: 0;
-  top: clamp(40px, 2.5vw, 100vw);
+  left: var(--safe-left);
+  top: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-top));
   border-radius: clamp(8px, 0.5vw, 100vw);
   filter: drop-shadow(0 clamp(3px, 0.1875vw, 100vw) clamp(3px, 0.1875vw, 100vw) black);
   display: flex;

@@ -246,6 +246,9 @@ if (import.meta.env.DEV) {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+  box-sizing: border-box;
 }
 
 .interaction {

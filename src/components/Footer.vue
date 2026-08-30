@@ -57,7 +57,7 @@ onUnmounted(() => {
   height: clamp(60px, 3.75vw, 100vw);
   background: #e8f3ffee;
   position: absolute;
-  bottom: clamp(25px, 1.5625vw, 100vw);
+  bottom: calc(clamp(25px, 1.5625vw, 100vw) + var(--safe-bottom));
   transform: skew(-20deg);
   align-self: center;
   border-radius: clamp(8px, 0.5vw, 100vw);
@@ -250,7 +250,7 @@ onUnmounted(() => {
   .footer.icp-mode {
     width: 100%;
     border-radius: 0;
-    bottom: 50px;
+    bottom: calc(50px + var(--safe-bottom));
     filter: unset;
     height: 60px;
     padding-top: 6px;

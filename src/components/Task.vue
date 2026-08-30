@@ -121,8 +121,8 @@ const skip = () => {
 
 .task {
   position: absolute;
-  bottom: clamp(40px, 2.5vw, 100vw);
-  right: clamp(30px, 1.875vw, 100vw);
+  bottom: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-bottom));
+  right: calc(clamp(30px, 1.875vw, 100vw) + var(--safe-right));
   width: clamp(220px, 13.75vw, 100vw);
   aspect-ratio: 329 / 232;
   background: url('/task.png') center;
@@ -197,15 +197,15 @@ const skip = () => {
 
 @media screen and (max-width: 1120px) {
   .task {
-    right: 60px;
-    bottom: 140px;
+    right: calc(60px + var(--safe-right));
+    bottom: calc(140px + var(--safe-bottom));
   }
 }
 
 @media screen and (max-width: 495px) {
   .task {
-    right: 40px;
-    bottom: 140px;
+    right: calc(40px + var(--safe-right));
+    bottom: calc(140px + var(--safe-bottom));
   }
 }
 
