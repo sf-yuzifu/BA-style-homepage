@@ -20,6 +20,7 @@ const { configs, locale } = useConfig()
 const emit = defineEmits<{
   canskip: [value: boolean]
   'update:changeL2D': [value: boolean]
+  'webgl-failed': []
 }>()
 const props = defineProps<{
   l2dOnly: boolean
@@ -109,7 +110,7 @@ pointerHooks.addEventListenersToCanvas = pointer.addEventListenersToCanvas
 pointerHooks.removeEventListenersFromCanvas = pointer.removeEventListenersFromCanvas
 pointerHooks.cancelHoverRaf = pointer.cancelHoverRaf
 
-const { setL2D, skipStartIdle } = spine
+const { setL2D, skipStartIdle, webglFailed } = spine
 
 if (import.meta.env.DEV) {
   window.__l2dDebug = {
@@ -135,7 +136,7 @@ if (import.meta.env.DEV) {
     },
     boneClientPos: (name) => {
       const animation = spine.getSpine()
-      if (!animation || !spine.canvas) return null
+      if (!animation || !spine.canvas || !spine.app) return null
       const bone = animation.skeleton.findBone(name)
       if (!bone) return null
       const rect = spine.canvas.getBoundingClientRect()
@@ -164,7 +165,7 @@ if (import.meta.env.DEV) {
 </script>
 
 <template>
-  <div id="change" v-if="!props.l2dOnly">
+  <div id="change" v-if="!props.l2dOnly && !webglFailed">
     <img
       class="css-cursor-hover-enabled"
       role="button"
@@ -189,7 +190,7 @@ if (import.meta.env.DEV) {
     />
   </div>
   <div
-    v-if="props.l2dOnly && canSkip"
+    v-if="props.l2dOnly && canSkip && !webglFailed"
     style="position: fixed; width: 100%; height: 100%; z-index: 2"
     role="button"
     tabindex="0"

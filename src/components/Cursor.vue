@@ -16,9 +16,13 @@ watch(
       return
     }
     if (fx) return
-    const { BAClickFX } = await import('ba-click-fx')
-    if (prefersReducedMotion.value) return
-    fx = new BAClickFX()
+    try {
+      const { BAClickFX } = await import('ba-click-fx')
+      if (prefersReducedMotion.value) return
+      fx = new BAClickFX()
+    } catch (error) {
+      console.error('Failed to init click effect (WebGL may be unavailable)', error)
+    }
   },
   { immediate: true }
 )

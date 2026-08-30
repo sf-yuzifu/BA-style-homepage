@@ -3,6 +3,7 @@ import { Spine, SpineTexture } from '@esotericsoftware/spine-pixi-v7'
 import * as PIXI from 'pixi.js'
 import { ref, onMounted, onUnmounted, onActivated, onDeactivated, computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
+import { tryCreatePixiApp } from '@/composables/spine/createPixiApp'
 
 const { configs } = useConfig()
 const LIVE2D_TIME_SCALE = 0.8
@@ -21,7 +22,7 @@ const bioConfig = computed(() => {
 })
 
 const l2dContainer = ref<HTMLDivElement | null>(null)
-let app: PIXI.Application<HTMLCanvasElement> | null = null
+let app: PIXI.Application | null = null
 let spine: Spine | null = null
 let isUnmounted = false // 组件卸载标记，await 加载期间卸载时阻止后续初始化
 let skeletonAlias: string | null = null
@@ -43,15 +44,16 @@ onMounted(async () => {
   const containerWidth = 2560
   const containerHeight = 1440
 
-  const pixiApp = new PIXI.Application<HTMLCanvasElement>({
+  const pixiApp = tryCreatePixiApp({
     width: containerWidth,
     height: containerHeight,
     backgroundAlpha: 0,
     antialias: true
   })
+  if (!pixiApp) return
   app = pixiApp
 
-  l2dContainer.value.appendChild(pixiApp.view)
+  l2dContainer.value.appendChild(pixiApp.view as HTMLCanvasElement)
 
   try {
     // 从配置构建资源路径

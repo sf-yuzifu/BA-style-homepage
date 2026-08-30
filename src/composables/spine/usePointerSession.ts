@@ -48,8 +48,8 @@ export interface PointerTalkApi {
 
 export interface PointerSessionDeps {
   getSpine: () => Spine | null
-  getCanvas: () => HTMLCanvasElement
-  getApp: () => Application
+  getCanvas: () => HTMLCanvasElement | null
+  getApp: () => Application | null
   isReady: () => boolean
   ctx: SpineInteractionContext
   pat: PointerPatApi
@@ -76,7 +76,7 @@ export function usePointerSession(deps: PointerSessionDeps) {
   const clientToWorld = (clientX: number, clientY: number, rect: DOMRect) => {
     const animation = getSpine()
     const l2d = getApp()
-    if (!animation) return { x: 0, y: 0 }
+    if (!animation || !l2d) return { x: 0, y: 0 }
     const scaleX = rect.width / l2d.screen.width
     const scaleY = rect.height / l2d.screen.height
     return {
@@ -87,8 +87,9 @@ export function usePointerSession(deps: PointerSessionDeps) {
 
   const onPressDown = (event: MouseEvent) => {
     const animation = getSpine()
-    if (!animation || !isReady() || !ctx.isIdleMode()) return
-    const world = clientToWorld(event.clientX, event.clientY, getCanvas().getBoundingClientRect())
+    const canvas = getCanvas()
+    if (!animation || !canvas || !isReady() || !ctx.isIdleMode()) return
+    const world = clientToWorld(event.clientX, event.clientY, canvas.getBoundingClientRect())
     const session: PressSession = {
       sx: event.clientX,
       sy: event.clientY,
@@ -120,7 +121,9 @@ export function usePointerSession(deps: PointerSessionDeps) {
     const session = pressSession
     const animation = getSpine()
     if (!session || !animation) return
-    if (!cachedViewRect) cachedViewRect = getCanvas().getBoundingClientRect()
+    const hoverCanvas = getCanvas()
+    if (!hoverCanvas) return
+    if (!cachedViewRect) cachedViewRect = hoverCanvas.getBoundingClientRect()
     const world = clientToWorld(event.clientX, event.clientY, cachedViewRect)
 
     if (session.kind === 'pat') {
@@ -162,7 +165,9 @@ export function usePointerSession(deps: PointerSessionDeps) {
     }
     if (pat.isEngaged() && pat.isActive()) return
 
-    const world = clientToWorld(event.clientX, event.clientY, getCanvas().getBoundingClientRect())
+    const tapCanvas = getCanvas()
+    if (!tapCanvas) return
+    const world = clientToWorld(event.clientX, event.clientY, tapCanvas.getBoundingClientRect())
     if (hitTestBones(animation.skeleton, world.x, world.y, BONE_HIT_RADIUS).length > 0) {
       talkPlayer.playTalk()
       return
@@ -211,7 +216,7 @@ export function usePointerSession(deps: PointerSessionDeps) {
   const processBoneHover = (event: MouseEvent) => {
     const animation = getSpine()
     const canvas = getCanvas()
-    if (!animation || !animation.skeleton || !isReady()) {
+    if (!animation || !animation.skeleton || !canvas || !isReady()) {
       return
     }
 
@@ -249,7 +254,7 @@ export function usePointerSession(deps: PointerSessionDeps) {
 
   const handleMouseLeave = () => {
     isL2dHovering = false
-    getCanvas().classList.remove('l2d-hover')
+    getCanvas()?.classList.remove('l2d-hover')
   }
 
   const handleTouchStart = (event: TouchEvent) => {
@@ -287,6 +292,7 @@ export function usePointerSession(deps: PointerSessionDeps) {
 
   const addEventListenersToCanvas = () => {
     const canvas = getCanvas()
+    if (!canvas) return
     removeEventListenersFromCanvas()
     canvas.addEventListener('mousedown', onPressDown)
     canvas.addEventListener('mouseup', onPressUp)
@@ -300,6 +306,7 @@ export function usePointerSession(deps: PointerSessionDeps) {
 
   const removeEventListenersFromCanvas = () => {
     const canvas = getCanvas()
+    if (!canvas) return
     canvas.removeEventListener('mousedown', onPressDown)
     canvas.removeEventListener('mouseup', onPressUp)
     canvas.removeEventListener('mouseleave', handleMouseLeave)

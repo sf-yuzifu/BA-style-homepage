@@ -15,6 +15,8 @@ const emit = defineEmits<{
 const props = defineProps<{
   l2dOnly?: boolean
   canskip?: boolean
+  /** WebGL 不可用时没有回忆大厅可观赏，隐藏展开/收起按钮 */
+  l2dUnavailable?: boolean
 }>()
 
 const currentConfig = computed(() => configs.value)
@@ -130,6 +132,7 @@ onUnmounted(() => {
       <icon-info-circle class="css-cursor-hover-enabled" />
     </a>
     <a
+      v-if="!props.l2dUnavailable"
       id="change"
       class="l2d toolbox"
       :class="{ 'toolbox-l2d': props.l2dOnly, canHover: !hover && !props.canskip }"

@@ -16,6 +16,7 @@ const MusicBanner = defineAsyncComponent(() => import('@/components/MusicBanner.
 // 状态管理
 const l2dOnly = ref(true)
 const canSkipit = ref(true)
+const l2dUnavailable = ref(false)
 /** 首次离开全屏后再挂载；之后用 v-show 隐藏，避免卸载打断播放 */
 const musicReady = ref(false)
 watch(l2dOnly, (only) => {
@@ -45,6 +46,11 @@ const switchL2D = () => {
 const canSkip = (value: boolean) => {
   canSkipit.value = value
 }
+
+const onWebglFailed = () => {
+  l2dUnavailable.value = true
+  l2dOnly.value = false
+}
 </script>
 
 <template>
@@ -54,7 +60,12 @@ const canSkip = (value: boolean) => {
   <!-- 主要内容 -->
   <main class="app-main">
     <Suspense>
-      <Background :l2dOnly="l2dOnly" @update:changeL2D="l2dOnly = $event" @canskip="canSkip" />
+      <Background
+        :l2dOnly="l2dOnly"
+        @update:changeL2D="l2dOnly = $event"
+        @canskip="canSkip"
+        @webgl-failed="onWebglFailed"
+      />
     </Suspense>
 
     <!-- 等级部分 -->
@@ -63,7 +74,12 @@ const canSkip = (value: boolean) => {
     </transition>
 
     <!-- 工具箱 -->
-    <Toolbox :l2dOnly="l2dOnly" :canskip="canSkipit" @switch="switchL2D" />
+    <Toolbox
+      :l2dOnly="l2dOnly"
+      :canskip="canSkipit"
+      :l2dUnavailable="l2dUnavailable"
+      @switch="switchL2D"
+    />
 
     <!-- 联系方式 -->
     <transition name="left">

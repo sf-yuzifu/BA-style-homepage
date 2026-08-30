@@ -1,5 +1,6 @@
 import {
   watch,
+  ref,
   onMounted,
   onUnmounted,
   onActivated,
@@ -15,6 +16,7 @@ import { Modal } from '@arco-design/web-vue'
 import type { ModalReturn } from '@arco-design/web-vue'
 import { prefersReducedMotionNow } from '@/composables/useReducedMotion'
 import type { AppConfig } from '@/types/config'
+import { tryCreatePixiApp } from './createPixiApp'
 import { initTracks } from './useSpineTracks'
 
 export type L2DTarget = number | '+' | '-'
@@ -68,6 +70,7 @@ interface SpineLifecycleDeps {
   emit: {
     (e: 'canskip', value: boolean): void
     (e: 'update:changeL2D', value: boolean): void
+    (e: 'webgl-failed'): void
   }
   currentConfig: ComputedRef<AppConfig | null>
   canSkip: Ref<boolean>
@@ -112,7 +115,15 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
   let setL2DInFlight: Promise<void> | null = null
   let isFirstLoad = true
 
-  const l2d = new PIXI.Application({
+  const webglFailed = ref(false)
+  const revealHud = (failed = false) => {
+    canSkip.value = false
+    emit('canskip', false)
+    emit('update:changeL2D', false)
+    if (failed) emit('webgl-failed')
+  }
+
+  const l2d = tryCreatePixiApp({
     width: 2560,
     height: 1440,
     backgroundAlpha: 0,
@@ -120,8 +131,35 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     resolution: Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 2),
     powerPreference: 'high-performance'
   })
-  const canvas = l2d.view as unknown as HTMLCanvasElement
-  const spineLayer = l2d.stage
+  const canvas = (l2d?.view as HTMLCanvasElement | undefined) ?? null
+  const spineLayer = l2d?.stage ?? null
+
+  if (!l2d || !canvas || !spineLayer) {
+    webglFailed.value = true
+    onMounted(() => revealHud(true))
+    return {
+      app: null,
+      canvas: null,
+      webglFailed,
+      getSpine: () => null,
+      getId: () => 0,
+      isReady: () => false,
+      setL2D: async () => {},
+      skipStartIdle: () => revealHud()
+    }
+  }
+
+  const handleContextLost = (event: Event) => {
+    event.preventDefault()
+    if (webglFailed.value) return
+    webglFailed.value = true
+    l2d.ticker.stop()
+    talkPlayer.stopAllVoices()
+    pointer.removeEventListenersFromCanvas()
+    canvas.removeEventListener('webglcontextlost', handleContextLost)
+    if (canvas.parentNode) canvas.parentNode.removeChild(canvas)
+    revealHud(true)
+  }
 
   const changeL2D = (value: boolean) => {
     emit('update:changeL2D', value)
@@ -221,6 +259,7 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
   }
 
   const doSetL2D = async (num: L2DTarget): Promise<void> => {
+    if (webglFailed.value) return
     addCanvasToBackground()
 
     if (!currentConfig.value?.memorialLobbies) {
@@ -348,6 +387,7 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
   }
 
   const loadL2DSkipIdle = async (num: number): Promise<void> => {
+    if (webglFailed.value) return
     addCanvasToBackground()
 
     if (!currentConfig.value?.memorialLobbies) {
@@ -485,6 +525,7 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
 
   onMounted(() => {
     addCanvasToBackground()
+    canvas.addEventListener('webglcontextlost', handleContextLost)
     window.addEventListener('resize', handleWindowResize)
   })
 
@@ -494,6 +535,10 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
   })
 
   onActivated(() => {
+    if (webglFailed.value) {
+      revealHud(true)
+      return
+    }
     l2d.ticker.start()
     addCanvasToBackground()
     if (!animation && currentConfig.value?.memorialLobbies) {
@@ -508,7 +553,7 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
   })
 
   onDeactivated(() => {
-    l2d.ticker.stop()
+    if (!webglFailed.value) l2d.ticker.stop()
   })
 
   onUnmounted(() => {
@@ -522,7 +567,12 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     detachInteractions()
     pointer.removeEventListenersFromCanvas()
     window.removeEventListener('resize', handleWindowResize)
-    l2d.destroy(true)
+    canvas.removeEventListener('webglcontextlost', handleContextLost)
+    try {
+      l2d.destroy(true)
+    } catch {
+      /* 上下文已丢失时 destroy 可能再抛 */
+    }
   })
 
   watch(
@@ -538,6 +588,7 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
   return {
     app: l2d,
     canvas,
+    webglFailed,
     getSpine: () => animation,
     getId: () => id,
     isReady: () => animationReady,
