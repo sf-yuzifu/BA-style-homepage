@@ -113,9 +113,9 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
               }
             }
           },
-          // 第三方静态资源 CDN（iconfont、Yostar 素材）：缓存优先，内容基本不变
+          // 第三方静态资源 CDN（iconfont）：缓存优先，内容基本不变
           {
-            urlPattern: /^https:\/\/(at\.alicdn\.com|webcnstatic\.yostar\.net)\/.*/i,
+            urlPattern: /^https:\/\/at\.alicdn\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'cdn-cache',

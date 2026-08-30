@@ -289,9 +289,20 @@ export function validateProjectConfig(root: string): string[] {
     }
   }
 
-  for (const rel of ['shots/zh/pic1.png', 'shots/zh/pic2.png']) {
+  for (const rel of [
+    'shots/zh/pic1.png',
+    'shots/zh/pic2.png',
+    'public/img/loading/bg.png',
+    'public/img/loading/avatar1.png',
+    'public/img/loading/avatar2.png',
+    'public/img/loading/avatar3.png',
+    'public/img/loading/avatar4.png'
+  ]) {
     if (!fs.existsSync(path.join(root, rel))) {
-      errors.push(`  ${rel.replaceAll('\\', '/')}: 找不到文件（社交分享卡片用 sharp 从此裁切）`)
+      const hint = rel.startsWith('shots/')
+        ? '社交分享卡片用 sharp 从此裁切'
+        : '加载屏本地素材，勿改回 Yostar CDN'
+      errors.push(`  ${rel.replaceAll('\\', '/')}: 找不到文件（${hint}）`)
     }
   }
 

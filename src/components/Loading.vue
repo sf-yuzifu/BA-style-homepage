@@ -4,10 +4,10 @@ import { ref, onUnmounted } from 'vue'
 defineProps<{ percent: number }>()
 
 const imgList = [
-  'https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar1.c18ce793.png',
-  'https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar2.b84283e9.png',
-  'https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar3.c9d108f1.png',
-  'https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar4.8656c817.png'
+  '/img/loading/avatar1.png',
+  '/img/loading/avatar2.png',
+  '/img/loading/avatar3.png',
+  '/img/loading/avatar4.png'
 ]
 const imgUrl = ref(imgList[0])
 
@@ -84,8 +84,7 @@ img {
 }
 
 .loading_wrapper {
-  background: url('https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/loading_bg_pc.ba246778.png')
-    center;
+  background: url('/img/loading/bg.png') center;
   background-size: cover;
   overflow: hidden;
   z-index: 99;
