@@ -45,12 +45,27 @@ function openLinkWithDelay(url: string) {
 }
 
 // document 级 click 事件委托：一次注册、无需轮询、天然支持动态新增的 <a>
+const SKIP_CURTAIN_HOSTS = new Set(['beian.miit.gov.cn', 'beian.mps.gov.cn'])
+
+function shouldUseCurtain(url: string, link: Element): boolean {
+  if (url.startsWith('#') || url.startsWith('mailto:') || url.startsWith('tel:')) {
+    return false
+  }
+  // 备案 / 公安网安：法定外链，直接跳，不走黑幕
+  if (link.closest('#icp-container')) return false
+  try {
+    return !SKIP_CURTAIN_HOSTS.has(new URL(url, document.baseURI).hostname)
+  } catch {
+    return true
+  }
+}
+
 function handleDocumentClick(e: MouseEvent) {
   const link = e.target instanceof Element ? e.target.closest('a[href]') : null
   if (!link) return
 
   const url = link.getAttribute('href')
-  if (url && !url.startsWith('#') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
+  if (url && shouldUseCurtain(url, link)) {
     e.preventDefault()
     showCurtain()
     openLinkWithDelay(url)
