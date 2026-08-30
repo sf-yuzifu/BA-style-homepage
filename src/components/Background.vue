@@ -5,6 +5,7 @@ import * as PIXI from 'pixi.js'
 import { Modal } from '@arco-design/web-vue'
 import type { ModalReturn } from '@arco-design/web-vue'
 import { useConfig } from '@/composables/useConfig'
+import { prefersReducedMotionNow } from '@/composables/useReducedMotion'
 const { configs, locale } = useConfig()
 const emit = defineEmits<{
   canskip: [value: boolean]
@@ -202,8 +203,9 @@ const attachInteractions = (spine: Spine) => {
   gaze.attach(spine)
   pat.attach(spine)
   boneDrag.attach(spine)
-  // 启动随机小动作调度（眨眼 10~15s / Idle_01_R 60~70s）
-  randomClips.start()
+  if (!prefersReducedMotionNow()) {
+    randomClips.start()
+  }
 }
 
 // 从旧 Spine 实例解绑（销毁前调用）
@@ -395,7 +397,10 @@ const doSetL2D = async (num: L2DTarget): Promise<void> => {
   showDialogue.value = false
   if (!animation.state.data.skeletonData.findAnimation('Start_Idle_01')) startIdle = 'Start_idle_01'
   talkPlayer.attachEventListener(animation.state)
-  if (animation && animation.state && animation.state.data.skeletonData.findAnimation(startIdle)) {
+  const playStartIdle =
+    !prefersReducedMotionNow() &&
+    animation.state.data.skeletonData.findAnimation(startIdle)
+  if (playStartIdle) {
     changeL2D(true)
     animation.state.setAnimation(0, startIdle, false)
     const currentTrack = animation.state.getCurrent(0)
@@ -424,24 +429,23 @@ const doSetL2D = async (num: L2DTarget): Promise<void> => {
     }
     animation.state.addListener(listener)
   } else {
+    // 无 Start_Idle，或系统「减少动效」：直接待机，立刻关掉跳过遮罩
     changeL2D(false)
-    if (animation && animation.state) {
+    canSkip.value = false
+    emit('canskip', false)
+    if (modalRef) {
+      modalRef.close()
+    }
+    if (animation?.state) {
       const currentTrack = animation.state.getCurrent(0)
       if (
-        currentTrack &&
-        currentTrack.animation &&
-        currentTrack.animation.name !== 'Idle_01' &&
+        currentTrack?.animation?.name !== 'Idle_01' &&
         animation.state.data.skeletonData.findAnimation('Idle_01')
       ) {
         animation.state.setAnimation(0, 'Idle_01', true)
-        animation.state.listeners = []
-        talkPlayer.attachEventListener(animation.state)
-        canSkip.value = false
-        emit('canskip', false)
-        if (modalRef) {
-          modalRef.close()
-        }
       }
+      animation.state.listeners = []
+      talkPlayer.attachEventListener(animation.state)
     }
   }
 
@@ -1160,6 +1164,17 @@ img:last-child {
   }
   100% {
     transform: rotate(180deg) translateX(clamp(10px, 0.625vw, 100vw));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  img {
+    animation: none;
+    transform: translateX(clamp(30px, 1.875vw, 100vw));
+  }
+
+  img:last-child {
+    transform: rotate(180deg) translateX(clamp(30px, 1.875vw, 100vw));
   }
 }
 </style>

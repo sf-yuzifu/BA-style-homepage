@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
+import { prefersReducedMotionNow } from '@/composables/useReducedMotion'
 const { configs } = useConfig()
 
 const currentConfig = computed(() => configs.value)
@@ -24,6 +25,13 @@ const PAGE_OPEN_DELAY = 300 // 幕布拉开后打开目标页面的延迟
 const randomCurtainDuration = () => Math.floor(Math.random() * 2 + 4) * 250
 
 const skip = () => {
+  if (prefersReducedMotionNow()) {
+    const href = taskInfo.value.href
+    if (href && href !== '#') {
+      window.open(href)
+    }
+    return
+  }
   bg.value = true
   setTimeout(() => {
     curtain.value = true

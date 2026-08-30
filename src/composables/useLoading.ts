@@ -3,6 +3,7 @@ import { useResourceLoader } from './useResourceLoader'
 import { useConfig } from './useConfig'
 import { loadFonts } from '@/init/fonts'
 import { initLive2D } from '@/init/live2d'
+import { prefersReducedMotionNow } from './useReducedMotion'
 
 export function useLoading() {
   const loading = ref(true)
@@ -37,6 +38,14 @@ export function useLoading() {
 
   // 开始动画
   const startAnimation = () => {
+    if (prefersReducedMotionNow()) {
+      if (animationFrame.value) {
+        cancelAnimationFrame(animationFrame.value)
+        animationFrame.value = null
+      }
+      percent.value = targetPercent.value
+      return
+    }
     if (animationFrame.value) {
       cancelAnimationFrame(animationFrame.value)
     }
@@ -84,10 +93,13 @@ export function useLoading() {
         targetPercent.value = 1
         startAnimation()
 
-        // 等待动画完成后隐藏加载界面
-        setTimeout(() => {
+        if (prefersReducedMotionNow()) {
           finishLoading()
-        }, 800)
+        } else {
+          setTimeout(() => {
+            finishLoading()
+          }, 800)
+        }
       }
     },
     { immediate: true }
@@ -175,8 +187,7 @@ export function useLoading() {
   }
 
   onMounted(() => {
-    // 延迟一点开始加载，让Loading组件先显示，然后从0%开始
-    setTimeout(() => {
+    const begin = () => {
       startLoading()
 
       // 设置超时机制，防止无限等待
@@ -194,7 +205,13 @@ export function useLoading() {
           }
         }
       )
-    }, 300) // 增加延迟时间
+    }
+    // 减少动效时跳过人为延迟，否则让 Loading 先亮起再从 0% 开始
+    if (prefersReducedMotionNow()) {
+      begin()
+    } else {
+      setTimeout(begin, 300)
+    }
   })
 
   onUnmounted(() => {

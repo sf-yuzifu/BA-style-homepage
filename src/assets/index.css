@@ -237,3 +237,14 @@ a {
 .arco-modal .arco-modal-header {
   height: clamp(48px, 3vw, 100vw);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

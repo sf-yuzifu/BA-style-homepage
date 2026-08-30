@@ -253,6 +253,8 @@ onUnmounted(() => {
   background: #fffe;
 }
 
+/* :active 只缩放、不改 translateY。减少动效下过渡近乎瞬时，
+   若按下时跳回 translateY(0)，按钮会离开指针，mouseup/click 落空，无法退出全屏。 */
 .toolbox-box .toolbox.about:active,
 .toolbox-box .toolbox.l2d:active {
   transform: translateY(0) skew(-10deg) scale(0.9);
@@ -276,6 +278,9 @@ onUnmounted(() => {
   .toolbox.l2d.toolbox-l2d {
     transform: translateY(-76px) skew(-10deg);
   }
+  .toolbox-box .toolbox.l2d.toolbox-l2d:active {
+    transform: translateY(-76px) skew(-10deg) scale(0.9);
+  }
 }
 
 @media screen and (min-width: 1601px) {
@@ -284,6 +289,9 @@ onUnmounted(() => {
   }
   .toolbox.l2d.toolbox-l2d {
     transform: translateY(-4.75vw) skew(-10deg);
+  }
+  .toolbox-box .toolbox.l2d.toolbox-l2d:active {
+    transform: translateY(-4.75vw) skew(-10deg) scale(0.9);
   }
 }
 

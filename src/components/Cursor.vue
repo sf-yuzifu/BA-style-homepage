@@ -1,13 +1,27 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onUnmounted, watch } from 'vue'
+import { useReducedMotion } from '@/composables/useReducedMotion'
 
-// 蔚蓝档案点击特效（全平台保留；光标拖尾在触屏上由库内部处理）
+const { prefersReducedMotion } = useReducedMotion()
+
+// 蔚蓝档案点击特效（全平台保留；系统「减少动效」开启时不加载）
 let fx: { destroy: () => void } | null = null
 
-onMounted(async () => {
-  const { BAClickFX } = await import('ba-click-fx')
-  fx = new BAClickFX()
-})
+watch(
+  prefersReducedMotion,
+  async (reduce) => {
+    if (reduce) {
+      fx?.destroy()
+      fx = null
+      return
+    }
+    if (fx) return
+    const { BAClickFX } = await import('ba-click-fx')
+    if (prefersReducedMotion.value) return
+    fx = new BAClickFX()
+  },
+  { immediate: true }
+)
 
 onUnmounted(() => {
   fx?.destroy()

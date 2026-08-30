@@ -370,6 +370,17 @@ onUnmounted(() => {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .carousel-arrows .arrow {
+    animation: none;
+    transform: rotate(180deg) translateX(clamp(10px, 0.625vw, 100vw));
+  }
+
+  .carousel-arrows .arrow-left {
+    transform: translateX(clamp(10px, 0.625vw, 100vw));
+  }
+}
+
 .bio-container #left,
 .bio-container #right {
   flex: 1;
