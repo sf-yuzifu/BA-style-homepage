@@ -140,6 +140,8 @@ After modifying the configuration, rebuild and redeploy for changes to take effe
 
 The right-hand bio text comes from **`bio/{locale}.md`** (e.g. `bio/en-US.md`). It supports GitHub-flavored Markdown and inline HTML (e.g. GitHub Stats images), and follows the visitor's language. Missing locales fall back to `bio/en-US.md`, then to any file in the folder — forks only need to add the languages they use.
 
+Share cards are 1200×630 JPEGs cover-cropped at build time with sharp from **`shots/zh/pic1.png`** (home) and **`pic2.png`** (bio). `/bio` has its own Open Graph tags (the host must serve `bio/index.html` for that path).
+
 <details>
 <summary><b>Click to expand the _config.yaml configuration guide</b></summary>
 

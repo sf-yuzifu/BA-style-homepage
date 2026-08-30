@@ -21,19 +21,22 @@
     <meta name="description" content="<%- description %>" />
     <meta name="keywords" content="<%- keywords %>" />
     <meta name="author" content="<%- author %>" />
-    <!-- Open Graph / social share card -->
+    <!-- Open Graph / social share card (og-home.jpg cover-cropped from shots at build) -->
     <meta property="og:title" content="<%- title %>" />
     <meta property="og:description" content="<%- description %>" />
     <meta property="og:type" content="website" />
-    <!-- og:image must be an absolute URL for crawlers (relative paths break share previews) -->
-    <meta property="og:image" content="<%- siteUrl %>/favicon512.png" />
+    <meta property="og:image" content="<%- ogImage %>" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
     <% if (siteUrl) { %>
     <meta property="og:url" content="<%- siteUrl %>/" />
     <link rel="canonical" href="<%- siteUrl %>/" />
     <% } %>
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="<%- title %>" />
     <meta name="twitter:description" content="<%- description %>" />
+    <meta name="twitter:image" content="<%- ogImage %>" />
     <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
     <meta content="IE=edge" http-equiv="X-UA-Compatible" />
     <meta content="<%- themeColor %>" name="theme-color" />

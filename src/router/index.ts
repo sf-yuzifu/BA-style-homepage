@@ -18,6 +18,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/bio',
+    alias: '/bio/',
     name: 'Bio',
     component: Bio,
     // 页面标题对应的 i18n 键（translate.bio）

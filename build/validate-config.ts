@@ -289,11 +289,20 @@ export function validateProjectConfig(root: string): string[] {
     }
   }
 
+  for (const rel of ['shots/zh/pic1.png', 'shots/zh/pic2.png']) {
+    if (!fs.existsSync(path.join(root, rel))) {
+      errors.push(`  ${rel.replaceAll('\\', '/')}: 找不到文件（社交分享卡片用 sharp 从此裁切）`)
+    }
+  }
+
   let raw: unknown
   try {
     raw = loadYaml(configPath)
   } catch (error) {
-    return [`  _config.yaml: YAML 解析失败 — ${error instanceof Error ? error.message : String(error)}`]
+    errors.push(
+      `  _config.yaml: YAML 解析失败 — ${error instanceof Error ? error.message : String(error)}`
+    )
+    return errors
   }
 
   const parsed = siteConfigSchema.safeParse(raw)

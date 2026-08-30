@@ -140,6 +140,8 @@ yarn preview
 
 个人简介页右侧正文来自 **`bio/{语言}.md`**（如 `bio/zh-CN.md`），支持 GitHub 风格 Markdown 与内嵌 HTML（例如 GitHub Stats 图片），并随浏览器语言切换。缺某个语言时回退到 `bio/en-US.md`，再缺则用目录里的任意一份；fork 后按需只写自己要用的语言即可。
 
+社交分享卡片由构建时用 sharp 将 **`shots/zh/pic1.png`**（首页）与 **`pic2.png`**（简介页）等比裁切为 1200×630 生成；`/bio` 有独立 `og` 标签（部署时需让该路径落到 `bio/index.html`）。
+
 <details>
 <summary><b>点击展开 _config.yaml 配置说明</b></summary>
 

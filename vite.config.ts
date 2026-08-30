@@ -16,6 +16,7 @@ import yaml from '@rollup/plugin-yaml'
 import { l2dWebpPlugin } from './build/vite-plugin-l2d-webp'
 import { configValidatePlugin } from './build/validate-config'
 import { bioMarkdownPlugin } from './build/bio-markdown'
+import { ogImagesPlugin } from './build/og-images'
 
 type FontViteOptions = Parameters<typeof Font.vite>[0]
 
@@ -30,6 +31,7 @@ interface BuildConfig {
 }
 
 const config = load(fs.readFileSync('_config.yaml', 'utf8')) as BuildConfig
+const siteUrl = (config.url || '').replace(/\/+$/, '')
 
 // https://vitejs.dev/config/
 export default defineConfig(async ({ mode }): Promise<UserConfig> => {
@@ -53,7 +55,8 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
           description: config.description,
           keywords: config.keywords,
           // 站点规范地址（去除尾部斜杠），供 og:image/og:url/canonical 拼绝对 URL
-          siteUrl: (config.url || '').replace(/\/+$/, '')
+          siteUrl,
+          ogImage: siteUrl ? `${siteUrl}/og-home.jpg` : '/og-home.jpg'
         }
       }
     }),
@@ -152,7 +155,8 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
     }),
     // 须在 viteCompression 之后注册，closeBundle 时先转 WebP 再 gzip 新产物
     l2dWebpPlugin(),
-    yaml()
+    yaml(),
+    ogImagesPlugin(siteUrl)
   ]
 
   if (mode === 'analyze') {
