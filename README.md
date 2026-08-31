@@ -254,6 +254,9 @@ banner:
 #
 # bone 为骨骼名；minX/maxX/minY/maxY 为拖拽钳制范围（骨架单位，相对基准位置的偏移，可用 range 做对称简写）；
 # radius 为按下命中半径；smoothTime 为平滑时间（秒，越小越跟手）
+#
+# 角色语音：放在各角色 path 下的 ja-JP/、zh-CN/ 目录，文件名为 spine talk 事件 key + .mp3
+# （简体界面优先 zh-CN，缺文件时回退 ja-JP）。从 OGG 批量转码：yarn voices:mp3
 memorialLobbies:
   # 角色1 - Aris
   - name: Aris

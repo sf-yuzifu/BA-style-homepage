@@ -47,11 +47,11 @@ export function useTalkPlayer(ctx: SpineInteractionContext) {
     ctx.showDialogue.value = true
 
     // 播放语音
-    const jpPath = lobby.path + 'ja-JP/' + voiceKey + '.ogg'
+    const jpPath = lobby.path + 'ja-JP/' + voiceKey + '.mp3'
     let voicePath = jpPath
     if (ctx.getLocale() === 'zh-CN') {
       // 只有简体中文优先尝试使用中文语音
-      voicePath = lobby.path + 'zh-CN/' + voiceKey + '.ogg'
+      voicePath = lobby.path + 'zh-CN/' + voiceKey + '.mp3'
     }
 
     // onloaderror/onplayerror 是异步回调（且构造阶段可能同步触发，回调内不能引用 voice 自身——TDZ），

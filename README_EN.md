@@ -259,6 +259,9 @@ banner:
 # `bone` is the bone name; minX/maxX/minY/maxY are drag clamp ranges (in skeleton units,
 # offsets relative to the base position; `range` can be used as a symmetric shorthand);
 # `radius` is the press hit radius; `smoothTime` is the smoothing time (in seconds, smaller = more responsive)
+#
+# Voice lines: `ja-JP/{eventKey}.mp3` and optional `zh-CN/{eventKey}.mp3` under each character `path`
+# (zh-CN UI prefers Chinese audio, falls back to ja-JP). Batch OGG→MP3: `yarn voices:mp3`
 memorialLobbies:
   # Character 1 - Aris
   - name: Aris

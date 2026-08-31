@@ -11,7 +11,8 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "voices:mp3": "node scripts/convert-voices-to-mp3.mjs"
   },
   "resolutions": {
     "bin-wrapper": "npm:bin-wrapper-china",
@@ -58,6 +59,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@types/howler": "^2.2.12",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.13.10",
