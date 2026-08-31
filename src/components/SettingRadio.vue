@@ -55,9 +55,8 @@ const move = (step: number) => {
 
 <style scoped>
 .radio-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(12px, 0.75vw, 100vw) clamp(32px, 2vw, 100vw);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .radio {

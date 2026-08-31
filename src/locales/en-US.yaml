@@ -116,9 +116,10 @@ translate:
   settingsOn: 'On'
   settingsOff: 'Off'
   settingsVolume: Volume
-  settingsVoice: Character voice
+  settingsMute: Mute
+  settingsVoice: Voice
   settingsVoiceDesc: Subtitles stay visible when off; voice files are no longer downloaded.
-  settingsBgm: Background music
+  settingsBgm: BGM
   settingsBgmDesc: The banner player pauses when off, saving bandwidth.
   settingsIntro: Opening cutscene
   settingsIntroDesc: Switching characters manually always plays their own entrance.

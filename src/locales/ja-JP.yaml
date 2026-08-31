@@ -117,7 +117,8 @@ translate:
   settingsOn: オン
   settingsOff: オフ
   settingsVolume: 音量
-  settingsVoice: キャラクターボイス
+  settingsMute: ミュート
+  settingsVoice: ボイス
   settingsVoiceDesc: オフでも字幕は表示されますが、音声ファイルは読み込みません。
   settingsBgm: BGM
   settingsBgmDesc: オフにするとバナープレイヤーは一時停止し、通信量を消費しません。

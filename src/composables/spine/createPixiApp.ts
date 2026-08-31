@@ -22,10 +22,7 @@ export function tryCreatePixiApp(
     }
     return app
   } catch (error) {
-    console.error(
-      'Failed to create PIXI application; Live2D will use a static background',
-      error
-    )
+    console.error('Failed to create PIXI application; Live2D will use a static background', error)
     return null
   }
 }

@@ -153,6 +153,7 @@ export interface TranslateConfig {
   settingsOn?: string
   settingsOff?: string
   settingsVolume?: string
+  settingsMute?: string
   settingsVoice?: string
   settingsVoiceDesc?: string
   settingsBgm?: string

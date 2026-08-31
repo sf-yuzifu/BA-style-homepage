@@ -115,9 +115,10 @@ translate:
   settingsOn: 開啟
   settingsOff: 關閉
   settingsVolume: 音量
-  settingsVoice: 角色語音
+  settingsMute: 靜音
+  settingsVoice: 語音
   settingsVoiceDesc: 關閉後仍會顯示台詞字幕，但不再下載語音檔案。
-  settingsBgm: 背景音樂
+  settingsBgm: BGM
   settingsBgmDesc: 關閉後橫幅播放器暫停，不再消耗流量。
   settingsIntro: 開場演出
   settingsIntroDesc: 手動切換角色時仍會播放各自的入場演出。
