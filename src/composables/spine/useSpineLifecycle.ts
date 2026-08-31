@@ -15,6 +15,7 @@ import * as PIXI from 'pixi.js'
 import { Modal } from '@arco-design/web-vue'
 import type { ModalReturn } from '@arco-design/web-vue'
 import { prefersReducedMotionNow } from '@/composables/useReducedMotion'
+import { useSettings } from '@/composables/useSettings'
 import type { AppConfig } from '@/types/config'
 import { tryCreatePixiApp } from './createPixiApp'
 import { initTracks } from './useSpineTracks'
@@ -114,6 +115,10 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
   let isComponentUnmounted = false
   let setL2DInFlight: Promise<void> | null = null
   let isFirstLoad = true
+  // 首帧加载才受「开场演出」偏好约束；手动切换角色始终播放各自的入场
+  let introDecided = false
+
+  const { shouldPlayIntro, markIntroSeen } = useSettings()
 
   const webglFailed = ref(false)
   const revealHud = (failed = false) => {
@@ -328,9 +333,14 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     if (!animation.state.data.skeletonData.findAnimation('Start_Idle_01'))
       startIdle = 'Start_idle_01'
     talkPlayer.attachEventListener(animation.state)
+    const isInitialLoad = !introDecided
+    introDecided = true
     const playStartIdle =
-      !prefersReducedMotionNow() && animation.state.data.skeletonData.findAnimation(startIdle)
+      !prefersReducedMotionNow() &&
+      animation.state.data.skeletonData.findAnimation(startIdle) &&
+      (!isInitialLoad || shouldPlayIntro())
     if (playStartIdle) {
+      if (isInitialLoad) markIntroSeen()
       changeL2D(true)
       animation.state.setAnimation(0, startIdle, false)
       const currentTrack = animation.state.getCurrent(0)

@@ -110,6 +110,23 @@ translate:
   walletApRecover: Recovers 1 AP every 6 minutes
   walletGold: '{hours} hours spent together'
   walletPyroxene: 'Daily sign-in streak: {days}'
+  settings: Options
+  settingsAudio: Volume
+  settingsPresentation: Presentation
+  settingsOn: 'On'
+  settingsOff: 'Off'
+  settingsVolume: Volume
+  settingsVoice: Character voice
+  settingsVoiceDesc: Subtitles stay visible when off; voice files are no longer downloaded.
+  settingsBgm: Background music
+  settingsBgmDesc: The banner player pauses when off, saving bandwidth.
+  settingsIntro: Opening cutscene
+  settingsIntroDesc: Switching characters manually always plays their own entrance.
+  settingsIntroAlways: Every visit
+  settingsIntroOnce: First visit only
+  settingsClickFx: Click effect
+  settingsClickFxDesc: Blue Archive style effect when you click the page.
+  settingsReducedMotion: Reduced motion is enabled in your system, so presentation options are inactive.
 
 bio:
   bth:

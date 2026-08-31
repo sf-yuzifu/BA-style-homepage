@@ -1,3 +1,4 @@
+import { watch } from 'vue'
 import { Howl } from 'howler'
 import type {
   AnimationState,
@@ -5,6 +6,7 @@ import type {
   Event,
   TrackEntry
 } from '@esotericsoftware/spine-core'
+import { useSettings } from '@/composables/useSettings'
 import type { SpineInteractionContext } from './types'
 import { TRACK_M, TRACK_A, hasAnimation, queueDummyPair } from './useSpineTracks'
 
@@ -25,10 +27,18 @@ import { TRACK_M, TRACK_A, hasAnimation, queueDummyPair } from './useSpineTracks
  */
 export function useTalkPlayer(ctx: SpineInteractionContext) {
   const talking = ctx.flags.talking
+  const { effectiveVoiceVolume } = useSettings()
   let talkIndex = 1
   let soundList: Howl[] = []
   // 语音会话代际：stopAllVoices 清理时递增，异步错误回调据此识别过期会话
   let voiceEpoch = 0
+
+  // 面板里拖动音量时实时作用于正在播放的语音
+  watch(effectiveVoiceVolume, (volume) => {
+    for (const sound of soundList) {
+      sound.volume(volume)
+    }
+  })
 
   /** spine 事件回调（注册到 AnimationState 的 event 监听） */
   const handleEvent = (_entry: TrackEntry, event: Event) => {
@@ -46,6 +56,9 @@ export function useTalkPlayer(ctx: SpineInteractionContext) {
     ctx.dialogue.value = voiceSource[voiceKey]
     ctx.showDialogue.value = true
 
+    // 语音关闭时只留字幕，不请求音频文件（气泡由对话动画结束时收起，不依赖语音回调）
+    if (effectiveVoiceVolume.value <= 0) return
+
     // 播放语音
     const jpPath = lobby.path + 'ja-JP/' + voiceKey + '.mp3'
     let voicePath = jpPath
@@ -61,7 +74,7 @@ export function useTalkPlayer(ctx: SpineInteractionContext) {
 
     const voice = new Howl({
       src: [voicePath],
-      volume: 0.3,
+      volume: effectiveVoiceVolume.value,
       onloaderror: () => {
         // 如果加载失败且当前尝试的是中文语音，则降级到日文语音
         if (voicePath !== jpPath) playFallbackVoice(jpPath, epoch)
@@ -82,7 +95,7 @@ export function useTalkPlayer(ctx: SpineInteractionContext) {
 
     const fallbackVoice = new Howl({
       src: [jpPath],
-      volume: 0.3,
+      volume: effectiveVoiceVolume.value,
       onend: () => releaseVoice(fallbackVoice)
     })
     fallbackVoice.play()

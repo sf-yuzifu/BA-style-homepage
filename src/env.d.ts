@@ -68,6 +68,8 @@ declare module 'aplayer' {
     destroy(): void
     play(): void
     pause(): void
+    /** nostorage 为 true 时不写 APlayer 自己的 localStorage（音量由本站设置面板接管） */
+    volume(percentage?: number, nostorage?: boolean): void
     on(event: string, callback: (...args: unknown[]) => void): void
     setMode(mode: 'mini' | 'normal'): void
     lrc: { hide(): void; show(): void }

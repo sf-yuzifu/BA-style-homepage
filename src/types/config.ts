@@ -147,6 +147,23 @@ export interface TranslateConfig {
   walletApRecover?: string
   walletGold?: string
   walletPyroxene?: string
+  settings?: string
+  settingsAudio?: string
+  settingsPresentation?: string
+  settingsOn?: string
+  settingsOff?: string
+  settingsVolume?: string
+  settingsVoice?: string
+  settingsVoiceDesc?: string
+  settingsBgm?: string
+  settingsBgmDesc?: string
+  settingsIntro?: string
+  settingsIntroDesc?: string
+  settingsIntroAlways?: string
+  settingsIntroOnce?: string
+  settingsClickFx?: string
+  settingsClickFxDesc?: string
+  settingsReducedMotion?: string
   [key: string]: string | undefined
 }
 

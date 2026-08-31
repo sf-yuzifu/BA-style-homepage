@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import axios from 'axios'
 import 'aplayer/dist/APlayer.min.css'
 import APlayer from 'aplayer'
 import type { APlayerAudio } from 'aplayer'
 import { useConfig } from '@/composables/useConfig'
+import { useSettings } from '@/composables/useSettings'
 
 const aplayerContainer = ref<HTMLDivElement | null>(null)
 const ap = ref<APlayer | null>(null)
@@ -19,8 +20,21 @@ let retryTimer: ReturnType<typeof setTimeout> | null = null
 
 // 使用i18n配置系统
 const { configs } = useConfig()
+const { effectiveBgmVolume } = useSettings()
 const ifICP = computed(() => configs.value?.ICP || '')
 const songlist = computed(() => configs.value?.banner?.musicID || [])
+
+// BGM 关闭时暂停而不是零音量继续播，避免白耗流量；恢复时接着当前曲目播
+watch(effectiveBgmVolume, (volume, previous) => {
+  const player = ap.value
+  if (!player) return
+  player.volume(volume, true)
+  if (volume <= 0) {
+    player.pause()
+  } else if (previous <= 0) {
+    player.play()
+  }
+})
 
 const checkScreenSize = () => {
   const player = ap.value
@@ -56,6 +70,7 @@ onMounted(() => {
     audio: []
   })
   ap.value = player
+  player.volume(effectiveBgmVolume.value, true)
 
   // 歌曲结束事件监听
   player.on('ended', addRandomSong)
@@ -179,7 +194,7 @@ const addRandomSong = async () => {
       retryCount.value = 0
       player.list.add(songData)
       player.lrc.show()
-      player.play()
+      if (effectiveBgmVolume.value > 0) player.play()
       console.log('歌曲加载成功:', songData.name)
     } else {
       throw new Error('无法获取歌曲数据')

@@ -111,6 +111,23 @@ translate:
   walletApRecover: 6分ごとに1AP回復
   walletGold: 一緒に過ごした時間：{hours}時間
   walletPyroxene: '{days}日連続ログイン'
+  settings: 設定
+  settingsAudio: 音量
+  settingsPresentation: 演出
+  settingsOn: オン
+  settingsOff: オフ
+  settingsVolume: 音量
+  settingsVoice: キャラクターボイス
+  settingsVoiceDesc: オフでも字幕は表示されますが、音声ファイルは読み込みません。
+  settingsBgm: BGM
+  settingsBgmDesc: オフにするとバナープレイヤーは一時停止し、通信量を消費しません。
+  settingsIntro: オープニング演出
+  settingsIntroDesc: キャラクターを手動で切り替えたときは、常に各自の登場演出を再生します。
+  settingsIntroAlways: 毎回再生
+  settingsIntroOnce: 初回のみ
+  settingsClickFx: クリックエフェクト
+  settingsClickFxDesc: ページをクリックしたときのブルアカ風エフェクト。
+  settingsReducedMotion: システムで「視差効果を減らす」が有効なため、演出の設定は適用されません。
 
 bio:
   bth:

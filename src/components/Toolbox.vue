@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Modal } from '@arco-design/web-vue'
-import { IconInfoCircle } from '@arco-design/web-vue/es/icon'
+import { IconInfoCircle, IconSettings } from '@arco-design/web-vue/es/icon'
 import { h, ref, computed, onMounted, onUnmounted } from 'vue'
 
 import { useConfig } from '@/composables/useConfig'
 import { useWallet } from '@/composables/useWallet'
+import Settings from '@/components/Settings.vue'
 
 const { configs } = useConfig()
 const { ap, maxAp, gold, pyroxene, apTooltip, goldTooltip, pyroxeneTooltip } = useWallet()
@@ -22,6 +23,7 @@ const props = defineProps<{
 const currentConfig = computed(() => configs.value)
 const img = ref('/img/max.png')
 const showMin = ref(false)
+const showSettings = ref(false)
 // 触屏设备（hover: none）状态
 const hoverMedia = window.matchMedia('(hover: none)')
 const hover = ref(hoverMedia.matches)
@@ -78,8 +80,15 @@ const change = () => {
   }
 }
 
+const openSettings = () => {
+  showSettings.value = true
+}
+
 // body 级点击：L2D 全屏观赏模式下切换工具箱显隐
-const handleBodyClick = () => {
+const handleBodyClick = (e: MouseEvent) => {
+  // 弹窗经 teleport 挂到 body，其内部点击会冒泡到这里，不应牵动工具箱显隐
+  if (e.target instanceof Element && e.target.closest('.arco-modal-container')) return
+
   if (props.l2dOnly && hover.value) {
     showMin.value = !showMin.value
   } else {
@@ -121,10 +130,23 @@ onUnmounted(() => {
       <div class="wallet-tip">{{ pyroxeneTooltip }}</div>
     </div>
     <a
+      class="settings toolbox"
+      :class="{ 'toolbox-l2d': props.l2dOnly }"
+      role="button"
+      tabindex="0"
+      :aria-label="currentConfig?.translate?.settings"
+      @click="openSettings"
+      @keydown.enter.prevent="openSettings"
+      @keydown.space.prevent="openSettings"
+    >
+      <icon-settings class="css-cursor-hover-enabled" />
+    </a>
+    <a
       class="about toolbox"
       :class="{ 'toolbox-l2d': props.l2dOnly }"
       role="button"
       tabindex="0"
+      :aria-label="currentConfig?.translate?.about"
       @click="about"
       @keydown.enter.prevent="about"
       @keydown.space.prevent="about"
@@ -155,6 +177,7 @@ onUnmounted(() => {
     >
       <img alt="" :src="img" />
     </a>
+    <Settings v-model:visible="showSettings" />
   </div>
 </template>
 
@@ -227,6 +250,7 @@ onUnmounted(() => {
 }
 
 .toolbox-box .toolbox.about,
+.toolbox-box .toolbox.settings,
 .toolbox-box .toolbox.l2d {
   min-width: 80px;
   min-height: 56px;
@@ -259,6 +283,7 @@ onUnmounted(() => {
 /* :active 只缩放、不改 translateY。减少动效下过渡近乎瞬时，
    若按下时跳回 translateY(0)，按钮会离开指针，mouseup/click 落空，无法退出全屏。 */
 .toolbox-box .toolbox.about:active,
+.toolbox-box .toolbox.settings:active,
 .toolbox-box .toolbox.l2d:active {
   transform: translateY(0) skew(-10deg) scale(0.9);
 }
@@ -269,7 +294,7 @@ onUnmounted(() => {
 }
 
 @media screen and (max-width: 1199px) {
-  .toolbox:not(.about) {
+  .toolbox:not(.about):not(.settings) {
     display: none;
   }
 }

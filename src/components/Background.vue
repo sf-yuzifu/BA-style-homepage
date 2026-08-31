@@ -118,9 +118,17 @@ const isEditableTarget = (target: EventTarget | null): boolean => {
   return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable
 }
 
+// 弹窗（设置 / 关于 / 跳过确认）打开时方向键归弹窗自己用。
+// 关闭后 Arco 可能保留 display:none 的容器，只看存在性会永久吞掉方向键
+const isModalOpen = (): boolean => {
+  const container = document.querySelector('.arco-modal-container')
+  return !!container && window.getComputedStyle(container).display !== 'none'
+}
+
 const onLobbyKeydown = (e: KeyboardEvent) => {
   if (props.l2dOnly || webglFailed.value) return
   if (isEditableTarget(e.target)) return
+  if (isModalOpen()) return
   if (e.key === 'ArrowLeft') {
     e.preventDefault()
     setL2D('-')

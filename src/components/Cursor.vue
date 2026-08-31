@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { onUnmounted, watch } from 'vue'
+import { computed, onUnmounted, watch } from 'vue'
 import { useReducedMotion } from '@/composables/useReducedMotion'
+import { useSettings } from '@/composables/useSettings'
 
 const { prefersReducedMotion } = useReducedMotion()
+const { clickEffect } = useSettings()
 
-// 蔚蓝档案点击特效（全平台保留；系统「减少动效」开启时不加载）
+// 蔚蓝档案点击特效（全平台保留；系统「减少动效」或设置面板关闭时不加载）
+const enabled = computed(() => !prefersReducedMotion.value && clickEffect.value)
 let fx: { destroy: () => void } | null = null
 
 watch(
-  prefersReducedMotion,
-  async (reduce) => {
-    if (reduce) {
+  enabled,
+  async (on) => {
+    if (!on) {
       fx?.destroy()
       fx = null
       return
@@ -18,7 +21,7 @@ watch(
     if (fx) return
     try {
       const { BAClickFX } = await import('ba-click-fx')
-      if (prefersReducedMotion.value) return
+      if (!enabled.value) return
       fx = new BAClickFX()
     } catch (error) {
       console.error('Failed to init click effect (WebGL may be unavailable)', error)
@@ -48,6 +51,7 @@ onUnmounted(() => {
      需要 #aplayer 前缀（1-x-0）才能压过 */
   a,
   button,
+  input[type='range'],
   .css-cursor-hover-enabled,
   .l2d-hover,
   .arco-modal-close-btn,

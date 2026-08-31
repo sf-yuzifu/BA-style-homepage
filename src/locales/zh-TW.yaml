@@ -109,6 +109,23 @@ translate:
   walletApRecover: 每 6 分鐘回復 1 點
   walletGold: 已累計陪伴 {hours} 小時
   walletPyroxene: 已連續簽到 {days} 天
+  settings: 選項
+  settingsAudio: 音量
+  settingsPresentation: 演出
+  settingsOn: 開啟
+  settingsOff: 關閉
+  settingsVolume: 音量
+  settingsVoice: 角色語音
+  settingsVoiceDesc: 關閉後仍會顯示台詞字幕，但不再下載語音檔案。
+  settingsBgm: 背景音樂
+  settingsBgmDesc: 關閉後橫幅播放器暫停，不再消耗流量。
+  settingsIntro: 開場演出
+  settingsIntroDesc: 手動切換角色時仍會播放各自的入場演出。
+  settingsIntroAlways: 每次進入
+  settingsIntroOnce: 僅首次造訪
+  settingsClickFx: 點擊特效
+  settingsClickFxDesc: 點擊頁面時的蔚藍檔案風格特效。
+  settingsReducedMotion: 系統已開啟「減少動態效果」，演出相關選項暫不生效。
 
 bio:
   bth:
