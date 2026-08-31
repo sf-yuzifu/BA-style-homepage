@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { Spine } from '@esotericsoftware/spine-pixi-v7'
 import { useConfig } from '@/composables/useConfig'
 import { useTalkPlayer } from '@/composables/spine/useTalkPlayer'
@@ -112,6 +112,32 @@ pointerHooks.cancelHoverRaf = pointer.cancelHoverRaf
 
 const { setL2D, skipStartIdle, webglFailed } = spine
 
+const isEditableTarget = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) return false
+  const tag = target.tagName
+  return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable
+}
+
+const onLobbyKeydown = (e: KeyboardEvent) => {
+  if (props.l2dOnly || webglFailed.value) return
+  if (isEditableTarget(e.target)) return
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault()
+    setL2D('-')
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault()
+    setL2D('+')
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onLobbyKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onLobbyKeydown)
+})
+
 if (import.meta.env.DEV) {
   window.__l2dDebug = {
     getState: () => {
@@ -174,6 +200,8 @@ if (import.meta.env.DEV) {
       @click="setL2D('-')"
       @keydown.enter.prevent="setL2D('-')"
       @keydown.space.prevent="setL2D('-')"
+      @keydown.left.prevent="setL2D('-')"
+      @keydown.right.prevent="setL2D('+')"
       src="/l2d/arrow.png"
       alt=""
     />
@@ -185,6 +213,8 @@ if (import.meta.env.DEV) {
       @click="setL2D('+')"
       @keydown.enter.prevent="setL2D('+')"
       @keydown.space.prevent="setL2D('+')"
+      @keydown.left.prevent="setL2D('-')"
+      @keydown.right.prevent="setL2D('+')"
       src="/l2d/arrow.png"
       alt=""
     />
