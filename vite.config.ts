@@ -133,7 +133,7 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
           // 注意：带查询串的请求（如网易云音频流）不匹配此规则，直接走网络
           {
             urlPattern:
-              /^https?:\/\/[^/]+\/(?:(?:assets|img|l2d|shitim|cursors)\/[^?#]+|[^/?#]+)\.(?:png|jpe?g|webp|gif|svg|skel|atlas|mp3|webm|woff2?|cur)$/i,
+              /^https?:\/\/[^/]+\/(?:(?:assets|img|l2d|shitim|cursors)\/[^?#]+|[^/?#]+)\.(?:png|jpe?g|webp|gif|svg|skel|atlas|mp3|mp4|webm|woff2?|cur)$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'static-assets-cache',

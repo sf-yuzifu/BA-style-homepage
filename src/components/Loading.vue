@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
+import { getTransitionMedia } from '@/utils/transitionVideo'
 
 defineProps<{ percent: number }>()
+
+const transitionMedia = getTransitionMedia()
 
 const imgList = [
   '/img/loading/avatar1.png',
@@ -34,7 +37,13 @@ onUnmounted(() => {
         <img :src="imgList[1]" alt="" />
         <img :src="imgList[2]" alt="" />
         <img :src="imgList[3]" alt="" />
-        <video autoplay muted preload="auto" src="/transfrom.webm"></video>
+        <video
+          v-if="transitionMedia"
+          autoplay
+          muted
+          preload="auto"
+          :src="transitionMedia.src"
+        ></video>
         <img src="/shitim/Tran_Shitim_Icon.png" alt="" />
       </div>
     </div>

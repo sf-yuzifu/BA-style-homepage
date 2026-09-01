@@ -304,7 +304,8 @@ export function validateProjectConfig(root: string): string[] {
     'public/img/loading/avatar2.png',
     'public/img/loading/avatar3.png',
     'public/img/loading/avatar4.png',
-    'public/js/iconfont.js'
+    'public/js/iconfont.js',
+    'public/transfrom.webm'
   ]) {
     if (!fs.existsSync(path.join(root, rel))) {
       const hint = rel.startsWith('shots/')

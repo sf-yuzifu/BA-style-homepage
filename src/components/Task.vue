@@ -2,6 +2,8 @@
 import { ref, computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
 import { prefersReducedMotionNow } from '@/composables/useReducedMotion'
+import { getTransitionMedia } from '@/utils/transitionVideo'
+
 const { configs } = useConfig()
 
 const currentConfig = computed(() => configs.value)
@@ -16,6 +18,8 @@ const taskInfo = computed(() => {
 const curtain = ref(false)
 const bg = ref(false)
 
+const transitionMedia = getTransitionMedia()
+
 const props = defineProps<{ l2dOnly: boolean }>()
 
 // 转场时序（毫秒）
@@ -23,6 +27,33 @@ const CURTAIN_OPEN_DELAY = 700 // 开场视频开始播放后，幕布拉开的�
 const PAGE_OPEN_DELAY = 300 // 幕布拉开后打开目标页面的延迟
 // 幕布随机停留时长：1000 或 1250
 const randomCurtainDuration = () => Math.floor(Math.random() * 2 + 4) * 250
+
+let curtainTimer: ReturnType<typeof setTimeout> | null = null
+
+const openCurtain = () => {
+  curtain.value = true
+  setTimeout(() => {
+    const href = taskInfo.value.href
+    if (href && href !== '#') {
+      window.open(href)
+    }
+  }, PAGE_OPEN_DELAY)
+  setTimeout(() => {
+    bg.value = false
+    curtain.value = false
+  }, randomCurtainDuration())
+}
+
+const onFlashError = () => {
+  bg.value = false
+  if (!curtain.value) {
+    if (curtainTimer) {
+      clearTimeout(curtainTimer)
+      curtainTimer = null
+    }
+    openCurtain()
+  }
+}
 
 const skip = () => {
   if (prefersReducedMotionNow()) {
@@ -32,20 +63,15 @@ const skip = () => {
     }
     return
   }
-  bg.value = true
-  setTimeout(() => {
-    curtain.value = true
-    setTimeout(() => {
-      const href = taskInfo.value.href
-      if (href && href !== '#') {
-        window.open(href)
-      }
-    }, PAGE_OPEN_DELAY)
-    setTimeout(() => {
-      bg.value = false
-      curtain.value = false
-    }, randomCurtainDuration())
-  }, CURTAIN_OPEN_DELAY)
+  if (transitionMedia) {
+    bg.value = true
+    curtainTimer = setTimeout(() => {
+      curtainTimer = null
+      openCurtain()
+    }, CURTAIN_OPEN_DELAY)
+  } else {
+    openCurtain()
+  }
 }
 </script>
 
@@ -65,10 +91,7 @@ const skip = () => {
   </transition>
   <transition name="curtain">
     <div v-if="bg" class="video-container">
-      <video autoplay muted playsinline>
-        <source src="/transfrom.webm" type="video/webm" />
-        Your browser does not support WebM video.
-      </video>
+      <video autoplay muted playsinline :src="transitionMedia!.src" @error="onFlashError"></video>
     </div>
   </transition>
   <transition name="curtain">
@@ -93,7 +116,7 @@ const skip = () => {
   z-index: 20000;
 }
 
-/* 视频元素（关键：object-fit: cover + min-width/min-height） */
+/* 闪光视频：铺满容器 */
 .video-container video {
   min-width: 100%;
   min-height: 100%;
