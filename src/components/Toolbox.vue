@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { Modal } from '@arco-design/web-vue'
-import { IconInfoCircle, IconSettings } from '@arco-design/web-vue/es/icon'
-import { h, ref, computed, onMounted, onUnmounted } from 'vue'
+import { IconApps } from '@arco-design/web-vue/es/icon'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 import { useConfig } from '@/composables/useConfig'
 import { useWallet } from '@/composables/useWallet'
@@ -27,51 +26,6 @@ const showSettings = ref(false)
 // 触屏设备（hover: none）状态
 const hoverMedia = window.matchMedia('(hover: none)')
 const hover = ref(hoverMedia.matches)
-
-const identifyOriginalAuthor = () => {
-  if (!currentConfig.value?.author) return false
-
-  const author = currentConfig.value.author
-  const originalAuthorKeywords = ['小鱼', 'ゆづふ', 'yuzifu', 'Yuzifu', 'sf-yuzifu']
-  const hasOriginalKeyword = originalAuthorKeywords.some((keyword) =>
-    author.toLowerCase().includes(keyword.toLowerCase())
-  )
-
-  if (hasOriginalKeyword) return true
-
-  return false
-}
-
-const isOriginalAuthor = computed(() => identifyOriginalAuthor())
-
-const about = () => {
-  const config = currentConfig.value
-  const translations = config?.translate
-  if (!config || !translations) {
-    console.warn('配置未准备好，无法显示关于对话框')
-    return
-  }
-
-  // 构建版权信息内容
-  const copyrightContent: Array<string | ReturnType<typeof h>> = [
-    `© ${new Date().getFullYear()} ${config.author}`
-  ]
-
-  // 如果不是原创者，添加"made by"信息
-  if (!isOriginalAuthor.value) {
-    copyrightContent.push(h('p', {}, 'Made by 小鱼yuzifu'))
-  }
-
-  Modal.open({
-    title: translations.about ?? '',
-    content: () => [
-      h('p', {}, copyrightContent),
-      h('span', {}, translations.projectWebsite),
-      h('a', { href: 'https://github.com/sf-yuzifu/homepage', target: '_blank' }, 'Github')
-    ],
-    footer: false
-  })
-}
 
 const change = () => {
   if (!props.canskip) {
@@ -139,19 +93,7 @@ onUnmounted(() => {
       @keydown.enter.prevent="openSettings"
       @keydown.space.prevent="openSettings"
     >
-      <icon-settings class="css-cursor-hover-enabled" />
-    </a>
-    <a
-      class="about toolbox"
-      :class="{ 'toolbox-l2d': props.l2dOnly }"
-      role="button"
-      tabindex="0"
-      :aria-label="currentConfig?.translate?.about"
-      @click="about"
-      @keydown.enter.prevent="about"
-      @keydown.space.prevent="about"
-    >
-      <icon-info-circle class="css-cursor-hover-enabled" />
+      <icon-apps class="css-cursor-hover-enabled" />
     </a>
     <a
       v-if="!props.l2dUnavailable"
@@ -249,7 +191,6 @@ onUnmounted(() => {
   -ms-user-select: none;
 }
 
-.toolbox-box .toolbox.about,
 .toolbox-box .toolbox.settings,
 .toolbox-box .toolbox.l2d {
   min-width: 80px;
@@ -282,7 +223,6 @@ onUnmounted(() => {
 
 /* :active 只缩放、不改 translateY。减少动效下过渡近乎瞬时，
    若按下时跳回 translateY(0)，按钮会离开指针，mouseup/click 落空，无法退出全屏。 */
-.toolbox-box .toolbox.about:active,
 .toolbox-box .toolbox.settings:active,
 .toolbox-box .toolbox.l2d:active {
   transform: translateY(0) skew(-10deg) scale(0.9);
@@ -294,7 +234,7 @@ onUnmounted(() => {
 }
 
 @media screen and (max-width: 1199px) {
-  .toolbox:not(.about):not(.settings) {
+  .toolbox:not(.settings) {
     display: none;
   }
 }

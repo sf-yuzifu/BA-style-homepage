@@ -90,7 +90,6 @@ const goBack = () => {
   background-repeat: no-repeat;
   background-position: left;
   background-size: contain;
-  background-origin: content-box;
   display: flex;
 }
 

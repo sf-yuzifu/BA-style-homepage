@@ -66,6 +66,10 @@ const move = (step: number) => {
   font-size: clamp(16px, 1vw, 100vw);
   color: #6b7f8d;
   transition: color 0.2s;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .radio.checked {
