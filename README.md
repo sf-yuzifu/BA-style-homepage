@@ -164,6 +164,11 @@ yarn preview
 
 社交分享卡片由构建时用 sharp 将 **`shots/zh/pic1.png`**（首页）与 **`pic2.png`**（简介页）等比裁切为 1200×630 生成；`/bio` 有独立 `og` 标签（产物为 `dist/bio/index.html`）。刷新该路径的主机配置见上方「History 路由」。
 
+### Fork 注意事项
+
+- **图标**：默认使用仓库内置 **`public/js/iconfont.js`**（`_config.yaml` 的 `iconfont: /js/iconfont.js`）。留空配置时也会回退到该文件。换图标可在 [iconfont.cn](https://www.iconfont.cn/) 自建项目，导出 Symbol JS 后替换此文件或改配置 URL；`dock` / `contact` 也可用 `imgSrc`。
+- **`bin-wrapper-china`**：`package.json` 的 `resolutions` 将 `bin-wrapper` 指向国内镜像，方便 `sharp` 等依赖在境内安装。海外环境若 `yarn install` 异常，可删除该 `resolutions` 条目后重装依赖。
+
 <details>
 <summary><b>点击展开 _config.yaml 配置说明</b></summary>
 
@@ -210,7 +215,8 @@ gold: 11451419 # 信用点初始值（首次访问后由本地「陪伴时长」
 pyroxene: 24000 # 青辉石初始值（首次访问后由本地「每日签到」累计接管）
 
 # Iconfont字体库地址 - 阿里云图标字体库
-iconfont: 'https://at.alicdn.com/t/c/font_4336463_umq8x001wf9.js'
+# Iconfont JS（默认 /js/iconfont.js，见 public/js/iconfont.js）
+iconfont: /js/iconfont.js
 
 # 底部项目展示区域 - 显示相关项目链接（推荐5个）
 dock:

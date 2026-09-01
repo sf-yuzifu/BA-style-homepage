@@ -164,6 +164,11 @@ The right-hand bio text comes from **`bio/{locale}.md`** (e.g. `bio/en-US.md`). 
 
 Share cards are 1200×630 JPEGs cover-cropped at build time with sharp from **`shots/zh/pic1.png`** (home) and **`pic2.png`** (bio). `/bio` has its own Open Graph tags (`dist/bio/index.html`). See **History routes** above for refresh/404 hosting.
 
+### Forking notes
+
+- **Icons**: The default is the bundled **`public/js/iconfont.js`** (`iconfont: /js/iconfont.js` in `_config.yaml`). If the field is empty, the app falls back to that file. Replace icons via your own [iconfont.cn](https://www.iconfont.cn/) project (Symbol JS export), swap the file or update the URL; `dock` / `contact` items can also use `imgSrc`.
+- **`bin-wrapper-china`**: `package.json` `resolutions` maps `bin-wrapper` to a China mirror for tools like `sharp`. If `yarn install` fails outside China, delete that `resolutions` entry and reinstall.
+
 <details>
 <summary><b>Click to expand the _config.yaml configuration guide</b></summary>
 
@@ -211,7 +216,8 @@ gold: 11451419 # Initial credits (taken over by the local "time spent together" 
 pyroxene: 24000 # Initial pyroxene (taken over by the local "daily sign-in" accumulation after the first visit)
 
 # Iconfont font library address - Alibaba Cloud icon font library
-iconfont: 'https://at.alicdn.com/t/c/font_4336463_umq8x001wf9.js'
+# Iconfont JS (default /js/iconfont.js — see public/js/iconfont.js)
+iconfont: /js/iconfont.js
 
 # Bottom project showcase area - display related project links (recommended 5)
 dock:

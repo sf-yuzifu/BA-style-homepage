@@ -303,7 +303,8 @@ export function validateProjectConfig(root: string): string[] {
     'public/img/loading/avatar1.png',
     'public/img/loading/avatar2.png',
     'public/img/loading/avatar3.png',
-    'public/img/loading/avatar4.png'
+    'public/img/loading/avatar4.png',
+    'public/js/iconfont.js'
   ]) {
     if (!fs.existsSync(path.join(root, rel))) {
       const hint = rel.startsWith('shots/')

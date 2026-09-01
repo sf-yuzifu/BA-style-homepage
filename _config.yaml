@@ -63,8 +63,8 @@ nextExp: 8381 # 升级所需经验值
 gold: 11451419 # 信用点初始值（首次访问后由本地「陪伴时长」累计接管）
 pyroxene: 24000 # 青辉石初始值（首次访问后由本地「每日签到」累计接管）
 
-# Iconfont字体库地址 - 阿里云图标字体库
-iconfont: 'https://at.alicdn.com/t/c/font_4336463_umq8x001wf9.js'
+# Iconfont JS（默认用仓库内置 public/js/iconfont.js；可改为 iconfont.cn 自建项目的 JS 链接）
+iconfont: /js/iconfont.js
 
 # 底部项目展示区域 - 显示相关项目链接
 dock:

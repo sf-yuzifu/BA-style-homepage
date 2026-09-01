@@ -4,6 +4,9 @@ import { useConfig } from './useConfig'
 
 type IconFontComponent = ReturnType<typeof Icon.addFromIconFontCn> | Component
 
+/** 仓库内置 iconfont JS，fork 无需依赖作者阿里 CDN 项目 */
+export const DEFAULT_ICONFONT_SRC = '/js/iconfont.js'
+
 // IconFont 组件与已注入 URL 的模块级缓存：
 // Icon.addFromIconFontCn 每次调用都会向 document 注入一个 <script>，
 // 经 URL 判重缓存后，整个应用生命周期内同一 URL 只注入一次
@@ -14,9 +17,10 @@ let cachedIconFont: IconFontComponent | null = null
 export function useIconFont() {
   const { configs } = useConfig()
 
+  const iconFontSrc = computed(() => configs.value?.iconfont?.trim() || DEFAULT_ICONFONT_SRC)
+
   const IconFont = computed(() => {
-    const url = configs.value?.iconfont || ''
-    if (!url) return null
+    const url = iconFontSrc.value
     if (url !== cachedUrl) {
       cachedUrl = url
       cachedIconFont = Icon.addFromIconFontCn({ src: url }) as IconFontComponent
@@ -24,5 +28,5 @@ export function useIconFont() {
     return cachedIconFont
   })
 
-  return { IconFont }
+  return { IconFont, iconFontSrc }
 }
