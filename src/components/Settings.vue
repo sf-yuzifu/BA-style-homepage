@@ -482,8 +482,6 @@ const moveTab = (step: number) => {
 @media screen and (max-width: 767px) {
   .settings {
     flex-direction: column;
-    height: min(60dvh, 420px);
-    gap: clamp(12px, 0.75vw, 100vw);
   }
 
   .tabs {
