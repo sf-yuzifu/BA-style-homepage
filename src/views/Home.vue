@@ -59,14 +59,12 @@ const onWebglFailed = () => {
 
   <!-- 主要内容 -->
   <main class="app-main">
-    <Suspense>
-      <Background
-        :l2dOnly="l2dOnly"
-        @update:changeL2D="l2dOnly = $event"
-        @canskip="canSkip"
-        @webgl-failed="onWebglFailed"
-      />
-    </Suspense>
+    <Background
+      :l2dOnly="l2dOnly"
+      @update:changeL2D="l2dOnly = $event"
+      @canskip="canSkip"
+      @webgl-failed="onWebglFailed"
+    />
 
     <!-- 等级部分 -->
     <transition name="up">

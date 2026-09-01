@@ -36,6 +36,10 @@ onUnmounted(() => {
 })
 </script>
 
+<template>
+  <span hidden aria-hidden="true" />
+</template>
+
 <style>
 /* 自定义光标仅用于桌面细指针；触屏恢复系统光标（与 Toolbox 的 hover 判断一致） */
 @media (hover: hover) and (pointer: fine) {
