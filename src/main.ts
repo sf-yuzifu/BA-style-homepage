@@ -9,6 +9,7 @@ import '@arco-design/web-vue/es/modal/style/css.js'
 import { initApp } from '@/init/app'
 import { initPWA } from '@/init/pwa'
 import { initLinkHandler } from '@/init/links'
+import { initSiteSeo } from '@/init/seo'
 import { useConfig } from '@/composables/useConfig'
 import { useWallet } from '@/composables/useWallet'
 
@@ -20,6 +21,9 @@ initPWA()
 
 // 初始化链接处理器
 initLinkHandler()
+
+// 随语言与路由同步 OG / JSON-LD
+initSiteSeo()
 
 // 启动初始化流程
 async function startApp() {
