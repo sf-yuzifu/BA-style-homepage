@@ -112,6 +112,9 @@ translate:
   settings: 设置
   settingsAudio: 音量
   settingsPresentation: 演出
+  settingsLanguage: 语言
+  settingsLanguageDesc: 选择界面显示语言。「跟随浏览器」将按系统语言自动匹配。
+  settingsLanguageAuto: 跟随浏览器
   settingsOn: 开启
   settingsOff: 关闭
   settingsVolume: 音量

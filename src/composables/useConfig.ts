@@ -1,7 +1,35 @@
 import { ref, computed, watch, type Ref } from 'vue'
 import baseConfig from '/_config.yaml'
-import type { AppConfig, MemorialLobby } from '@/types/config'
+import type { AppConfig, LocaleCode, MemorialLobby } from '@/types/config'
 import { detectBrowserLanguage, createConfigLoader } from './configUtils'
+
+/** 设置里的语言偏好：`auto` 跟随浏览器，否则固定为某一语言包 */
+export type LocalePreference = 'auto' | LocaleCode
+
+const LOCALE_STORAGE_KEY = 'fa-locale'
+const SUPPORTED_LOCALES: LocaleCode[] = ['zh-CN', 'zh-TW', 'en-US', 'ja-JP']
+
+const isLocaleCode = (value: string): value is LocaleCode =>
+  SUPPORTED_LOCALES.includes(value as LocaleCode)
+
+const readLocalePreference = (): LocalePreference => {
+  try {
+    const raw = localStorage.getItem(LOCALE_STORAGE_KEY)
+    if (!raw || raw === 'auto') return 'auto'
+    if (isLocaleCode(raw)) return raw
+  } catch {
+    /* 隐私模式等场景可能不可写 */
+  }
+  return 'auto'
+}
+
+const persistLocalePreference = (pref: LocalePreference) => {
+  try {
+    localStorage.setItem(LOCALE_STORAGE_KEY, pref)
+  } catch {
+    /* 忽略持久化失败 */
+  }
+}
 
 // 深度合并配置对象
 function deepMerge<T>(base: T, override: unknown): T {
@@ -117,6 +145,7 @@ const configLoader = createConfigLoader(localeConfigs)
 
 // 全局状态（单例模式）
 const globalCurrentLocale = ref('en-US')
+const globalLocalePreference = ref<LocalePreference>('auto')
 const globalCurrentConfig: Ref<AppConfig | null> = ref(null)
 const globalIsLoading = ref(false)
 const globalIsInitialized = ref(false)
@@ -125,6 +154,23 @@ const globalIsInitializing = ref(false)
 // 修复语言切换竞态：旧实现在加载中直接 return 丢弃新语言请求，
 // 导致 locale 已是新语言、配置仍是旧语言（在途旧请求完成后覆盖）
 let configLoadToken = 0
+/** 语言切换触发的配置重载：跳过一次 Start_Idle，保持当前 HUD / 待机姿态 */
+let localeChangePending = false
+
+export function markLocaleChangePending() {
+  localeChangePending = true
+}
+
+export function consumeLocaleChangePending(): boolean {
+  if (!localeChangePending) return false
+  localeChangePending = false
+  return true
+}
+
+const resolveActiveLocale = (pref: LocalePreference): string => {
+  if (pref !== 'auto') return pref
+  return detectBrowserLanguage(configLoader.getSupportedLocales())
+}
 
 export function useConfig() {
   // 初始化语言（只在第一次执行）
@@ -132,13 +178,16 @@ export function useConfig() {
     if (globalIsInitialized.value) return // 防止重复初始化
 
     try {
-      const detectedLang = detectBrowserLanguage(configLoader.getSupportedLocales())
+      const preference = readLocalePreference()
+      globalLocalePreference.value = preference
+      const detectedLang = resolveActiveLocale(preference)
       globalCurrentLocale.value = detectedLang
       globalIsInitialized.value = true
       // 同步页面语言标记，利于SEO与无障碍
       document.documentElement.lang = detectedLang
 
       console.log('语言检测完成:', {
+        偏好: preference,
         最终语言: detectedLang,
         浏览器语言: navigator.language || navigator.userLanguage,
         支持语言: configLoader.getSupportedLocales()
@@ -232,14 +281,25 @@ export function useConfig() {
     })
   }
 
-  // 手动切换语言
+  const setLocalePreference = (preference: LocalePreference) => {
+    if (preference !== 'auto' && !configLoader.getSupportedLocales().includes(preference)) {
+      console.warn(`不支持的语言: ${preference}`)
+      return
+    }
+    globalLocalePreference.value = preference
+    persistLocalePreference(preference)
+    markLocaleChangePending()
+    const locale = resolveActiveLocale(preference)
+    globalCurrentLocale.value = locale
+    document.documentElement.lang = locale
+    loadConfig()
+    console.log('语言偏好已更新:', { preference, locale })
+  }
+
+  // 手动切换语言（等同设置里选定具体语言包）
   const setLocale = (locale: string) => {
-    if (configLoader.getSupportedLocales().includes(locale)) {
-      globalCurrentLocale.value = locale
-      // 同步页面语言标记
-      document.documentElement.lang = locale
-      loadConfig()
-      console.log('语言已切换为:', locale)
+    if (isLocaleCode(locale)) {
+      setLocalePreference(locale)
     } else {
       console.warn(`不支持的语言: ${locale}`)
     }
@@ -255,6 +315,7 @@ export function useConfig() {
     configs,
     // 当前语言
     currentLocale: globalCurrentLocale,
+    localePreference: globalLocalePreference,
     // 当前语言（兼容旧版本）
     locale: globalCurrentLocale,
     // 加载状态
@@ -263,6 +324,7 @@ export function useConfig() {
     availableLocales: configLoader.getSupportedLocales(),
     // 方法
     setLocale,
+    setLocalePreference,
     getCurrentLocale,
     reloadConfig: loadConfig,
     waitForConfig

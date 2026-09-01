@@ -114,6 +114,9 @@ translate:
   settings: Options
   settingsAudio: Volume
   settingsPresentation: Presentation
+  settingsLanguage: Language
+  settingsLanguageDesc: Choose the interface language. "Follow browser" matches your system language automatically.
+  settingsLanguageAuto: Follow browser
   settingsOn: 'On'
   settingsOff: 'Off'
   settingsVolume: Volume

@@ -15,6 +15,7 @@ import * as PIXI from 'pixi.js'
 import { Modal } from '@arco-design/web-vue'
 import type { ModalReturn } from '@arco-design/web-vue'
 import { prefersReducedMotionNow } from '@/composables/useReducedMotion'
+import { consumeLocaleChangePending } from '@/composables/useConfig'
 import { useSettings } from '@/composables/useSettings'
 import type { AppConfig } from '@/types/config'
 import { tryCreatePixiApp } from './createPixiApp'
@@ -51,6 +52,13 @@ const parseFraction = (value: string | number | undefined): number => {
 const parseOffset = (offset: number | string | undefined, fallback = 0.7): number => {
   const parsed = Number(offset)
   return Number.isNaN(parsed) ? fallback : parsed
+}
+
+const getLobbyAssetKey = (
+  lobby: { path?: string; skel?: string; atlas?: string } | undefined
+): string | null => {
+  if (!lobby?.path || !lobby.skel || !lobby.atlas) return null
+  return lobby.path + lobby.skel + '|' + lobby.path + lobby.atlas
 }
 
 export interface SpineLifecyclePointerHooks {
@@ -294,6 +302,13 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
       return
     }
 
+    const assetKey = getLobbyAssetKey(lobby)
+    if (animation && assetKey && assetKey === loadedL2DKey && newId === id) {
+      applyDialogueDisplay(lobby)
+      consumeLocaleChangePending()
+      return
+    }
+
     id = newId
     canSkip.value = true
     emit('canskip', true)
@@ -333,9 +348,11 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     if (!animation.state.data.skeletonData.findAnimation('Start_Idle_01'))
       startIdle = 'Start_idle_01'
     talkPlayer.attachEventListener(animation.state)
+    const skipIntroForLocale = consumeLocaleChangePending()
     const isInitialLoad = !introDecided
     introDecided = true
     const playStartIdle =
+      !skipIntroForLocale &&
       !prefersReducedMotionNow() &&
       animation.state.data.skeletonData.findAnimation(startIdle) &&
       (!isInitialLoad || shouldPlayIntro())
@@ -525,8 +542,10 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     }
 
     const lobby = currentConfig.value.memorialLobbies[id]
-    const key = lobby && lobby.path ? lobby.path + lobby.skel + '|' + lobby.atlas : null
+    const key = getLobbyAssetKey(lobby)
     if (animation && key && key === loadedL2DKey) {
+      applyDialogueDisplay(lobby)
+      consumeLocaleChangePending()
       return
     }
 

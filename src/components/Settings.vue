@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { IconMuteFill, IconSoundFill } from '@arco-design/web-vue/es/icon'
 import { useAboutCopyright } from '@/composables/useAboutCopyright'
-import { useConfig } from '@/composables/useConfig'
+import { useConfig, type LocalePreference } from '@/composables/useConfig'
 import { useReducedMotion } from '@/composables/useReducedMotion'
 import { useSettings } from '@/composables/useSettings'
 import SettingRadio from '@/components/SettingRadio.vue'
@@ -15,19 +15,20 @@ const emit = defineEmits<{
   'update:visible': [value: boolean]
 }>()
 
-const { configs } = useConfig()
+const { configs, localePreference, setLocalePreference } = useConfig()
 const { isOriginalAuthor, copyrightYear, authorName, isReady: aboutReady } = useAboutCopyright()
 const { prefersReducedMotion } = useReducedMotion()
 const { voiceMuted, voiceVolume, bgmMuted, bgmVolume, introMode, clickEffect } = useSettings()
 
 const t = computed(() => configs.value?.translate ?? {})
 
-type TabKey = 'audio' | 'presentation' | 'about'
+type TabKey = 'audio' | 'presentation' | 'language' | 'about'
 const activeTab = ref<TabKey>('audio')
 
 const tabs = computed<Array<{ key: TabKey; label: string }>>(() => [
   { key: 'audio', label: t.value.settingsAudio || 'Volume' },
   { key: 'presentation', label: t.value.settingsPresentation || 'Presentation' },
+  { key: 'language', label: t.value.settingsLanguage || 'Language' },
   { key: 'about', label: t.value.about || 'About' }
 ])
 
@@ -54,6 +55,21 @@ const introSwitch = computed({
   get: () => introMode.value,
   set: (value: string) => {
     introMode.value = value === 'always' ? 'always' : 'once'
+  }
+})
+
+const languageOptions = computed(() => [
+  { value: 'auto', label: t.value.settingsLanguageAuto || 'Follow browser' },
+  { value: 'zh-CN', label: '简体中文' },
+  { value: 'zh-TW', label: '繁體中文' },
+  { value: 'en-US', label: 'English' },
+  { value: 'ja-JP', label: '日本語' }
+])
+
+const languageSwitch = computed({
+  get: () => localePreference.value,
+  set: (value: string) => {
+    setLocalePreference(value as LocalePreference)
   }
 })
 
@@ -213,6 +229,19 @@ const moveTab = (step: number) => {
               :options="onOffOptions"
               :label="t.settingsClickFx"
               :disabled="prefersReducedMotion"
+            />
+          </section>
+        </template>
+
+        <template v-else-if="activeTab === 'language'">
+          <section class="row">
+            <h3 class="row-title">{{ t.settingsLanguage || 'Language' }}</h3>
+            <p class="row-desc">{{ t.settingsLanguageDesc }}</p>
+            <SettingRadio
+              v-model="languageSwitch"
+              class="language-radio"
+              :options="languageOptions"
+              :label="t.settingsLanguage"
             />
           </section>
         </template>
@@ -644,6 +673,10 @@ const moveTab = (step: number) => {
   border: solid #4ec3f5;
   border-width: 0 clamp(2px, 0.125vw, 100vw) clamp(2px, 0.125vw, 100vw) 0;
   transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.language-radio :deep(.radio-group) {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 @media screen and (max-width: 767px) {

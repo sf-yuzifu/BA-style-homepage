@@ -114,6 +114,9 @@ translate:
   settings: 選項
   settingsAudio: 音量
   settingsPresentation: 演出
+  settingsLanguage: 語言
+  settingsLanguageDesc: 選擇介面顯示語言。「跟隨瀏覽器」將依系統語言自動匹配。
+  settingsLanguageAuto: 跟隨瀏覽器
   settingsOn: 開啟
   settingsOff: 關閉
   settingsVolume: 音量

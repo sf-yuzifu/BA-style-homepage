@@ -115,6 +115,9 @@ translate:
   settings: 設定
   settingsAudio: 音量
   settingsPresentation: 演出
+  settingsLanguage: 言語
+  settingsLanguageDesc: 表示言語を選びます。「ブラウザに従う」はシステム言語に合わせます。
+  settingsLanguageAuto: ブラウザに従う
   settingsOn: オン
   settingsOff: オフ
   settingsVolume: 音量

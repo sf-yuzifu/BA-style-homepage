@@ -57,6 +57,7 @@ const move = (step: number) => {
 .radio-group {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  row-gap: clamp(12px, 0.75vw, 100vw);
 }
 
 .radio {
