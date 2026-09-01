@@ -142,7 +142,7 @@ const moveTab = (step: number) => {
     <template #title>{{ t.settings || 'Settings' }}</template>
 
     <div class="settings">
-      <nav class="tabs" role="tablist" :aria-label="t.settings || 'Settings'">
+      <nav class="tabs scroll-hidden" role="tablist" :aria-label="t.settings || 'Settings'">
         <template v-for="(tab, index) in tabs" :key="tab.key">
           <span
             class="tab css-cursor-hover-enabled"
@@ -163,7 +163,7 @@ const moveTab = (step: number) => {
         <span class="deco" aria-hidden="true"></span>
       </nav>
 
-      <div class="panel" role="tabpanel">
+      <div class="panel scroll-hidden" role="tabpanel">
         <template v-if="activeTab === 'audio'">
           <section class="row">
             <div v-for="row in volumeRows" :key="row.key" class="volume-row">
@@ -348,6 +348,16 @@ const moveTab = (step: number) => {
 .panel:has(.about-panel) {
   display: flex;
   flex-direction: column;
+}
+
+/* 可滚动但不显示滚动条 */
+.scroll-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
 }
 
 .row {
@@ -667,6 +677,10 @@ const moveTab = (step: number) => {
   .volume-name {
     width: clamp(72px, 4.5vw, 100vw);
     font-size: clamp(16px, 1vw, 100vw);
+  }
+
+  .deco {
+    display: none;
   }
 }
 </style>
