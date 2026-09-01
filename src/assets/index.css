@@ -80,6 +80,17 @@ a {
   text-align: center !important;
 }
 
+/* 进场动画（translateY）会短暂撑出视口，wrapper 的 overflow:auto 会闪出滚动条；
+   保留可滚动，只把滚动条藏起来 */
+.arco-modal-wrapper {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.arco-modal-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
 .arco-modal {
   width: auto !important;
 }
