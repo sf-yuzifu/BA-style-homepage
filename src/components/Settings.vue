@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { IconMuteFill, IconSoundFill } from '@arco-design/web-vue/es/icon'
+import { useAboutCopyright } from '@/composables/useAboutCopyright'
 import { useConfig } from '@/composables/useConfig'
 import { useReducedMotion } from '@/composables/useReducedMotion'
 import { useSettings } from '@/composables/useSettings'
@@ -15,6 +16,7 @@ const emit = defineEmits<{
 }>()
 
 const { configs } = useConfig()
+const { isOriginalAuthor, copyrightYear, authorName, isReady: aboutReady } = useAboutCopyright()
 const { prefersReducedMotion } = useReducedMotion()
 const { voiceMuted, voiceVolume, bgmMuted, bgmVolume, introMode, clickEffect } = useSettings()
 
@@ -91,19 +93,6 @@ const toggleMute = (target: VolumeKey) => {
   }
 }
 
-const identifyOriginalAuthor = () => {
-  const author = configs.value?.author
-  if (!author) return false
-
-  const originalAuthorKeywords = ['小鱼', 'ゆづふ', 'yuzifu', 'Yuzifu', 'sf-yuzifu']
-  return originalAuthorKeywords.some((keyword) =>
-    author.toLowerCase().includes(keyword.toLowerCase())
-  )
-}
-
-const isOriginalAuthor = computed(() => identifyOriginalAuthor())
-const copyrightYear = computed(() => new Date().getFullYear())
-const authorName = computed(() => configs.value?.author ?? '')
 const projectTitle = computed(
   () => configs.value?.manifest?.name || configs.value?.title || 'Fish Archive'
 )
@@ -229,7 +218,7 @@ const moveTab = (step: number) => {
         </template>
 
         <template v-else-if="activeTab === 'about'">
-          <section class="row about-panel">
+          <section v-if="aboutReady" class="row about-panel">
             <div class="about-hero">
               <img class="about-logo" :src="projectIcon" alt="" />
               <h2 class="about-title">
@@ -494,8 +483,18 @@ const moveTab = (step: number) => {
 }
 
 .about-copyright,
-.about-made-by {
+.about-made-by,
+.about-link {
   margin: 0;
+}
+
+.about-link a {
+  color: #4ec3f5;
+  text-decoration: none;
+}
+
+.about-link a:hover {
+  text-decoration: underline;
 }
 
 /* 音量页：一行一条音轨 */
