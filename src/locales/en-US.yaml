@@ -48,10 +48,11 @@ icp:
 
 # Memorial lobby character display name translations
 memorialLobbies:
-  - name: Aris
-  - name: Hina_swimsuit
+  - name: Aris(Battle)
+  - name: Kei
+  - name: Hina(Swimsuit)
 
-# Aris(Battle) Voice Dialogue
+# Aris (Battle) voice dialogue
 memorialLobbies[0]:
   voice:
     CH0334_MemorialLobby_1_1: Hehe. Sensei, were you surprised?
@@ -77,7 +78,7 @@ memorialLobbies[1]:
     CH0335_MemorialLobby_5_1: I will only say this here... I—
     CH0335_MemorialLobby_5_2: Do not hate you, Sensei.
 
-# Hina swimsuit character voice dialogue translations
+# Hina (Swimsuit) voice dialogue
 memorialLobbies[2]:
   voice:
     CH0063_MemorialLobby_1_1: Honestly, I've never understood people's fascination with the ocean.

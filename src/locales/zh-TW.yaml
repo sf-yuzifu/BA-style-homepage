@@ -49,10 +49,11 @@ icp:
 
 # 紀念大廳角色顯示名稱翻譯
 memorialLobbies:
-  - name: Aris
-  - name: Hina_swimsuit
+  - name: 愛麗絲(臨戰)
+  - name: 凱伊
+  - name: 日奈(泳裝)
 
-# Aris(Battle)角色的語音對話翻譯
+# 愛麗絲(臨戰)角色的語音對話翻譯
 memorialLobbies[0]:
   voice:
     CH0334_MemorialLobby_1_1: 欸嘿嘿。老師，嚇到了嗎？
@@ -63,7 +64,7 @@ memorialLobbies[0]:
     CH0334_MemorialLobby_3_2: 世界是，這麼地美麗，但為何人與人之間還是會有紛爭呢？
     CH0334_MemorialLobby_4: 就如同那片星空一般，這個世界的美好，明明已經可以多到和大家一起分享也沒關係的程度了……
     CH0334_MemorialLobby_5: ……果然，愛麗絲還是不能理解。
-# Kei角色的語音對話翻譯
+# 凱伊角色的語音對話翻譯
 memorialLobbies[1]:
   voice:
     CH0335_MemorialLobby_1_1: 別擔心。
@@ -77,6 +78,7 @@ memorialLobbies[1]:
     CH0335_MemorialLobby_5_1: 這話我只在這裡說……我——
     CH0335_MemorialLobby_5_2: 並不討厭老師呢。
 
+# 日奈(泳裝)角色的語音對話翻譯
 memorialLobbies[2]:
   voice:
     CH0063_MemorialLobby_1_1: 為什麼大家，都那麼喜歡大海呢……我一直都這麼思考著。

@@ -49,11 +49,11 @@ icp:
 
 # 纪念大厅角色显示名称翻译
 memorialLobbies:
-  - name: Aris(Battle)
-  - name: Aris
-  - name: Hina_swimsuit
+  - name: 爱丽丝(临战)
+  - name: 凯伊
+  - name: 日奈(泳装)
 
-# Aris(Battle)角色的语音对话翻译
+# 爱丽丝(临战)角色的语音对话翻译
 memorialLobbies[0]:
   voice:
     CH0334_MemorialLobby_1_1: 诶嘿嘿。老师，吓到了吗？
@@ -64,7 +64,7 @@ memorialLobbies[0]:
     CH0334_MemorialLobby_3_2: 世界是，这么地美丽，但为何人与人之间还是会有纷争呢？
     CH0334_MemorialLobby_4: 就如同那片星空一般，这个世界的美好，明明已经可以多到和大家一起分享也没关系的程度了……
     CH0334_MemorialLobby_5: ……果然，爱丽丝还是不能理解。
-# Kei角色的语音对话翻译
+# 凯伊角色的语音对话翻译
 memorialLobbies[1]:
   voice:
     CH0335_MemorialLobby_1_1: 别担心。
@@ -77,7 +77,7 @@ memorialLobbies[1]:
     CH0335_MemorialLobby_4_2: 我会一直在这里。
     CH0335_MemorialLobby_5_1: 这话我只在这里说……我——
     CH0335_MemorialLobby_5_2: 并不讨厌老师呢。
-
+# 日奈(泳装)角色的语音对话翻译
 memorialLobbies[2]:
   voice:
     CH0063_MemorialLobby_1_1: 为什么大家都那么喜欢大海呢？我一直在思考这个问题。

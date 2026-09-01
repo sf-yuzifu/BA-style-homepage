@@ -49,10 +49,11 @@ icp:
 
 # 思い出ロビーキャラクター表示名翻訳
 memorialLobbies:
-  - name: アリス
+  - name: アリス（臨戦）
+  - name: キー
   - name: ヒナ（水着）
 
-# Aris(Battle)
+# アリス（臨戦）
 memorialLobbies[0]:
   voice:
     CH0334_MemorialLobby_1_1: えへへ。先生、惊きましたか？
@@ -64,7 +65,7 @@ memorialLobbies[0]:
     CH0334_MemorialLobby_4: あの星空みたいに、この世界は、みんなで分け合っても大丈夫なくらい美しいものであふれているのに……。
     CH0334_MemorialLobby_5: ……やっぱり、アリスにはまだわかりません。
 
-# Kei角色的语音对话翻译
+# キー
 memorialLobbies[1]:
   voice:
     CH0335_MemorialLobby_1_1: 心配しないでください。
