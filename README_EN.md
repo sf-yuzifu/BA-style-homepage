@@ -407,6 +407,27 @@ bio:
 1. [Home - 杏仁レモンティー](https://apricotlemontea.com/)
 2. [ElectroHeavenVN's Homepage](https://electroheavenvn.github.io/homepage/)
 
-## 📄 License
+## 📄 License & Copyright Notice
 
-This project is open source under the [MIT License](./LICENSE).
+### Source code
+
+The **program source code** in this repository (Vue / TypeScript / build scripts, etc., excluding game asset files below) is released under the [MIT License](./LICENSE).
+
+### Game and non-code assets
+
+The following materials that may appear in this repository or on the demo site are owned by **Nexon / Yostar** (*Blue Archive* / 《蔚蓝档案》) and related rights holders. They are **not** covered by the MIT license:
+
+| Type | Typical paths |
+|------|----------------|
+| Spine / Live2D character models & animations | `public/l2d/` |
+| Character voice lines | `public/voices/` |
+| In-game UI art, curtains, loading assets, etc. | `public/shitim/`, parts of `public/img/` |
+| Character dialogue text | Locale `memorialLobbies[].voice`, etc. |
+
+### Use & forking
+
+- These assets are for **personal, non-commercial** fan display only. **Do not use them commercially**, in paid services, or for resale.
+- **If you fork, deploy, or redistribute**, you are **solely responsible** for complying with applicable law and Nexon / Yostar policies. The maintainers are not liable for claims arising from your use of game assets.
+- This repo **does not grant** any commercial license for game materials. Before going public, **replace assets you are not entitled to use**, or ship only the code/config scaffold.
+
+Other third-party assets follow their own licenses (e.g. [BlueArchive-Cursors](https://github.com/makipom/BlueArchive-Cursors) is MIT; see each package’s repo for npm deps such as [ba-click-fx](https://www.npmjs.com/package/ba-click-fx)).

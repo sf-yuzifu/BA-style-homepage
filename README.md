@@ -402,6 +402,27 @@ bio:
 1. [Home - 杏仁レモンティー](https://apricotlemontea.com/)
 2. [ElectroHeavenVN's Homepage](https://electroheavenvn.github.io/homepage/)
 
-## 📄 开源协议
+## 📄 开源协议与版权声明
 
-本项目基于 [MIT License](./LICENSE) 开源。
+### 源代码
+
+本仓库的**程序源代码**（Vue / TypeScript / 构建脚本等，不含下述游戏资源文件）以 [MIT License](./LICENSE) 开源。
+
+### 游戏与非代码资源
+
+仓库及示例站点中可能包含的以下内容，版权归 **Nexon / Yostar**（《蔚蓝档案》/ *Blue Archive*）及其关联方所有，**不在 MIT 协议范围内**：
+
+| 类型 | 典型路径 / 位置 |
+|------|----------------|
+| Spine / Live2D 角色模型与动画 | `public/l2d/` |
+| 角色语音 | `public/voices/` |
+| 游戏 UI 贴图、幕布、加载素材等 | `public/shitim/`、`public/img/` 部分文件 |
+| 角色台词文案 | 语言包 `memorialLobbies[].voice` 等 |
+
+### 使用与 Fork 须知
+
+- 上述资源仅供**个人、非商用**的粉丝向展示；**请勿用于商业用途、付费服务或二次贩卖**。
+- **Fork、部署或二次发布者须自行确认**符合所在地法律及 Nexon / Yostar 的相关政策；因使用本仓库游戏资源引发的纠纷或法律责任由**使用者自行承担**。
+- 本仓库**不向任何第三方授予**游戏素材的商业许可。公开部署前，建议**替换为你有权使用的素材**，或仅保留代码与配置框架。
+
+其他第三方素材请遵循各自许可（例如 [BlueArchive-Cursors](https://github.com/makipom/BlueArchive-Cursors) 为 MIT、[ba-click-fx](https://www.npmjs.com/package/ba-click-fx) 等见对应仓库）。
