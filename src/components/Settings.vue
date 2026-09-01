@@ -120,22 +120,23 @@ const moveTab = (step: number) => {
 
     <div class="settings">
       <nav class="tabs" role="tablist" :aria-label="t.settings || 'Settings'">
-        <span
-          v-for="tab in tabs"
-          :key="tab.key"
-          class="tab css-cursor-hover-enabled"
-          :class="{ active: tab.key === activeTab }"
-          role="tab"
-          tabindex="0"
-          :aria-selected="tab.key === activeTab"
-          @click="selectTab(tab.key)"
-          @keydown.enter.prevent="selectTab(tab.key)"
-          @keydown.space.prevent="selectTab(tab.key)"
-          @keydown.up.prevent="moveTab(-1)"
-          @keydown.down.prevent="moveTab(1)"
-        >
-          {{ tab.label }}
-        </span>
+        <template v-for="(tab, index) in tabs" :key="tab.key">
+          <span
+            class="tab css-cursor-hover-enabled"
+            :class="{ active: tab.key === activeTab }"
+            role="tab"
+            tabindex="0"
+            :aria-selected="tab.key === activeTab"
+            @click="selectTab(tab.key)"
+            @keydown.enter.prevent="selectTab(tab.key)"
+            @keydown.space.prevent="selectTab(tab.key)"
+            @keydown.up.prevent="moveTab(-1)"
+            @keydown.down.prevent="moveTab(1)"
+          >
+            {{ tab.label }}
+          </span>
+          <span v-if="index < tabs.length - 1" class="tab-divider" aria-hidden="true"></span>
+        </template>
       </nav>
 
       <div class="panel" role="tabpanel">
@@ -215,7 +216,7 @@ const moveTab = (step: number) => {
   background-color: #fff;
   border-radius: clamp(4px, 0.25vw, 100vw);
   border: clamp(2px, 0.125vw, 100vw) solid #6b7f8d66;
-  filter: drop-shadow(0px 2px clamp(2px, 0.125vw, 100vw) #6b7f8d);
+  filter: drop-shadow(0px clamp(2px, 0.125vw, 100vw) clamp(2px, 0.125vw, 100vw) #6b7f8d);
 }
 
 .tabs {
@@ -228,7 +229,6 @@ const moveTab = (step: number) => {
 }
 
 .tab {
-  position: relative;
   padding: clamp(12px, 0.75vw, 100vw) clamp(10px, 0.625vw, 100vw);
   font-size: clamp(20px, 1.25vw, 100vw);
   color: #003153;
@@ -242,17 +242,16 @@ const moveTab = (step: number) => {
     transform 0.1s;
   font-weight: bold;
   border: clamp(2px, 0.125vw, 100vw) solid rgb(205, 232, 253);
+  border-top: unset;
   border-bottom: unset;
 }
 
-.tab:not(:last-child)::after {
-  content: '';
-  display: flex;
+.tab-divider {
+  flex: none;
+  align-self: center;
   width: 90%;
   height: clamp(2px, 0.125vw, 100vw);
   background-color: #6b7f8d66;
-  position: absolute;
-  bottom: 0;
 }
 
 .tab:hover {
@@ -347,6 +346,10 @@ const moveTab = (step: number) => {
   padding: clamp(14px, 0.875vw, 100vw) 0;
 }
 
+.volume-row:first-child {
+  padding-top: 0;
+}
+
 .volume-row:not(:last-child) {
   border-bottom: clamp(1px, 0.0625vw, 100vw) dashed #c9d8e2;
 }
@@ -367,8 +370,10 @@ const moveTab = (step: number) => {
 .volume-name::before {
   content: '';
   flex: none;
+  position: relative;
   width: clamp(3px, 0.1875vw, 100vw);
   height: clamp(18px, 1.125vw, 100vw);
+  top: clamp(1px, 0.0625vw, 100vw);
   background: #4ec3f5;
   border-radius: clamp(2px, 0.125vw, 100vw);
 }
@@ -492,14 +497,9 @@ const moveTab = (step: number) => {
     flex: 1;
   }
 
-  .tab + .tab::before {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 2px;
+  .tab-divider {
+    width: clamp(2px, 0.125vw, 100vw);
     height: 80%;
-    margin: 0;
-    transform: translateY(-50%);
   }
 
   /* 窄屏保住「一条音轨一行」：让出喇叭图标与「静音」二字 */
