@@ -108,7 +108,14 @@ export function validateConfig(config: unknown): AppConfig {
         musicID: Array.isArray(raw.banner?.musicID)
           ? raw.banner.musicID.map((id) => Number(id) || 0)
           : (DEFAULT_CONFIG.banner?.musicID ?? [])
-      }
+      },
+
+      bio: raw.bio
+        ? (() => {
+            const { bth, btn, ...rest } = raw.bio
+            return { ...rest, btn: btn ?? bth }
+          })()
+        : undefined
     }
   } catch (error) {
     console.error('配置验证失败:', error)

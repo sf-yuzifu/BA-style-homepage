@@ -287,7 +287,7 @@ bio:
       skel: 'CH0334_spr.skel'
       # 纹理图集文件
       atlas: 'CH0334_spr.atlas'
-  bth:
+  btn:
     - name: 蔚蓝档案
       path: /img/card/ba.png
     - name: 明日方舟
@@ -377,7 +377,7 @@ translate:
   nextPage: 下一页
 
 bio:
-  bth:
+  btn:
     - name: 蔚蓝档案
     - name: 明日方舟
 ```

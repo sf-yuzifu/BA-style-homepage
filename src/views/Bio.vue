@@ -4,7 +4,7 @@ import { Modal } from '@arco-design/web-vue'
 import { useConfig } from '@/composables/useConfig'
 import Header from '@/components/Header.vue'
 import Live2D from '@/components/Live2D.vue'
-import type { BioBth } from '@/types/config'
+import type { BioBtn } from '@/types/config'
 
 const BIO_FALLBACK_LOCALE = 'en-US'
 
@@ -62,11 +62,11 @@ const bioConfig = computed(() => {
 })
 
 const bioButtons = computed(() => {
-  return bioConfig.value?.bth || []
+  return bioConfig.value?.btn ?? bioConfig.value?.bth ?? []
 })
 
 // 打开图片 Dialog（命令式 Modal，无需响应式状态）
-const openImageDialog = (btn: BioBth) => {
+const openImageDialog = (btn: BioBtn) => {
   if (!btn.path) return
 
   // 图片加载完成前显示加载占位（防止弹窗高度塌陷），完成后淡入；

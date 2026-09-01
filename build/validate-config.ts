@@ -99,10 +99,21 @@ const bioStudentSchema = z.strictObject({
   atlas: nonEmpty
 })
 
-const bioBthSchema = z.strictObject({
+const bioBtnSchema = z.strictObject({
   name: nonEmpty,
   path: nonEmpty
 })
+
+const bioConfigSchema = z
+  .strictObject({
+    student: z.array(bioStudentSchema).optional(),
+    btn: z.array(bioBtnSchema).optional(),
+    bth: z.array(bioBtnSchema).optional()
+  })
+  .transform(({ student, btn, bth }) => ({
+    student,
+    btn: btn ?? bth
+  }))
 
 const siteConfigSchema = z.strictObject({
   title: nonEmpty,
@@ -134,12 +145,7 @@ const siteConfigSchema = z.strictObject({
     })
     .optional(),
   memorialLobbies: z.array(memorialLobbySchema).optional(),
-  bio: z
-    .strictObject({
-      student: z.array(bioStudentSchema).optional(),
-      bth: z.array(bioBthSchema).optional()
-    })
-    .optional()
+  bio: bioConfigSchema.optional()
 })
 
 const localeOverlaySchema = z.strictObject({
@@ -191,7 +197,8 @@ const localeOverlaySchema = z.strictObject({
   bio: z
     .strictObject({
       student: z.array(bioStudentSchema.partial()).optional(),
-      bth: z.array(bioBthSchema.partial()).optional()
+      btn: z.array(bioBtnSchema.partial()).optional(),
+      bth: z.array(bioBtnSchema.partial()).optional()
     })
     .optional()
 })
@@ -347,8 +354,8 @@ export function validateProjectConfig(root: string): string[] {
       errors.push(...checkLobbyAssets(root, '_config.yaml', `bio.student[${i}]`, student))
     })
 
-    parsed.data.bio?.bth?.forEach((card, i) => {
-      const miss = checkPublicFile(root, card.path, `_config.yaml → bio.bth[${i}].path`)
+    parsed.data.bio?.btn?.forEach((card, i) => {
+      const miss = checkPublicFile(root, card.path, `_config.yaml → bio.btn[${i}].path`)
       if (miss) errors.push(miss)
     })
   }

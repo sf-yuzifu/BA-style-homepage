@@ -120,14 +120,19 @@ export interface BioStudent {
   atlas: string
 }
 
-export interface BioBth {
+export interface BioBtn {
   name: string
   path: string
 }
 
+/** @deprecated 旧类型名，请使用 {@link BioBtn} */
+export type BioBth = BioBtn
+
 export interface BioConfig {
   student?: BioStudent[]
-  bth?: BioBth[]
+  btn?: BioBtn[]
+  /** @deprecated 旧键名 `bth`，读取时回退到 {@link BioConfig.btn} */
+  bth?: BioBtn[]
 }
 
 /** 翻译文案；已知键为可选 string，另支持任意扩展键。简介正文在 bio/{locale}.md */
@@ -208,4 +213,4 @@ export type DragBoneClipConfig = NonNullable<DragBoneConfig['clips']>
 export type DragBoneClips = DragBoneClipConfig
 export type LobbyInteractions = InteractionsConfig
 export type TranslateStrings = TranslateConfig
-export type BioCard = BioBth
+export type BioCard = BioBtn

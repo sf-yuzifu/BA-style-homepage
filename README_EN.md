@@ -292,7 +292,7 @@ bio:
       skel: 'CH0334_spr.skel'
       # Texture atlas file
       atlas: 'CH0334_spr.atlas'
-  bth:
+  btn:
     - name: Blue Archive
       path: /img/card/ba.png
     - name: Arknights
@@ -382,7 +382,7 @@ translate:
   nextPage: Next
 
 bio:
-  bth:
+  btn:
     - name: Blue Archive
     - name: Arknights
 ```
