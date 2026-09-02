@@ -15,6 +15,22 @@ export const GAZE_BONE_CANDIDATES = ['Touch_Eye', 'Touch_Eye_Key']
 // 拖 Head_Rot 会整头位移导致"掉头"，Touch_Point 才是 IK 目标点）
 export const PAT_BONE_CANDIDATES = ['Touch_Point', 'Touch_Point_key', 'Touch_Point_Key']
 
+// 台词气泡锚点：嘴 → 鼻 → 脸/头（fork 第三方 Spine 命名不一，可配置 dialogueDisplay.bone 覆盖）
+export const DIALOGUE_ANCHOR_CANDIDATES = [
+  'mouth',
+  'Mouth',
+  'mouth_01',
+  'Mouth_01',
+  'jaw',
+  'Jaw',
+  'nose',
+  'Nose',
+  'face',
+  'Face',
+  'Head_Rot',
+  'head_rot'
+]
+
 // 手部跟随骨（aris 专有：HandFollowIK）
 export const HAND_FOLLOW_BONE_CANDIDATES = ['HandFollow']
 
@@ -38,6 +54,16 @@ export function findBoneByCandidates(skeleton: Skeleton, candidates: string[]): 
     if (bone) return bone
   }
   return null
+}
+
+/** 台词气泡锚点骨骼；override 优先，否则候选名单，再兜底 mouth* 正则 */
+export function findDialogueAnchorBone(skeleton: Skeleton, overrideBone?: string): Bone | null {
+  if (overrideBone) {
+    return skeleton.findBone(overrideBone)
+  }
+  const found = findBoneByCandidates(skeleton, DIALOGUE_ANCHOR_CANDIDATES)
+  if (found) return found
+  return skeleton.bones.find((b) => /^mouth/i.test(b.data.name)) ?? null
 }
 
 /** 是否为头部区域骨骼 */

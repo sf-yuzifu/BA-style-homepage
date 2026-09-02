@@ -106,7 +106,7 @@ interface Window {
   __l2dDebug?: {
     getState: () => unknown
     boneClientPos: (name: string) => { x: number; y: number } | null
-    headClientPos: () => { x: number; y: number } | null
+    dialogueAnchorPos: () => { x: number; y: number } | null
     switchCharacter: (index: number | '+' | '-') => Promise<void>
     listBones: (pattern: string) => string[]
   }

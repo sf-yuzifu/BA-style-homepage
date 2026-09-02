@@ -87,11 +87,7 @@ export function validateConfig(config: unknown): AppConfig {
               atlas: lobby.atlas || 'default.atlas',
               voice: lobby.voice || {},
               offset: lobby.offset ?? 0.5,
-              dialogueDisplay: lobby.dialogueDisplay || {
-                x: 0,
-                y: 0,
-                position: 'left'
-              },
+              dialogueDisplay: lobby.dialogueDisplay,
               // 交互动效配置（gaze/pat/dragBones，全部可选，缺省自动探测骨骼）
               interactions:
                 lobby.interactions && typeof lobby.interactions === 'object'

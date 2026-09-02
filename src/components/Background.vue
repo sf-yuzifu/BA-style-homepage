@@ -9,12 +9,13 @@ import { useHeadPat } from '@/composables/spine/useHeadPat'
 import { useBoneDrag } from '@/composables/spine/useBoneDrag'
 import { useRandomClips } from '@/composables/spine/useRandomClips'
 import { usePointerSession } from '@/composables/spine/usePointerSession'
+import { useDialogueAnchor } from '@/composables/spine/useDialogueAnchor'
 import {
   useSpineLifecycle,
-  type DialoguePosition,
   type SpineLifecyclePointerHooks
 } from '@/composables/spine/useSpineLifecycle'
-import { isHeadRegionBone } from '@/composables/spine/boneDetect'
+import { findDialogueAnchorBone } from '@/composables/spine/boneDetect'
+import { boneToClientPoint } from '@/composables/spine/boneToClient'
 import type { SpineInteractionContext } from '@/composables/spine/types'
 
 const { configs, locale } = useConfig()
@@ -32,15 +33,6 @@ const currentConfig = computed(() => configs.value)
 const canSkip = ref(true)
 const dialogue = ref('')
 const showDialogue = ref(false)
-const dialogueDisplay = ref<{
-  x: number
-  y: number
-  position: DialoguePosition
-}>({
-  x: 0,
-  y: 0,
-  position: 'left'
-})
 
 const spineApi = {
   getSpine: (): Spine | null => null,
@@ -81,7 +73,6 @@ const spine = useSpineLifecycle({
   currentConfig,
   canSkip,
   showDialogue,
-  dialogueDisplay,
   talkPlayer,
   gaze,
   pat,
@@ -114,13 +105,20 @@ pointerHooks.cancelHoverRaf = pointer.cancelHoverRaf
 
 const { setL2D, skipStartIdle, webglFailed } = spine
 
+const {
+  side: dialogueSide,
+  layerStyle: dialogueLayerStyle,
+  onResize: onDialogueResize
+} = useDialogueAnchor({
+  showDialogue,
+  getSpine: spine.getSpine,
+  getCanvas: () => spine.canvas,
+  getApp: () => spine.app,
+  getLobby: () => currentConfig.value?.memorialLobbies?.[spineApi.getId()]
+})
+
 /** 弹窗打开时不显示台词（避免挡在 Modal 上方） */
 const dialogueVisible = computed(() => showDialogue.value && !modalOpen.value)
-
-const dialoguePopupClass = computed(() => [
-  'dialogue-popup',
-  `dialogue-popup--${dialogueDisplay.value.position === 'left' ? 'left' : 'right'}`
-])
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) return false
@@ -128,7 +126,6 @@ const isEditableTarget = (target: EventTarget | null): boolean => {
   return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable
 }
 
-// 弹窗打开时方向键归弹窗自己用（关闭后 Arco 可能保留 display:none 的容器）
 const onLobbyKeydown = (e: KeyboardEvent) => {
   if (props.l2dOnly || webglFailed.value) return
   if (isEditableTarget(e.target)) return
@@ -142,12 +139,18 @@ const onLobbyKeydown = (e: KeyboardEvent) => {
   }
 }
 
+const onWindowResize = () => {
+  onDialogueResize()
+}
+
 onMounted(() => {
   window.addEventListener('keydown', onLobbyKeydown)
+  window.addEventListener('resize', onWindowResize)
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', onLobbyKeydown)
+  window.removeEventListener('resize', onWindowResize)
 })
 
 if (import.meta.env.DEV) {
@@ -175,21 +178,15 @@ if (import.meta.env.DEV) {
     boneClientPos: (name) => {
       const animation = spine.getSpine()
       if (!animation || !spine.canvas || !spine.app) return null
-      const bone = animation.skeleton.findBone(name)
-      if (!bone) return null
-      const rect = spine.canvas.getBoundingClientRect()
-      const scaleX = rect.width / spine.app.screen.width
-      const scaleY = rect.height / spine.app.screen.height
-      return {
-        x: (bone.worldX * animation.scale.x + animation.x) * scaleX + rect.left,
-        y: (bone.worldY * animation.scale.y + animation.y) * scaleY + rect.top
-      }
+      return boneToClientPoint(animation, spine.canvas, spine.app, name)
     },
-    headClientPos: () => {
+    dialogueAnchorPos: () => {
       const animation = spine.getSpine()
-      if (!animation || !spine.canvas) return null
-      const bone = animation.skeleton.bones.find((b) => isHeadRegionBone(b.data.name))
-      return bone ? (window.__l2dDebug?.boneClientPos(bone.data.name) ?? null) : null
+      if (!animation || !spine.canvas || !spine.app) return null
+      const lobby = currentConfig.value?.memorialLobbies?.[spineApi.getId()]
+      const bone = findDialogueAnchorBone(animation.skeleton, lobby?.dialogueDisplay?.bone)
+      if (!bone) return null
+      return boneToClientPoint(animation, spine.canvas, spine.app, bone.data.name)
     },
     switchCharacter: (index) => setL2D(index),
     listBones: (pattern) => {
@@ -245,44 +242,39 @@ if (import.meta.env.DEV) {
     @keydown.enter.prevent="skipStartIdle()"
     @keydown.space.prevent="skipStartIdle()"
   ></div>
-  <a-trigger
-    v-if="dialogueVisible"
-    :popup-visible="dialogueVisible"
-    :popup-translate="[dialogueDisplay.x, dialogueDisplay.y]"
-    :position="dialogueDisplay.position"
-    :show-arrow="false"
-    :popup-offset="10"
-    :content-class="dialoguePopupClass"
-  >
-    <div class="interaction" aria-hidden="true"></div>
-    <template #content>
-      <div
-        class="dialogue"
-        :class="`dialogue--${dialogueDisplay.position === 'left' ? 'left' : 'right'}`"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        {{ dialogue }}
-      </div>
-    </template>
-  </a-trigger>
+  <div v-if="dialogueVisible" class="dialogue-layer" :style="dialogueLayerStyle">
+    <div
+      class="dialogue"
+      :class="`dialogue--${dialogueSide}`"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {{ dialogue }}
+    </div>
+  </div>
 </template>
 
 <style scoped>
+.dialogue-layer {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  max-width: min(calc(100vw - 24px), 40vw);
+}
+
 .dialogue {
   position: relative;
   padding: clamp(30px, 1.875vw, 100vw) clamp(20px, 1.25vw, 100vw);
+  width: max-content;
   max-width: clamp(280px, 17.5vw, 100vw);
-  width: calc(40vw - clamp(20px, 1.25vw, 100vw));
   font-size: clamp(24px, 1.5vw, 100vw);
   background-color: #f0f0f0dd;
   border-radius: clamp(10px, 0.625vw, 100vw);
   box-shadow: 0 clamp(2px, 0.125vw, 100vw) clamp(8px, 0.5vw, 100vw) 0 rgba(0, 0, 0, 0.15);
-  pointer-events: none;
 }
 
-/* 三角箭头（只画向外的一半，避免旋转方块与半透明底叠色） */
+/* 三角箭头（只画向外的一半） */
 .dialogue--right {
   margin-left: clamp(8px, 0.5vw, 100vw);
 }
@@ -306,7 +298,6 @@ if (import.meta.env.DEV) {
   border-bottom: clamp(9px, 0.5625vw, 100vw) solid transparent;
 }
 
-/* 气泡在右：左侧箭头指向角色 */
 .dialogue--right::before {
   left: 0;
   transform: translate(calc(-100% + 1px), -50%);
@@ -314,23 +305,11 @@ if (import.meta.env.DEV) {
   border-left: none;
 }
 
-/* 气泡在左：右侧箭头指向角色 */
 .dialogue--left::before {
   right: 0;
   transform: translate(calc(100% - 1px), -50%);
   border-left: clamp(10px, 0.625vw, 100vw) solid #f0f0f0dd;
   border-right: none;
-}
-
-/* 低于 Arco Modal（~1000），高于 Live2D / HUD */
-:deep(.dialogue-popup.arco-trigger-popup) {
-  z-index: 50 !important;
-}
-
-:deep(.dialogue-popup .arco-trigger-content) {
-  padding: 0;
-  background: transparent;
-  box-shadow: none;
 }
 
 #change {
@@ -345,21 +324,6 @@ if (import.meta.env.DEV) {
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
   box-sizing: border-box;
-}
-
-.interaction {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: auto;
-  width: 66%;
-  height: 100%;
-  user-select: none;
-  -webkit-user-drag: none;
-  opacity: 0;
-  pointer-events: none;
 }
 
 img {

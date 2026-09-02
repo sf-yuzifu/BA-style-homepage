@@ -41,9 +41,14 @@ const contactItemSchema = z.strictObject({
 })
 
 const dialogueDisplaySchema = z.strictObject({
-  x: z.union([z.number(), nonEmpty]),
-  y: z.union([z.number(), nonEmpty]),
-  position: z.enum(['left', 'right'])
+  mode: z.enum(['auto', 'manual']).optional(),
+  bone: z.string().optional(),
+  offsetX: z.number().optional(),
+  offsetY: z.number().optional(),
+  side: z.enum(['auto', 'left', 'right']).optional(),
+  x: z.union([z.number(), nonEmpty]).optional(),
+  y: z.union([z.number(), nonEmpty]).optional(),
+  position: z.enum(['left', 'right']).optional()
 })
 
 const boneRangeSchema = z.strictObject({

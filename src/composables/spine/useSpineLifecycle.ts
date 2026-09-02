@@ -22,32 +22,8 @@ import { tryCreatePixiApp } from './createPixiApp'
 import { initTracks } from './useSpineTracks'
 
 export type L2DTarget = number | '+' | '-'
-export type DialoguePosition =
-  'left' | 'right' | 'br' | 'rt' | 'tr' | 'rb' | 'top' | 'tl' | 'bottom' | 'bl' | 'lt' | 'lb'
 
 const LIVE2D_TIME_SCALE = 0.6
-
-const parseFraction = (value: string | number | undefined): number => {
-  if (typeof value === 'number') return Number.isFinite(value) ? value : 0
-  if (!value) return 0
-
-  const expression = value.replace(/\s+/g, '')
-  const terms = expression.match(/[+-]?[^+-]+/g)
-  if (!terms || terms.join('') !== expression) return 0
-
-  return terms.reduce((sum, term) => {
-    const sign = term.startsWith('-') ? -1 : 1
-    const unsigned = term.replace(/^[+-]/, '')
-    const parts = unsigned.split('/')
-    if (parts.length > 2) return sum
-    const numerator = Number(parts[0])
-    const denominator = parts.length === 2 ? Number(parts[1]) : 1
-    if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator === 0) {
-      return sum
-    }
-    return sum + sign * (numerator / denominator)
-  }, 0)
-}
 
 const parseOffset = (offset: number | string | undefined, fallback = 0.7): number => {
   const parsed = Number(offset)
@@ -84,7 +60,6 @@ interface SpineLifecycleDeps {
   currentConfig: ComputedRef<AppConfig | null>
   canSkip: Ref<boolean>
   showDialogue: Ref<boolean>
-  dialogueDisplay: Ref<{ x: number; y: number; position: DialoguePosition }>
   talkPlayer: {
     reset: () => void
     stopAllVoices: () => void
@@ -104,7 +79,6 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     currentConfig,
     canSkip,
     showDialogue,
-    dialogueDisplay,
     talkPlayer,
     gaze,
     pat,
@@ -178,17 +152,8 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     emit('update:changeL2D', value)
   }
 
-  const updateDialoguePosition = () => {
-    const lobby = currentConfig.value?.memorialLobbies?.[id]
-    const display = lobby?.dialogueDisplay
-    if (!display) return
-    dialogueDisplay.value.x = parseFraction(display.x) * document.documentElement.clientWidth
-    dialogueDisplay.value.y = parseFraction(display.y) * document.documentElement.clientHeight
-  }
-
   const handleWindowResize = () => {
     pointer.invalidateViewRect()
-    updateDialoguePosition()
   }
 
   const handleBeforeUpdateWorldTransforms = () => {
@@ -245,13 +210,6 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     }
   }
 
-  const applyDialogueDisplay = (lobby: NonNullable<AppConfig['memorialLobbies']>[number]) => {
-    const display = lobby.dialogueDisplay
-    dialogueDisplay.value.x = parseFraction(display?.x) * document.documentElement.clientWidth
-    dialogueDisplay.value.y = parseFraction(display?.y) * document.documentElement.clientHeight
-    dialogueDisplay.value.position = (display?.position || 'left') as DialoguePosition
-  }
-
   const applyCanvasOffset = (lobby: NonNullable<AppConfig['memorialLobbies']>[number]) => {
     originalOffsetPercent = parseOffset(lobby.offset) * 100
     canvas.style.transform = `translateX(calc((50% - ${originalOffsetPercent} * 1%) * (1 - min(1, 100vw / 1200px))))`
@@ -304,7 +262,6 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
 
     const assetKey = getLobbyAssetKey(lobby)
     if (animation && assetKey && assetKey === loadedL2DKey && newId === id) {
-      applyDialogueDisplay(lobby)
       consumeLocaleChangePending()
       return
     }
@@ -322,8 +279,6 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
       animation.destroy()
       animation = null
     }
-
-    applyDialogueDisplay(lobby)
 
     try {
       const skeletonPath = lobby.path + lobby.skel
@@ -437,8 +392,6 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
       return
     }
 
-    applyDialogueDisplay(lobby)
-
     try {
       const skeletonPath = lobby.path + lobby.skel
       const atlasPath = lobby.path + lobby.atlas
@@ -544,7 +497,6 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     const lobby = currentConfig.value.memorialLobbies[id]
     const key = getLobbyAssetKey(lobby)
     if (animation && key && key === loadedL2DKey) {
-      applyDialogueDisplay(lobby)
       consumeLocaleChangePending()
       return
     }

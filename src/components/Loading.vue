@@ -48,12 +48,7 @@ onUnmounted(() => {
     </div>
     <div class="progress_wrapper">
       <h1 class="title">connecting...</h1>
-      <div
-        class="percent"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
+      <div class="percent" role="status" aria-live="polite" aria-atomic="true">
         {{ percentInt }}%
       </div>
     </div>

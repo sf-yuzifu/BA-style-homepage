@@ -46,9 +46,20 @@ export interface ICPConfig {
 }
 
 export interface DialogueDisplay {
-  x: string | number
-  y: string | number
-  position: 'left' | 'right' | string
+  /** auto：跟嘴/脸骨骼；manual：用 x/y/position（兼容旧配置） */
+  mode?: 'auto' | 'manual'
+  /** 指定锚点骨骼名，覆盖自动探测 */
+  bone?: string
+  /** auto 模式像素微调（默认 y: -32 略抬高） */
+  offsetX?: number
+  offsetY?: number
+  /** auto 默认按嘴部屏幕位置选边；manual 用 position 或 side */
+  side?: 'auto' | 'left' | 'right'
+  /** manual：相对视口中心的偏移，支持分数表达式 */
+  x?: string | number
+  y?: string | number
+  /** manual：气泡在锚点左/右（与 side 等价，保留兼容） */
+  position?: 'left' | 'right' | string
 }
 
 /** 视线跟随；false 禁用 */

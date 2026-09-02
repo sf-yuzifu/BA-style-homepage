@@ -161,6 +161,14 @@ banner:
 #
 # bone 为骨骼名；minX/maxX/minY/maxY 为拖拽钳制范围（骨架单位，相对基准位置的偏移，可用 range 做对称简写）；
 # radius 为按下命中半径；smoothTime 为平滑时间（秒，越小越跟手）
+#
+# 台词气泡默认自动跟随嘴/脸骨骼（无需配置）；可选：
+#   dialogueDisplay:
+#     mode: auto          # auto（默认）| manual（用 x/y/position 手动定位）
+#     bone: mouth         # 覆盖锚点骨骼名
+#     offsetX: 0          # 像素微调
+#     offsetY: -32
+#     side: auto          # auto | left | right
 memorialLobbies:
   # 角色1 - Aris(Battle)
   - name: Aris(Battle)
@@ -172,14 +180,12 @@ memorialLobbies:
     atlas: 'CH0334_home.atlas'
     # 角色在屏幕中的水平位置偏移（0-1之间）
     offset: 0.5
-    # 对话框显示位置配置
+    # 台词气泡默认自动跟随嘴/脸骨骼；可选 dialogueDisplay: { offsetY: -40, side: auto, bone: mouth }
     dialogueDisplay:
-      # X坐标位置（可以是分数）
-      x: -1/4 - 1/16
-      # Y坐标位置（可以是分数）
-      y: -1/16
-      # 对话框位置（left/right）
-      position: right
+      mode: auto # auto（默认）| manual（用 x/y/position 手动定位）
+      side: right # auto | left | right
+      offsetX: 40
+      offsetY: 40
 
   # 角色2 - Kei
   - name: Kei
@@ -191,14 +197,11 @@ memorialLobbies:
     atlas: 'CH0335_home.atlas'
     # 角色在屏幕中的水平位置偏移（0-1之间）
     offset: 0.62
-    # 对话框显示位置配置
     dialogueDisplay:
-      # X坐标位置（可以是分数）
-      x: 1/4 + 1/8
-      # Y坐标位置（可以是分数）
-      y: -1/16
-      # 对话框位置（left/right）
-      position: left
+      mode: auto
+      side: right
+      offsetX: 40
+      offsetY: 40
 
   # 角色3 - Hina
   - name: Hina_swimsuit
@@ -210,14 +213,11 @@ memorialLobbies:
     atlas: 'CH0063_home.atlas'
     # 角色在屏幕中的水平位置偏移（0-1之间）
     offset: 0.68
-    # 对话框显示位置配置
     dialogueDisplay:
-      # X坐标位置（可以是分数）
-      x: 1/4 + 1/8
-      # Y坐标位置（可以是分数）
-      y: -1/8
-      # 对话框位置（left/right）
-      position: left
+      mode: auto
+      side: left
+      offsetX: -100
+      offsetY: 40
 
 bio:
   student:
@@ -229,7 +229,7 @@ bio:
       # 纹理图集文件
       atlas: 'CH0334_spr.atlas'
   btn:
-  - name: 蔚蓝档案
-    path: /img/card/ba.png
-  - name: 明日方舟
-    path: /img/card/arknight.png
+    - name: 蔚蓝档案
+      path: /img/card/ba.png
+    - name: 明日方舟
+      path: /img/card/arknight.png
