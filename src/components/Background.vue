@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { Spine } from '@esotericsoftware/spine-pixi-v7'
 import { useConfig } from '@/composables/useConfig'
+import { useModalOpen } from '@/composables/useModalOpen'
 import { useTalkPlayer } from '@/composables/spine/useTalkPlayer'
 import { useGazeFollow } from '@/composables/spine/useGazeFollow'
 import { useHeadPat } from '@/composables/spine/useHeadPat'
@@ -17,6 +18,7 @@ import { isHeadRegionBone } from '@/composables/spine/boneDetect'
 import type { SpineInteractionContext } from '@/composables/spine/types'
 
 const { configs, locale } = useConfig()
+const { modalOpen } = useModalOpen()
 const emit = defineEmits<{
   canskip: [value: boolean]
   'update:changeL2D': [value: boolean]
@@ -112,23 +114,25 @@ pointerHooks.cancelHoverRaf = pointer.cancelHoverRaf
 
 const { setL2D, skipStartIdle, webglFailed } = spine
 
+/** 弹窗打开时不显示台词（避免挡在 Modal 上方） */
+const dialogueVisible = computed(() => showDialogue.value && !modalOpen.value)
+
+const dialoguePopupClass = computed(() => [
+  'dialogue-popup',
+  `dialogue-popup--${dialogueDisplay.value.position === 'left' ? 'left' : 'right'}`
+])
+
 const isEditableTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) return false
   const tag = target.tagName
   return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable
 }
 
-// 弹窗（设置 / 关于 / 跳过确认）打开时方向键归弹窗自己用。
-// 关闭后 Arco 可能保留 display:none 的容器，只看存在性会永久吞掉方向键
-const isModalOpen = (): boolean => {
-  const container = document.querySelector('.arco-modal-container')
-  return !!container && window.getComputedStyle(container).display !== 'none'
-}
-
+// 弹窗打开时方向键归弹窗自己用（关闭后 Arco 可能保留 display:none 的容器）
 const onLobbyKeydown = (e: KeyboardEvent) => {
   if (props.l2dOnly || webglFailed.value) return
   if (isEditableTarget(e.target)) return
-  if (isModalOpen()) return
+  if (modalOpen.value) return
   if (e.key === 'ArrowLeft') {
     e.preventDefault()
     setL2D('-')
@@ -242,15 +246,23 @@ if (import.meta.env.DEV) {
     @keydown.space.prevent="skipStartIdle()"
   ></div>
   <a-trigger
-    v-if="showDialogue"
-    :popup-visible="showDialogue"
+    v-if="dialogueVisible"
+    :popup-visible="dialogueVisible"
     :popup-translate="[dialogueDisplay.x, dialogueDisplay.y]"
     :position="dialogueDisplay.position"
-    :show-arrow="true"
+    :show-arrow="false"
+    :popup-offset="10"
+    :content-class="dialoguePopupClass"
   >
-    <div class="interaction"></div>
+    <div class="interaction" aria-hidden="true"></div>
     <template #content>
-      <div class="dialogue">
+      <div
+        class="dialogue"
+        :class="`dialogue--${dialogueDisplay.position === 'left' ? 'left' : 'right'}`"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {{ dialogue }}
       </div>
     </template>
@@ -259,6 +271,7 @@ if (import.meta.env.DEV) {
 
 <style scoped>
 .dialogue {
+  position: relative;
   padding: clamp(30px, 1.875vw, 100vw) clamp(20px, 1.25vw, 100vw);
   max-width: clamp(280px, 17.5vw, 100vw);
   width: calc(40vw - clamp(20px, 1.25vw, 100vw));
@@ -266,13 +279,58 @@ if (import.meta.env.DEV) {
   background-color: #f0f0f0dd;
   border-radius: clamp(10px, 0.625vw, 100vw);
   box-shadow: 0 clamp(2px, 0.125vw, 100vw) clamp(8px, 0.5vw, 100vw) 0 rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  position: relative;
+  pointer-events: none;
 }
 
-/* 确保a-trigger组件及其弹出内容有足够高的层级 */
-:deep(.arco-trigger-popup) {
-  z-index: 1000 !important;
+/* 三角箭头（只画向外的一半，避免旋转方块与半透明底叠色） */
+.dialogue--right {
+  margin-left: clamp(8px, 0.5vw, 100vw);
+}
+
+.dialogue--left {
+  margin-right: clamp(8px, 0.5vw, 100vw);
+}
+
+.dialogue--right::before,
+.dialogue--left::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  background: none;
+  box-shadow: none;
+  transform: translateY(-50%);
+  pointer-events: none;
+  border-top: clamp(9px, 0.5625vw, 100vw) solid transparent;
+  border-bottom: clamp(9px, 0.5625vw, 100vw) solid transparent;
+}
+
+/* 气泡在右：左侧箭头指向角色 */
+.dialogue--right::before {
+  left: 0;
+  transform: translate(calc(-100% + 1px), -50%);
+  border-right: clamp(10px, 0.625vw, 100vw) solid #f0f0f0dd;
+  border-left: none;
+}
+
+/* 气泡在左：右侧箭头指向角色 */
+.dialogue--left::before {
+  right: 0;
+  transform: translate(calc(100% - 1px), -50%);
+  border-left: clamp(10px, 0.625vw, 100vw) solid #f0f0f0dd;
+  border-right: none;
+}
+
+/* 低于 Arco Modal（~1000），高于 Live2D / HUD */
+:deep(.dialogue-popup.arco-trigger-popup) {
+  z-index: 50 !important;
+}
+
+:deep(.dialogue-popup .arco-trigger-content) {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 #change {

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { getTransitionMedia } from '@/utils/transitionVideo'
 
-defineProps<{ percent: number }>()
+const props = defineProps<{ percent: number }>()
+
+const percentInt = computed(() => Math.floor(props.percent * 100))
 
 const transitionMedia = getTransitionMedia()
 
@@ -46,7 +48,14 @@ onUnmounted(() => {
     </div>
     <div class="progress_wrapper">
       <h1 class="title">connecting...</h1>
-      <div class="percent">{{ Math.floor(percent * 100) + '%' }}</div>
+      <div
+        class="percent"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {{ percentInt }}%
+      </div>
     </div>
   </div>
 </template>
