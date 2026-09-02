@@ -5,18 +5,6 @@ import { loadFonts } from '@/init/fonts'
 import { initLive2D } from '@/init/live2d'
 import { prefersReducedMotionNow } from './useReducedMotion'
 
-/** 全量预加载：超时随角色数量放宽，避免慢网 15s 就进空大厅 */
-const LOAD_TIMEOUT_BASE_MS = 30_000
-const LOAD_TIMEOUT_PER_LOBBY_MS = 25_000
-const LOAD_TIMEOUT_MIN_MS = 60_000
-const LOAD_TIMEOUT_MAX_MS = 180_000
-
-const loadTimeoutMs = (lobbyCount: number) =>
-  Math.min(
-    LOAD_TIMEOUT_MAX_MS,
-    Math.max(LOAD_TIMEOUT_MIN_MS, LOAD_TIMEOUT_BASE_MS + lobbyCount * LOAD_TIMEOUT_PER_LOBBY_MS)
-  )
-
 export function useLoading() {
   const loading = ref(true)
   const percent = ref(0)
@@ -25,23 +13,6 @@ export function useLoading() {
   // 添加平滑动画相关状态
   const targetPercent = ref(0)
   const animationFrame = ref<number | null>(null)
-  let loadTimeoutId: ReturnType<typeof setTimeout> | null = null
-
-  const clearLoadTimeout = () => {
-    if (loadTimeoutId === null) return
-    clearTimeout(loadTimeoutId)
-    loadTimeoutId = null
-  }
-
-  const armLoadTimeout = (ms: number) => {
-    clearLoadTimeout()
-    loadTimeoutId = setTimeout(() => {
-      loadTimeoutId = null
-      if (!loading.value) return
-      console.warn(`资源加载超过 ${Math.round(ms / 1000)}s 仍未完成，强制进入大厅`)
-      forceComplete()
-    }, ms)
-  }
 
   // 使用资源加载管理器和配置
   const resourceLoader = useResourceLoader()
@@ -166,9 +137,6 @@ export function useLoading() {
       console.log(`添加了 ${lobbyCount} 个Live2D角色的资源`)
     }
 
-    // 真正的 PIXI 预加载在 initLive2D，此时 loadedCount 还不会涨；超时按角色数给够
-    armLoadTimeout(loadTimeoutMs(lobbyCount))
-
     console.log(`资源加载器初始化完成，共 ${resourceLoader.totalCount.value} 个资源`)
 
     // 等待字体加载完成
@@ -198,9 +166,8 @@ export function useLoading() {
     }
   })
 
-  // 完成加载
+  // 完成加载（仅在资源全部就绪时调用）
   const finishLoading = () => {
-    clearLoadTimeout()
     // 清理动画
     if (animationFrame.value) {
       cancelAnimationFrame(animationFrame.value)
@@ -214,17 +181,11 @@ export function useLoading() {
     console.log('应用加载完成，准备切换到主界面')
   }
 
-  // 强制完成加载（用于错误情况）
-  const forceComplete = () => {
-    console.warn('强制完成加载，防止无限等待')
-    finishLoading()
-  }
-
   onMounted(() => {
     const begin = () => {
       startLoading().catch((error) => {
-        console.error('资源加载失败，强制进入大厅:', error)
-        forceComplete()
+        // 有意不强制进大厅：资源未全部就绪则留在加载屏（还原游戏必须加载完才进）
+        console.error('资源加载失败，停留在加载界面:', error)
       })
     }
     // 减少动效时跳过人为延迟，否则让 Loading 先亮起再从 0% 开始
@@ -236,7 +197,6 @@ export function useLoading() {
   })
 
   onUnmounted(() => {
-    clearLoadTimeout()
     resourceLoader.reset()
   })
 
@@ -252,7 +212,6 @@ export function useLoading() {
     // 方法
     startLoading,
     finishLoading,
-    forceComplete,
 
     // 获取详细状态
     getLoadingStatus: () => resourceLoader.getStatus()

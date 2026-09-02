@@ -4,7 +4,16 @@ import { Button, Divider, Modal, Progress, Trigger } from '@arco-design/web-vue'
 import App from '@/App.vue'
 import router from '@/router'
 
+/** 全局禁用右键菜单（有意设计，还原游戏内 UI 体验；非 bug） */
+function initContextMenuBlock() {
+  document.addEventListener('contextmenu', (event) => {
+    event.preventDefault()
+  })
+}
+
 export function initApp() {
+  initContextMenuBlock()
+
   const app = createApp(App)
   app.use(Button)
   app.use(Divider)
