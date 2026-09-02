@@ -12,11 +12,15 @@ const SUPPORTED_LOCALES: LocaleCode[] = ['zh-CN', 'zh-TW', 'en-US', 'ja-JP']
 const isLocaleCode = (value: string): value is LocaleCode =>
   SUPPORTED_LOCALES.includes(value as LocaleCode)
 
+const parseLocalePreference = (raw: string | null): LocalePreference => {
+  if (!raw || raw === 'auto') return 'auto'
+  if (isLocaleCode(raw)) return raw
+  return 'auto'
+}
+
 const readLocalePreference = (): LocalePreference => {
   try {
-    const raw = localStorage.getItem(LOCALE_STORAGE_KEY)
-    if (!raw || raw === 'auto') return 'auto'
-    if (isLocaleCode(raw)) return raw
+    return parseLocalePreference(localStorage.getItem(LOCALE_STORAGE_KEY))
   } catch {
     /* 隐私模式等场景可能不可写 */
   }
@@ -156,6 +160,7 @@ const globalIsInitializing = ref(false)
 let configLoadToken = 0
 /** 语言切换触发的配置重载：跳过一次 Start_Idle，保持当前 HUD / 待机姿态 */
 let localeChangePending = false
+let localeStorageSyncRegistered = false
 
 export function markLocaleChangePending() {
   localeChangePending = true
@@ -172,6 +177,65 @@ const resolveActiveLocale = (pref: LocalePreference): string => {
   return detectBrowserLanguage(configLoader.getSupportedLocales())
 }
 
+const loadConfig = async () => {
+  const token = ++configLoadToken
+
+  globalIsLoading.value = true
+  globalIsInitializing.value = true
+  try {
+    const config = await configLoader.getConfig(globalCurrentLocale.value)
+    if (token !== configLoadToken) return // 已有更新的加载请求，丢弃过期结果
+    globalCurrentConfig.value = config
+  } catch (error) {
+    if (token !== configLoadToken) return
+    console.error('加载配置失败:', error)
+    // 使用默认配置
+    globalCurrentConfig.value = {
+      level: 1,
+      exp: 0,
+      nextExp: 0,
+      dock: [],
+      contact: [],
+      memorialLobbies: [],
+      banner: { musicID: [] },
+      title: '个人主页',
+      translate: {
+        info: '更新提示',
+        update: '检测到新版本，是否立即更新？',
+        ok: '立即更新',
+        cancel: '稍后更新'
+      }
+    }
+  } finally {
+    // 仅最新一代负责复位加载标记，过期一代不得误清新请求的状态
+    if (token === configLoadToken) {
+      globalIsLoading.value = false
+      globalIsInitializing.value = false
+    }
+  }
+}
+
+const syncLocaleFromStorage = (raw: string | null) => {
+  const preference = parseLocalePreference(raw)
+  const locale = resolveActiveLocale(preference)
+  if (preference === globalLocalePreference.value && locale === globalCurrentLocale.value) return
+
+  globalLocalePreference.value = preference
+  markLocaleChangePending()
+  globalCurrentLocale.value = locale
+  document.documentElement.lang = locale
+  loadConfig()
+}
+
+const registerLocaleStorageSync = () => {
+  if (localeStorageSyncRegistered) return
+  localeStorageSyncRegistered = true
+  window.addEventListener('storage', (event) => {
+    if (event.key !== LOCALE_STORAGE_KEY) return
+    syncLocaleFromStorage(event.newValue)
+  })
+}
+
 export function useConfig() {
   // 初始化语言（只在第一次执行）
   const initLocale = () => {
@@ -183,6 +247,7 @@ export function useConfig() {
       const detectedLang = resolveActiveLocale(preference)
       globalCurrentLocale.value = detectedLang
       globalIsInitialized.value = true
+      registerLocaleStorageSync()
       // 同步页面语言标记，利于SEO与无障碍
       document.documentElement.lang = detectedLang
 
@@ -196,45 +261,7 @@ export function useConfig() {
       console.error('语言检测失败:', error)
       globalCurrentLocale.value = 'en-US' // 备用语言
       globalIsInitialized.value = true
-    }
-  }
-
-  // 加载配置（语言切换等新请求会取代在途请求：旧请求结果按代际丢弃，不再直接 return 丢弃新请求）
-  const loadConfig = async () => {
-    const token = ++configLoadToken
-
-    globalIsLoading.value = true
-    globalIsInitializing.value = true
-    try {
-      const config = await configLoader.getConfig(globalCurrentLocale.value)
-      if (token !== configLoadToken) return // 已有更新的加载请求，丢弃过期结果
-      globalCurrentConfig.value = config
-    } catch (error) {
-      if (token !== configLoadToken) return
-      console.error('加载配置失败:', error)
-      // 使用默认配置
-      globalCurrentConfig.value = {
-        level: 1,
-        exp: 0,
-        nextExp: 0,
-        dock: [],
-        contact: [],
-        memorialLobbies: [],
-        banner: { musicID: [] },
-        title: '个人主页',
-        translate: {
-          info: '更新提示',
-          update: '检测到新版本，是否立即更新？',
-          ok: '立即更新',
-          cancel: '稍后更新'
-        }
-      }
-    } finally {
-      // 仅最新一代负责复位加载标记，过期一代不得误清新请求的状态
-      if (token === configLoadToken) {
-        globalIsLoading.value = false
-        globalIsInitializing.value = false
-      }
+      registerLocaleStorageSync()
     }
   }
 
@@ -249,6 +276,8 @@ export function useConfig() {
   // 确保只执行一次初始化
   if (!globalIsInitialized.value && !globalIsInitializing.value) {
     initializeConfig()
+  } else {
+    registerLocaleStorageSync()
   }
 
   // 响应式配置对象

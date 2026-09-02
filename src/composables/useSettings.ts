@@ -30,6 +30,9 @@ const clickEffect = ref(true)
 // 「已看过开场」不是用户可调项，不进 UI，只用于 introMode === 'once' 的判断
 let introSeen = false
 let initialized = false
+let storageSyncRegistered = false
+/** 跨 tab 同步写入内存时跳过 watch 落盘，避免多余 localStorage 写 */
+let applyingRemote = false
 
 const readVolume = (value: unknown, fallback: number): number => {
   const parsed = Number(value)
@@ -46,7 +49,23 @@ const loadState = (): SettingsPersistedState => {
   }
 }
 
+const applyPersistedState = (state: SettingsPersistedState) => {
+  applyingRemote = true
+  try {
+    voiceMuted.value = state.voiceMuted ?? false
+    voiceVolume.value = readVolume(state.voiceVolume, DEFAULT_VOICE_VOLUME)
+    bgmMuted.value = state.bgmMuted ?? false
+    bgmVolume.value = readVolume(state.bgmVolume, DEFAULT_BGM_VOLUME)
+    introMode.value = state.introMode === 'always' ? 'always' : 'once'
+    clickEffect.value = state.clickEffect ?? true
+    if (state.introSeen !== undefined) introSeen = state.introSeen
+  } finally {
+    applyingRemote = false
+  }
+}
+
 const saveState = () => {
+  if (applyingRemote) return
   try {
     localStorage.setItem(
       STORAGE_KEY,
@@ -69,18 +88,25 @@ const saveState = () => {
 // 否则该组件卸载后监听被一并停掉，后续修改不再落盘
 const scope = effectScope(true)
 
+const registerStorageSync = () => {
+  if (storageSyncRegistered) return
+  storageSyncRegistered = true
+  window.addEventListener('storage', (event) => {
+    if (event.key !== STORAGE_KEY || event.newValue == null) return
+    try {
+      applyPersistedState(JSON.parse(event.newValue) as SettingsPersistedState)
+    } catch {
+      /* 忽略损坏数据 */
+    }
+  })
+}
+
 const ensureInit = () => {
   if (initialized) return
   initialized = true
 
-  const state = loadState()
-  voiceMuted.value = state.voiceMuted ?? false
-  voiceVolume.value = readVolume(state.voiceVolume, DEFAULT_VOICE_VOLUME)
-  bgmMuted.value = state.bgmMuted ?? false
-  bgmVolume.value = readVolume(state.bgmVolume, DEFAULT_BGM_VOLUME)
-  introMode.value = state.introMode === 'always' ? 'always' : 'once'
-  clickEffect.value = state.clickEffect ?? true
-  introSeen = state.introSeen ?? false
+  applyPersistedState(loadState())
+  registerStorageSync()
 
   scope.run(() => {
     watch([voiceMuted, voiceVolume, bgmMuted, bgmVolume, introMode, clickEffect], saveState)

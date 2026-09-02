@@ -29,6 +29,8 @@ let apSettleAt = Date.now() // 时间恢复模型的上次结算时间
 let lastSignIn = '' // 上次签到日期（本地时区 YYYY-MM-DD）
 let tickCount = 0
 let initialized = false
+let storageSyncRegistered = false
+let applyingRemote = false
 
 // localStorage 在隐私模式等场景可能不可用，静默降级为仅本次会话生效
 const loadState = (): WalletPersistedState => {
@@ -40,6 +42,7 @@ const loadState = (): WalletPersistedState => {
 }
 
 const saveState = () => {
+  if (applyingRemote) return
   try {
     localStorage.setItem(
       STORAGE_KEY,
@@ -81,6 +84,22 @@ const settleAp = (maxApValue: number) => {
   apLocal.value = Math.min(maxApValue, apLocal.value + recovered)
   // 回满后直接对齐当前时间，不积攒溢出的恢复进度
   apSettleAt = apLocal.value >= maxApValue ? now : apSettleAt + recovered * AP_RECOVER_MS
+}
+
+const applyPersistedState = (state: WalletPersistedState, maxApValue: number) => {
+  applyingRemote = true
+  try {
+    if (state.gold !== undefined) gold.value = state.gold
+    if (state.pyroxene !== undefined) pyroxene.value = state.pyroxene
+    if (state.dwellSeconds !== undefined) dwellSeconds.value = state.dwellSeconds
+    if (state.signInDays !== undefined) signInDays.value = state.signInDays
+    if (state.lastSignIn !== undefined) lastSignIn = state.lastSignIn
+    if (state.ap !== undefined) apLocal.value = state.ap
+    if (state.apSettleAt !== undefined) apSettleAt = state.apSettleAt
+  } finally {
+    applyingRemote = false
+  }
+  settleAp(maxApValue)
 }
 
 export function useWallet() {
@@ -145,6 +164,18 @@ export function useWallet() {
     }, 1000)
 
     window.addEventListener('pagehide', saveState)
+
+    if (!storageSyncRegistered) {
+      storageSyncRegistered = true
+      window.addEventListener('storage', (event) => {
+        if (event.key !== STORAGE_KEY || event.newValue == null) return
+        try {
+          applyPersistedState(JSON.parse(event.newValue) as WalletPersistedState, maxAp.value)
+        } catch {
+          /* 忽略损坏数据 */
+        }
+      })
+    }
   }
 
   // tooltip 文案（i18n，占位符在此替换）
