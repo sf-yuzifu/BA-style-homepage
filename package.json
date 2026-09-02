@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write src/",
-    "voices:mp3": "node scripts/convert-voices-to-mp3.mjs"
+    "voices:mp3": "node scripts/convert-voices-to-mp3.mjs",
+    "transition:mov": "ffmpeg -y -c:v libvpx-vp9 -i public/transfrom.webm -an -vf format=rgba,premultiply=inplace=1 -c:v hevc_videotoolbox -require_sw 1 -alpha_quality 0.75 -tag:v hvc1 -q:v 30 public/transfrom.mov"
   },
   "resolutions": {
     "bin-wrapper": "npm:bin-wrapper-china",

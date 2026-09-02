@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
 import { prefersReducedMotionNow } from '@/composables/useReducedMotion'
-import { getTransitionMedia } from '@/utils/transitionVideo'
+import { canPlayTransitionVideo, TRANSITION_MOV, TRANSITION_WEBM } from '@/utils/transitionVideo'
 
 const { configs } = useConfig()
 
@@ -18,7 +18,7 @@ const taskInfo = computed(() => {
 const curtain = ref(false)
 const bg = ref(false)
 
-const transitionMedia = getTransitionMedia()
+const canPlayTransition = canPlayTransitionVideo()
 
 const props = defineProps<{ l2dOnly: boolean }>()
 
@@ -63,7 +63,7 @@ const skip = () => {
     }
     return
   }
-  if (transitionMedia) {
+  if (canPlayTransition) {
     bg.value = true
     curtainTimer = setTimeout(() => {
       curtainTimer = null
@@ -91,7 +91,10 @@ const skip = () => {
   </transition>
   <transition name="curtain">
     <div v-if="bg" class="video-container">
-      <video autoplay muted playsinline :src="transitionMedia!.src" @error="onFlashError"></video>
+      <video autoplay muted playsinline @error="onFlashError">
+        <source :src="TRANSITION_MOV" type='video/mp4; codecs="hvc1"' />
+        <source :src="TRANSITION_WEBM" type='video/webm; codecs="vp9"' />
+      </video>
     </div>
   </transition>
   <transition name="curtain">
