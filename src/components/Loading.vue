@@ -14,9 +14,6 @@ const imgList = [
 ]
 const imgUrl = ref(imgList[0])
 
-document.oncontextmenu = function () {
-  return false
-}
 let a = 1
 const imgTimer = setInterval(() => {
   imgUrl.value = imgList[a % imgList.length]
