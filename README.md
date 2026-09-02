@@ -173,6 +173,26 @@ Fork 后主要改两处：
 
 完整字段注释见 **[`_config.example.yaml`](./_config.example.yaml)**。
 
+## 🎮 交互说明
+
+大厅 HUD 展开时（非全屏 Live2D 观赏模式）：
+
+- **← / →**：切换回忆大厅角色（与底部箭头同效；输入框聚焦或设置弹窗打开时不响应）
+
+摸头、视线跟随、点击台词等见上方「功能特点 → 回忆大厅 Live2D 互动」。
+
+## 💾 localStorage
+
+站点在浏览器 `localStorage` 中持久化以下键，便于 Fork 调试或用户自行清档（开发者工具 → Application → Local Storage，删除对应键后刷新）：
+
+| 键 | 格式 | 说明 |
+| --- | --- | --- |
+| `fa-settings` | JSON | 音量 / 静音、`introMode`（`always` \| `once`）、`introSeen`（是否已看过开场）、`clickEffect`（点击特效） |
+| `fa-locale` | 字符串 | 语言偏好：`auto`（跟随浏览器）或 `zh-CN` / `zh-TW` / `en-US` / `ja-JP` |
+| `fa-wallet` | JSON | 钱包：体力 `ap`、恢复时间 `apSettleAt`、信用点 `gold`、陪伴秒数 `dwellSeconds`、青辉石 `pyroxene`、签到 `signInDays` / `lastSignIn` |
+
+多标签页之间会同步 `fa-settings` / `fa-locale` / `fa-wallet` 的变更。
+
 ## 🌐 有关 i18n
 
 **基础配置 + 语言包覆盖**：`_config.yaml` 放路径与链接；`src/locales/*.yaml` 按语言覆盖标题、按钮文案、`memorialLobbies[].voice` 等；`bio/{locale}.md` 为简介正文。浏览器语言自动匹配，未命中回退英语；语言包独立 chunk 按需加载。

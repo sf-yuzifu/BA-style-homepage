@@ -173,6 +173,26 @@ Run `yarn build` and redeploy. The build validates `_config.yaml` and `public/` 
 
 Full field comments: **[`_config.example.yaml`](./_config.example.yaml)**.
 
+## 🎮 Interaction
+
+When the lobby HUD is visible (not in full-screen Live2D-only mode):
+
+- **← / →**: switch memorial lobby character (same as the on-screen arrows; ignored while typing in an input or when the settings modal is open)
+
+Head-pat, gaze follow, tap-to-talk, etc. are listed under **Features → Memorial lobby Live2D**.
+
+## 💾 localStorage
+
+The site persists data in browser `localStorage`. Forkers and users can clear entries via DevTools → Application → Local Storage, then reload:
+
+| Key | Format | Purpose |
+| --- | --- | --- |
+| `fa-settings` | JSON | Volume / mute, `introMode` (`always` \| `once`), `introSeen`, `clickEffect` |
+| `fa-locale` | string | Language: `auto` or `zh-CN` / `zh-TW` / `en-US` / `ja-JP` |
+| `fa-wallet` | JSON | Wallet: `ap`, `apSettleAt`, `gold`, `dwellSeconds`, `pyroxene`, `signInDays`, `lastSignIn` |
+
+Changes to these keys sync across open tabs.
+
 ## 🌐 About i18n
 
 **Base config + language pack overrides**: `_config.yaml` holds paths and links; `src/locales/*.yaml` overrides titles, UI strings, `memorialLobbies[].voice`, etc.; `bio/{locale}.md` is the bio body. Browser language is auto-detected; unmatched locales fall back to English. Language packs are separate chunks loaded on demand.
