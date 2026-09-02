@@ -23,6 +23,11 @@ const routes: RouteRecordRaw[] = [
     component: Bio,
     // 页面标题对应的 i18n 键（translate.bio）
     meta: { titleKey: 'bio' }
+  },
+  // 未知路径：服务端已回退 index.html，此处再统一进大厅（不做独立 404 页）
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
 ]
 
