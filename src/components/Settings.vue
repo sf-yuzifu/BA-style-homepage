@@ -18,7 +18,8 @@ const emit = defineEmits<{
 const { configs, localePreference, setLocalePreference } = useConfig()
 const { isOriginalAuthor, copyrightYear, authorName, isReady: aboutReady } = useAboutCopyright()
 const { prefersReducedMotion } = useReducedMotion()
-const { voiceMuted, voiceVolume, bgmMuted, bgmVolume, introMode, clickEffect } = useSettings()
+const { voiceMuted, voiceVolume, bgmMuted, bgmVolume, introMode, clickEffect, lobbyArrowKeys } =
+  useSettings()
 
 const t = computed(() => configs.value?.translate ?? {})
 
@@ -48,6 +49,13 @@ const clickEffectSwitch = computed({
   get: () => boolToSwitch(clickEffect.value),
   set: (value: string) => {
     clickEffect.value = value === 'on'
+  }
+})
+
+const lobbyArrowKeysSwitch = computed({
+  get: () => boolToSwitch(lobbyArrowKeys.value),
+  set: (value: string) => {
+    lobbyArrowKeys.value = value === 'on'
   }
 })
 
@@ -229,6 +237,16 @@ const moveTab = (step: number) => {
               :options="onOffOptions"
               :label="t.settingsClickFx"
               :disabled="prefersReducedMotion"
+            />
+          </section>
+
+          <section class="row">
+            <h3 class="row-title">{{ t.settingsLobbyArrowKeys || 'Arrow keys' }}</h3>
+            <p class="row-desc">{{ t.settingsLobbyArrowKeysDesc }}</p>
+            <SettingRadio
+              v-model="lobbyArrowKeysSwitch"
+              :options="onOffOptions"
+              :label="t.settingsLobbyArrowKeys"
             />
           </section>
         </template>

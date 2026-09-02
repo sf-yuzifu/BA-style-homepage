@@ -131,6 +131,8 @@ translate:
   settingsIntroOnce: First visit only
   settingsClickFx: Click effect
   settingsClickFxDesc: Blue Archive style effect when you click the page.
+  settingsLobbyArrowKeys: Arrow keys
+  settingsLobbyArrowKeysDesc: When the lobby HUD is visible, press ← / → to switch memorial lobby characters (same as the on-screen arrows; ignored in full-screen mode or while typing).
   settingsReducedMotion: Reduced motion is enabled in your system, so presentation options are inactive.
 
 bio:

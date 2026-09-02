@@ -131,6 +131,8 @@ translate:
   settingsIntroOnce: 僅首次造訪
   settingsClickFx: 點擊特效
   settingsClickFxDesc: 點擊頁面時的蔚藍檔案風格特效。
+  settingsLobbyArrowKeys: 方向鍵切換角色
+  settingsLobbyArrowKeysDesc: 大廳介面展開時，按鍵盤 ← / → 切換回憶大廳角色（與底部箭頭相同；全螢幕觀賞或輸入框聚焦時不響應）。
   settingsReducedMotion: 系統已開啟「減少動態效果」，演出相關選項暫不生效。
 
 bio:

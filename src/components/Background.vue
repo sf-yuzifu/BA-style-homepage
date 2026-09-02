@@ -17,8 +17,10 @@ import {
 import { findDialogueAnchorBone } from '@/composables/spine/boneDetect'
 import { boneToClientPoint } from '@/composables/spine/boneToClient'
 import type { SpineInteractionContext } from '@/composables/spine/types'
+import { useSettings } from '@/composables/useSettings'
 
 const { configs, locale } = useConfig()
+const { lobbyArrowKeys } = useSettings()
 const { modalOpen } = useModalOpen()
 const emit = defineEmits<{
   canskip: [value: boolean]
@@ -127,6 +129,7 @@ const isEditableTarget = (target: EventTarget | null): boolean => {
 }
 
 const onLobbyKeydown = (e: KeyboardEvent) => {
+  if (!lobbyArrowKeys.value) return
   if (props.l2dOnly || webglFailed.value) return
   if (isEditableTarget(e.target)) return
   if (modalOpen.value) return

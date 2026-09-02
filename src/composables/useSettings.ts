@@ -11,6 +11,8 @@ interface SettingsPersistedState {
   introMode?: IntroMode
   introSeen?: boolean
   clickEffect?: boolean
+  /** 大厅 HUD 展开时 ← / → 切换回忆大厅角色 */
+  lobbyArrowKeys?: boolean
 }
 
 const STORAGE_KEY = 'fa-settings'
@@ -26,6 +28,7 @@ const bgmMuted = ref(false)
 const bgmVolume = ref(DEFAULT_BGM_VOLUME)
 const introMode = ref<IntroMode>('once')
 const clickEffect = ref(true)
+const lobbyArrowKeys = ref(true)
 
 // 「已看过开场」不是用户可调项，不进 UI，只用于 introMode === 'once' 的判断
 let introSeen = false
@@ -58,6 +61,7 @@ const applyPersistedState = (state: SettingsPersistedState) => {
     bgmVolume.value = readVolume(state.bgmVolume, DEFAULT_BGM_VOLUME)
     introMode.value = state.introMode === 'always' ? 'always' : 'once'
     clickEffect.value = state.clickEffect ?? true
+    lobbyArrowKeys.value = state.lobbyArrowKeys ?? true
     if (state.introSeen !== undefined) introSeen = state.introSeen
   } finally {
     applyingRemote = false
@@ -76,7 +80,8 @@ const saveState = () => {
         bgmVolume: bgmVolume.value,
         introMode: introMode.value,
         introSeen,
-        clickEffect: clickEffect.value
+        clickEffect: clickEffect.value,
+        lobbyArrowKeys: lobbyArrowKeys.value
       })
     )
   } catch {
@@ -109,7 +114,10 @@ const ensureInit = () => {
   registerStorageSync()
 
   scope.run(() => {
-    watch([voiceMuted, voiceVolume, bgmMuted, bgmVolume, introMode, clickEffect], saveState)
+    watch(
+      [voiceMuted, voiceVolume, bgmMuted, bgmVolume, introMode, clickEffect, lobbyArrowKeys],
+      saveState
+    )
   })
 }
 
@@ -142,6 +150,7 @@ export function useSettings() {
     bgmVolume,
     introMode,
     clickEffect,
+    lobbyArrowKeys,
     effectiveVoiceVolume,
     effectiveBgmVolume,
     shouldPlayIntro,

@@ -132,6 +132,8 @@ translate:
   settingsIntroOnce: 初回のみ
   settingsClickFx: クリックエフェクト
   settingsClickFxDesc: ページをクリックしたときのブルアカ風エフェクト。
+  settingsLobbyArrowKeys: 方向キーでキャラ切替
+  settingsLobbyArrowKeysDesc: ロビー HUD 表示中、キーボード ← / → でメモリアルロビーのキャラを切り替えます（画面下の矢印と同じ。全画面鑑賞中や入力中は無効）。
   settingsReducedMotion: システムで「視差効果を減らす」が有効なため、演出の設定は適用されません。
 
 bio:

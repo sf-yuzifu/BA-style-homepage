@@ -177,7 +177,7 @@ Fork 后主要改两处：
 
 大厅 HUD 展开时（非全屏 Live2D 观赏模式）：
 
-- **← / →**：切换回忆大厅角色（与底部箭头同效；输入框聚焦或设置弹窗打开时不响应）
+- **← / →**：切换回忆大厅角色（与底部箭头同效；可在 **设置 → 演出 → 方向键切换角色** 关闭；输入框聚焦或设置弹窗打开时不响应）
 
 摸头、视线跟随、点击台词等见上方「功能特点 → 回忆大厅 Live2D 互动」。
 
@@ -187,7 +187,7 @@ Fork 后主要改两处：
 
 | 键 | 格式 | 说明 |
 | --- | --- | --- |
-| `fa-settings` | JSON | 音量 / 静音、`introMode`（`always` \| `once`）、`introSeen`（是否已看过开场）、`clickEffect`（点击特效） |
+| `fa-settings` | JSON | 音量 / 静音、`introMode`（`always` \| `once`）、`introSeen`（是否已看过开场）、`clickEffect`（点击特效）、`lobbyArrowKeys`（← / → 切角色） |
 | `fa-locale` | 字符串 | 语言偏好：`auto`（跟随浏览器）或 `zh-CN` / `zh-TW` / `en-US` / `ja-JP` |
 | `fa-wallet` | JSON | 钱包：体力 `ap`、恢复时间 `apSettleAt`、信用点 `gold`、陪伴秒数 `dwellSeconds`、青辉石 `pyroxene`、签到 `signInDays` / `lastSignIn` |
 

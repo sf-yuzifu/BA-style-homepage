@@ -183,6 +183,8 @@ export interface TranslateConfig {
   settingsIntroOnce?: string
   settingsClickFx?: string
   settingsClickFxDesc?: string
+  settingsLobbyArrowKeys?: string
+  settingsLobbyArrowKeysDesc?: string
   settingsReducedMotion?: string
   [key: string]: string | undefined
 }

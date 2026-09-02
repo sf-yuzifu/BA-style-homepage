@@ -129,6 +129,8 @@ translate:
   settingsIntroOnce: 仅首次访问
   settingsClickFx: 点击特效
   settingsClickFxDesc: 点击页面时的蔚蓝档案风格特效。
+  settingsLobbyArrowKeys: 方向键切换角色
+  settingsLobbyArrowKeysDesc: 大厅界面展开时，按键盘 ← / → 切换回忆大厅角色（与底部箭头相同；全屏观赏或输入框聚焦时不响应）。
   settingsReducedMotion: 系统已开启「减少动效」，演出相关选项暂不生效。
 
 bio:
