@@ -21,7 +21,7 @@
 
 **小鱼档案（Fish Archive）** 是一个高度还原《蔚蓝档案》游戏风格的个人主页。项目基于 **Vue 3 + Vite** 构建，通过 **PIXI.js + Spine** 渲染游戏回忆大厅的骨骼动画（Live2D），并实现了摸头、视线跟随、捏脸、语音对话等一系列互动效果，力求在浏览器中还原游戏内「与学生相处」的沉浸感。
 
-全站内容（站点信息、联系方式、项目展示、音乐列表、Live2D 角色等）均可通过根目录的 `_config.yaml` 完成定制，个人简介正文写在 `bio/{语言}.md`，无需改源码即可部署属于你自己的主页。
+全站内容（站点信息、联系方式、项目展示、音乐列表、Live2D 角色等）均可通过根目录的 **`_config.yaml`** 完成定制（Fork 可参考 **`_config.example.yaml`**），个人简介正文写在 `bio/{语言}.md`，无需改源码即可部署属于你自己的主页。
 
 ## ✨ 功能特点
 
@@ -156,237 +156,33 @@ yarn preview
 
 ## ⚙️ 个性化
 
-本项目个性化主要通过根目录的 **`_config.yaml`**（站点配置）与 **`bio/`**（个人简介正文）完成（YAML / Markdown，方便阅读；如需从旧版 JSON 迁移配置，可通过 [此网站](https://www.json.cn/json2yaml/) 快速转换）。
+Fork 后主要改两处：
 
-修改配置后重新构建部署即可生效。
+| 文件 | 作用 |
+| --- | --- |
+| **`_config.example.yaml`** | 字段说明与示例结构；**复制为 `_config.yaml`** 后填写 |
+| **`bio/{语言}.md`** | 个人简介正文（Markdown，支持内嵌 HTML） |
 
-个人简介页右侧正文来自 **`bio/{语言}.md`**（如 `bio/zh-CN.md`），支持 GitHub 风格 Markdown 与内嵌 HTML（例如 GitHub Stats 图片），并随浏览器语言切换。缺某个语言时回退到 `bio/en-US.md`，再缺则用目录里的任意一份；fork 后按需只写自己要用的语言即可。
+修改后 `yarn build` 重新部署即可。构建会校验 `_config.yaml` 与 `public/` 资源路径；缺语言包时简介回退 `bio/en-US.md`。
 
-社交分享卡片由构建时用 sharp 将 **`shots/zh/pic1.png`**（首页）与 **`pic2.png`**（简介页）等比裁切为 1200×630 生成；`/bio` 有独立 `og` 标签（产物为 `dist/bio/index.html`）。刷新该路径的主机配置见上方「History 路由」。
+**Fork 提示：**
 
-### Fork 注意事项
+- **图标**：默认 `public/js/iconfont.js`（`iconfont: /js/iconfont.js`）；可在 [iconfont.cn](https://www.iconfont.cn/) 自建 Symbol JS 替换，`dock` / `contact` 也可用 `imgSrc`。
+- **`bin-wrapper-china`**：`package.json` 的 `resolutions` 方便境内安装 `sharp`；海外若 `yarn install` 异常可删该条目后重装。
+- **History 路由 / OG 图 / 子路径 `base`**：见上方「部署方式」。
 
-- **图标**：默认使用仓库内置 **`public/js/iconfont.js`**（`_config.yaml` 的 `iconfont: /js/iconfont.js`）。留空配置时也会回退到该文件。换图标可在 [iconfont.cn](https://www.iconfont.cn/) 自建项目，导出 Symbol JS 后替换此文件或改配置 URL；`dock` / `contact` 也可用 `imgSrc`。
-- **`bin-wrapper-china`**：`package.json` 的 `resolutions` 将 `bin-wrapper` 指向国内镜像，方便 `sharp` 等依赖在境内安装。海外环境若 `yarn install` 异常，可删除该 `resolutions` 条目后重装依赖。
-
-<details>
-<summary><b>点击展开 _config.yaml 配置说明</b></summary>
-
-```yaml
-# 网站基本配置
-title: Fish Archive # 网站标题 - 浏览器标签页显示的标题
-description: A personal homepage in Blue Archive style. # 网站描述 - 用于搜索引擎优化和社交媒体分享
-favicon: /favicon144.png # 网站图标路径 - 浏览器标签页显示的小图标
-author: Yuzifu # 网站作者姓名
-keywords: 'Blue Archive, 小鱼yuzifu, Personal Homepage' # 网站关键词 - 用于搜索引擎优化，逗号分隔
-
-# 站点规范地址 - 用于拼接 og:image/og:url/canonical 的绝对 URL（社交分享卡片要求绝对地址），
-# 留空则 og:url/canonical 不输出、og:image 退回相对路径
-url: 'https://yzf.moe'
-
-# ICP备案号 - 中国大陆备案信息，留空表示未备案
-ICP: ''
-# 公安备案号 - 中国大陆网站备案信息，留空表示未备案
-gongan: ''
-
-# PWA配置 - 渐进式Web应用配置
-manifest:
-  name: Fish Archive # PWA应用完整名称
-  short_name: Fish Archive # PWA应用简短名称 - 用于桌面显示
-  description: A personal homepage in Blue Archive style. # PWA应用描述
-  theme_color: '#128AFA' # PWA主题颜色 - 影响浏览器UI颜色
-  start_url: / # PWA启动URL - 应用启动时打开的页面
-  id: Homepage # PWA应用唯一标识符
-  # PWA图标配置
-  icons:
-    # 大尺寸图标 - 用于桌面安装
-    - src: /favicon512.png
-      sizes: 512x512
-      purpose: any maskable
-    # 小尺寸图标 - 用于移动设备
-    - src: /favicon144.png
-      sizes: 144x144
-
-# 个人游戏等级信息
-level: 90 # 当前等级
-exp: 8382 # 当前经验值
-nextExp: 8381 # 升级所需经验值
-gold: 11451419 # 信用点初始值（首次访问后由本地「陪伴时长」累计接管）
-pyroxene: 24000 # 青辉石初始值（首次访问后由本地「每日签到」累计接管）
-
-# Iconfont字体库地址 - 阿里云图标字体库
-# Iconfont JS（默认 /js/iconfont.js，见 public/js/iconfont.js）
-iconfont: /js/iconfont.js
-
-# 底部项目展示区域 - 显示相关项目链接（推荐5个）
-dock:
-  # 项目1
-  - name: Fish Archive Project
-    href: 'https://gitee.com/sf-yuzifu/eat-fish-together'
-    imgSrc: /img/fish.png
-
-# 左侧联系方式区域（推荐4个）
-contact:
-  # 联系方式1
-  - name: Github Profile
-    href: 'https://github.com/sf-yuzifu'
-    iconfont: icon-github
-
-# 任务按钮配置 - 页面左下角的任务按钮
-task:
-  # 任务按钮显示文本
-  name: Blog Link
-  # 任务按钮链接地址
-  href: 'https://blog.yzf.moe/'
-
-# Banner音乐播放器配置
-banner:
-  # 网易云音乐歌曲ID列表 - 用于随机播放
-  musicID:
-    - 2059151619
-
-# Live2D角色配置
-#
-# 每个角色可选配 interactions 段定制交互动效（全部缺省时按骨名自动探测，一般无需配置；
-# 默认数值取自官方资源包解包的 SpineDragIK 参数，bone 缺省自动探测 Touch_Eye/Touch_Point 等）：
-#   interactions:
-#     # 视线跟随：按住拖动时角色看向触点；false 可禁用
-#     gaze: { bone: Touch_Eye, smoothTime: 0.15, minX: -48.1, maxX: 79.0, minY: -57.2, maxY: 98.3 }
-#     # 摸头：长按头部区域触发，头部跟随手指；false 可禁用
-#     pat: { bone: Touch_Point, smoothTime: 0.1, minX: -9.6, maxX: 13.5, minY: -33.9, maxY: 32.6 }
-#     # 捏脸/特殊骨骼拖拽；false 禁用，数组则覆盖自动探测结果（默认自动探测 Face_IK/Neck_IK/breast_* 等）
-#     dragBones:
-#       - { bone: breast_01L, radius: 120, range: 30, smoothTime: 0.08 }
-#
-# bone 为骨骼名；minX/maxX/minY/maxY 为拖拽钳制范围（骨架单位，相对基准位置的偏移，可用 range 做对称简写）；
-# radius 为按下命中半径；smoothTime 为平滑时间（秒，越小越跟手）
-#
-# 角色语音：放在各角色 path 下的 ja-JP/、zh-CN/ 目录，文件名为 spine talk 事件 key + .mp3
-# （简体界面优先 zh-CN，缺文件时回退 ja-JP）。从 OGG 批量转码：yarn voices:mp3
-memorialLobbies:
-  # 角色1 - Aris
-  - name: Aris
-    # Live2D模型文件路径
-    path: '/l2d/aris/'
-    # 骨骼动画文件
-    skel: 'Aris_home.skel'
-    # 纹理图集文件
-    atlas: 'Aris_home.atlas'
-    # 角色在屏幕中的水平位置偏移（0-1之间）
-    offset: 0.45
-    # 对话框显示位置配置
-    dialogueDisplay:
-      # X坐标位置（可以是分数）
-      x: -1/4 - 1/16
-      # Y坐标位置（可以是分数）
-      y: -1/16
-      # 对话框位置（left/right）
-      position: right
-
-# 个人简介页配置
-bio:
-  student:
-    - name: CH0334_spr
-      # Live2D模型文件路径
-      path: '/l2d/CH0334_spr/'
-      # 骨骼动画文件
-      skel: 'CH0334_spr.skel'
-      # 纹理图集文件
-      atlas: 'CH0334_spr.atlas'
-  btn:
-    - name: 蔚蓝档案
-      path: /img/card/ba.png
-    - name: 明日方舟
-      path: /img/card/arknight.png
-```
-
-</details>
+完整字段注释见 **[`_config.example.yaml`](./_config.example.yaml)**。
 
 ## 🌐 有关 i18n
 
-本项目支持多语言国际化。配置采用「**基础配置 + 语言包覆盖**」，个人简介正文按语言分文件：
-
-- **`_config.yaml`**：基础配置，存放与语言无关的内容（资源路径、链接、图标等）
-- **`bio/{语言}.md`**：个人简介正文（Markdown），随界面语言切换
-- **`src/locales/*.yaml`**：各语言翻译文件，按语言深度合并覆盖基础配置中的文本内容
-
-站点会自动检测访客浏览器语言并加载对应语言包，未匹配时回退至英语；语言包为独立 chunk 按需加载，不会拖累首屏速度。
-
-### 翻译文件目录结构
+**基础配置 + 语言包覆盖**：`_config.yaml` 放路径与链接；`src/locales/*.yaml` 按语言覆盖标题、按钮文案、`memorialLobbies[].voice` 等；`bio/{locale}.md` 为简介正文。浏览器语言自动匹配，未命中回退英语；语言包独立 chunk 按需加载。
 
 ```
-src/locales/
-├── zh-CN.yaml  # 简体中文翻译文件
-├── zh-TW.yaml  # 繁体中文翻译文件
-├── en-US.yaml  # 英文翻译文件
-└── ja-JP.yaml  # 日文翻译文件
-
-bio/
-├── zh-CN.md    # 简体中文简介正文
-├── zh-TW.md    # 繁体中文简介正文
-├── en-US.md    # 英文简介正文
-└── ja-JP.md    # 日文简介正文
+src/locales/   zh-CN.yaml  zh-TW.yaml  en-US.yaml  ja-JP.yaml
+bio/           zh-CN.md    zh-TW.md    en-US.md    ja-JP.md
 ```
 
-### 翻译文件配置项
-
-以 `src/locales/zh-CN.yaml` 为例，翻译文件包含以下配置项：
-
-```yaml
-# 网站标题、描述和关键词
-title: 网站标题
-description: 网站描述
-keywords: 关键词列表
-
-# PWA配置
-manifest:
-  name: PWA应用名称
-  short_name: PWA应用短名
-  description: PWA应用描述
-
-# 作者名称
-author: 作者名称
-
-# 底部项目展示区域（按索引与 _config.yaml 中的 dock 一一对应）
-dock:
-  - name: 项目名称
-
-# 左侧联系方式区域
-contact:
-  - name: 联系方式名称
-
-# 任务按钮配置
-task:
-  name: 任务按钮显示文本
-
-# 纪念大厅角色显示名称
-memorialLobbies:
-  - name: 角色名称
-
-# 角色语音对话翻译（按角色索引配置）
-memorialLobbies[0]:
-  voice:
-    对话键: 对话内容
-
-# 通用界面翻译字符串
-translate:
-  about: 关于
-  projectWebsite: 项目地址：
-  info: 通知
-  ifSkip: 是否跳过？
-  update: 站点更新提示
-  ok: 确认
-  cancel: 取消
-  bio: 个人简介
-  bioTitle: 自我介绍
-  prevPage: 上一页
-  nextPage: 下一页
-
-bio:
-  btn:
-    - name: 蔚蓝档案
-    - name: 明日方舟
-```
+翻译文件里常见项：`title`、`manifest`、`dock[].name`、`contact[].name`、`task.name`、`memorialLobbies[].name`、`memorialLobbies[N].voice`、`translate.*`（界面字符串）、`bio.btn[].name`。可参考现有 `src/locales/zh-CN.yaml`。
 
 ## 🎁 有关学生回忆大厅 L2D 文件获取
 

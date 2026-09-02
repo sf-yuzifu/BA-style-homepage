@@ -1,0 +1,110 @@
+# =============================================================================
+# 站点配置示例 — Fork 后复制为 _config.yaml 再按需修改
+# Example site config — copy to _config.yaml and customize
+# =============================================================================
+#
+# 构建时会校验 _config.yaml 字段与 public/ 资源是否存在；本文件不参与构建。
+# 多语言文案在 src/locales/*.yaml 覆盖；个人简介正文在 bio/{locale}.md
+#
+# 语音（可选）：各角色 path 下 ja-JP/、zh-CN/ 目录，文件名为 spine talk 事件 key + .mp3
+# 从 OGG 批量转码：yarn voices:mp3
+
+# --- 站点基本信息 / Site meta ---
+
+title: My Homepage
+description: A personal homepage in Blue Archive style.
+favicon: /favicon144.png
+author: Your Name
+keywords: 'Blue Archive, Personal Homepage'
+
+# 社交分享绝对 URL 前缀；留空则 og:url/canonical 不输出
+url: 'https://example.com'
+
+ICP: ''
+gongan: ''
+
+manifest:
+  name: My Homepage
+  short_name: Homepage
+  description: A personal homepage in Blue Archive style.
+  theme_color: '#128AFA'
+  start_url: /
+  id: Homepage
+  icons:
+    - src: /favicon512.png
+      sizes: 512x512
+      purpose: any maskable
+    - src: /favicon144.png
+      sizes: 144x144
+
+# --- 大厅数值（首次访问后部分由 localStorage 接管）/ Lobby stats ---
+
+level: 1
+exp: 0
+nextExp: 100
+gold: 0
+pyroxene: 0
+
+# 图标字体 JS；默认仓库内置 public/js/iconfont.js
+iconfont: /js/iconfont.js
+
+# --- 底部项目 / Footer dock（推荐 ≤5）---
+
+dock:
+  - name: My Project
+    href: 'https://github.com/you/repo'
+    imgSrc: /img/fish.png
+
+# --- 左侧联系 / Contact grid（推荐 4）---
+
+contact:
+  - name: GitHub
+    href: 'https://github.com/you'
+    iconfont: icon-github
+
+# --- 左下角任务按钮 / Task button ---
+
+task:
+  name: Blog
+  href: 'https://example.com/blog'
+
+# --- 音乐 Banner / Music player ---
+
+banner:
+  musicID:
+    - 2059151619
+
+# --- 回忆大厅 Live2D / Memorial lobbies ---
+#
+# 必填：name, path, skel, atlas, offset（0–1 水平位置）
+#
+# 可选 interactions（缺省则按骨骼名自动探测，一般无需写）：
+#   interactions:
+#     gaze: { bone: Touch_Eye, smoothTime: 0.15, minX: -48.1, maxX: 79.0, minY: -57.2, maxY: 98.3 }
+#     pat: { bone: Touch_Point, smoothTime: 0.1, minX: -9.6, maxX: 13.5, minY: -33.9, maxY: 32.6 }
+#     dragBones:
+#       - { bone: breast_01L, radius: 120, range: 30, smoothTime: 0.08 }
+#     设为 false 可禁用对应互动：gaze: false / pat: false / dragBones: false
+#
+# 台词气泡默认自动跟随嘴/脸骨骼；可选 dialogueDisplay：
+#   mode: auto | manual（manual 时用 x/y/position 手动定位）
+#   bone, offsetX, offsetY, side: auto | left | right
+
+memorialLobbies:
+  - name: Example
+    path: '/l2d/aris_battle/'
+    skel: 'CH0334_home.skel'
+    atlas: 'CH0334_home.atlas'
+    offset: 0.5
+
+# --- 个人简介页 / Bio page ---
+
+bio:
+  student:
+    - name: CH0334_spr
+      path: '/l2d/CH0334_spr/'
+      skel: 'CH0334_spr.skel'
+      atlas: 'CH0334_spr.atlas'
+  btn:
+    - name: Game A
+      path: /img/card/ba.png

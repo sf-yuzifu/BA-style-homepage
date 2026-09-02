@@ -21,7 +21,7 @@
 
 **Fish Archive** is a personal homepage that faithfully recreates the style of the game *Blue Archive*. Built with **Vue 3 + Vite**, it renders memorial lobby skeletal animations (Live2D) from the game via **PIXI.js + Spine**, and implements a series of interactive effects such as head-patting, gaze following, cheek dragging, and voice dialogue — striving to reproduce the immersive feeling of "spending time with students" right in your browser.
 
-All site content (site info, contacts, project showcase, music list, Live2D characters, etc.) can be customized through `_config.yaml` in the root directory. The bio page body lives in `bio/{locale}.md` — deploy your own homepage without touching the source code.
+All site content (site info, contacts, project showcase, music list, Live2D characters, etc.) can be customized through **`_config.yaml`** in the root directory (forks: see **`_config.example.yaml`**). The bio page body lives in `bio/{locale}.md` — deploy your own homepage without touching the source code.
 
 ## ✨ Features
 
@@ -156,242 +156,33 @@ yarn preview
 
 ## ⚙️ Customization
 
-Customization is done through **`_config.yaml`** (site config) and **`bio/`** (bio page body) in the root directory (YAML / Markdown for easy reading; to migrate config from the legacy JSON format, you can use [this website](https://www.json.cn/json2yaml/) to quickly convert JSON to YAML).
+After forking, edit mainly:
 
-After modifying the configuration, rebuild and redeploy for changes to take effect.
+| File | Purpose |
+| --- | --- |
+| **`_config.example.yaml`** | Field reference and sample structure — **copy to `_config.yaml`** and fill in |
+| **`bio/{locale}.md`** | Bio page body (Markdown; inline HTML OK) |
 
-The right-hand bio text comes from **`bio/{locale}.md`** (e.g. `bio/en-US.md`). It supports GitHub-flavored Markdown and inline HTML (e.g. GitHub Stats images), and follows the visitor's language. Missing locales fall back to `bio/en-US.md`, then to any file in the folder — forks only need to add the languages they use.
+Run `yarn build` and redeploy. The build validates `_config.yaml` and `public/` asset paths. Missing bio locales fall back to `bio/en-US.md`.
 
-Share cards are 1200×630 JPEGs cover-cropped at build time with sharp from **`shots/zh/pic1.png`** (home) and **`pic2.png`** (bio). `/bio` has its own Open Graph tags (`dist/bio/index.html`). See **History routes** above for refresh/404 hosting.
+**Forking notes:**
 
-### Forking notes
+- **Icons**: Default `public/js/iconfont.js` (`iconfont: /js/iconfont.js`). Use your own [iconfont.cn](https://www.iconfont.cn/) Symbol JS export, or `imgSrc` on `dock` / `contact` items.
+- **`bin-wrapper-china`**: `package.json` `resolutions` helps `sharp` install in China; delete it if `yarn install` fails elsewhere.
+- **History routes / OG images / subpath `base`**: see **Deployment** above.
 
-- **Icons**: The default is the bundled **`public/js/iconfont.js`** (`iconfont: /js/iconfont.js` in `_config.yaml`). If the field is empty, the app falls back to that file. Replace icons via your own [iconfont.cn](https://www.iconfont.cn/) project (Symbol JS export), swap the file or update the URL; `dock` / `contact` items can also use `imgSrc`.
-- **`bin-wrapper-china`**: `package.json` `resolutions` maps `bin-wrapper` to a China mirror for tools like `sharp`. If `yarn install` fails outside China, delete that `resolutions` entry and reinstall.
-
-<details>
-<summary><b>Click to expand the _config.yaml configuration guide</b></summary>
-
-```yaml
-# Website Basic Configuration
-title: Fish Archive # Website title - displayed in browser tab
-description: A personal homepage in Blue Archive style. # Website description - used for SEO and social media sharing
-favicon: /favicon144.png # Website icon path - small icon displayed in browser tab
-author: Yuzifu # Website author name
-keywords: 'Blue Archive, Xiaoyu yuzifu, Personal Homepage' # Website keywords - used for SEO, comma-separated
-
-# Canonical site URL - used to build absolute URLs for og:image/og:url/canonical
-# (social share cards require absolute URLs). Leave empty to skip og:url/canonical
-# and fall back to a relative og:image path
-url: 'https://yzf.moe'
-
-# ICP number - China registration number, empty if not registered or you're not in China
-ICP: ''
-# Public Security Registration Number - China registration number, empty if not registered or you're not in China
-gongan: ''
-
-# PWA Configuration - Progressive Web App configuration
-manifest:
-  name: Fish Archive # PWA app full name
-  short_name: Fish Archive # PWA app short name - used for desktop display
-  description: A personal homepage in Blue Archive style. # PWA app description
-  theme_color: '#128AFA' # PWA theme color - affects browser UI color
-  start_url: / # PWA start URL - page opened when app launches
-  id: Homepage # PWA app unique identifier
-  # PWA icon configuration
-  icons:
-    # Large icon - used for desktop installation
-    - src: /favicon512.png
-      sizes: 512x512
-      purpose: any maskable
-    # Small icon - used for mobile devices
-    - src: /favicon144.png
-      sizes: 144x144
-
-# Personal game level information
-level: 90 # Current level
-exp: 8382 # Current experience points
-nextExp: 8381 # Experience points needed to level up
-gold: 11451419 # Initial credits (taken over by the local "time spent together" accumulation after the first visit)
-pyroxene: 24000 # Initial pyroxene (taken over by the local "daily sign-in" accumulation after the first visit)
-
-# Iconfont font library address - Alibaba Cloud icon font library
-# Iconfont JS (default /js/iconfont.js — see public/js/iconfont.js)
-iconfont: /js/iconfont.js
-
-# Bottom project showcase area - display related project links (recommended 5)
-dock:
-  # Project 1
-  - name: Fish Archive Project
-    href: 'https://gitee.com/sf-yuzifu/eat-fish-together'
-    imgSrc: /img/fish.png
-
-# Left contact information area (recommended 4)
-contact:
-  # Contact 1
-  - name: Github Profile
-    href: 'https://github.com/sf-yuzifu'
-    iconfont: icon-github
-
-# Task button configuration - task button at the bottom left of the page
-task:
-  # Task button display text
-  name: Blog Link
-  # Task button link address
-  href: 'https://blog.yzf.moe/'
-
-# Banner music player configuration
-banner:
-  # NetEase Cloud Music song ID list - used for random playback
-  musicID:
-    - 2059151619
-
-# Live2D Character Configuration
-#
-# Each character supports an optional `interactions` section to customize interaction effects
-# (when omitted, bones are auto-detected by name, so no configuration is usually needed;
-# default values come from the SpineDragIK parameters in the official resource packages,
-# and `bone` auto-detects Touch_Eye/Touch_Point, etc.):
-#   interactions:
-#     # Gaze following: character looks at the touch point while dragging; false to disable
-#     gaze: { bone: Touch_Eye, smoothTime: 0.15, minX: -48.1, maxX: 79.0, minY: -57.2, maxY: 98.3 }
-#     # Head-patting: triggered by long-pressing the head area, head follows the finger; false to disable
-#     pat: { bone: Touch_Point, smoothTime: 0.1, minX: -9.6, maxX: 13.5, minY: -33.9, maxY: 32.6 }
-#     # Cheek/special bone dragging; false to disable, an array overrides auto-detection
-#     # (by default auto-detects Face_IK/Neck_IK/breast_* etc.)
-#     dragBones:
-#       - { bone: breast_01L, radius: 120, range: 30, smoothTime: 0.08 }
-#
-# `bone` is the bone name; minX/maxX/minY/maxY are drag clamp ranges (in skeleton units,
-# offsets relative to the base position; `range` can be used as a symmetric shorthand);
-# `radius` is the press hit radius; `smoothTime` is the smoothing time (in seconds, smaller = more responsive)
-#
-# Voice lines: `ja-JP/{eventKey}.mp3` and optional `zh-CN/{eventKey}.mp3` under each character `path`
-# (zh-CN UI prefers Chinese audio, falls back to ja-JP). Batch OGG→MP3: `yarn voices:mp3`
-memorialLobbies:
-  # Character 1 - Aris
-  - name: Aris
-    # Live2D model file path
-    path: '/l2d/aris/'
-    # Skeleton animation file
-    skel: 'Aris_home.skel'
-    # Texture atlas file
-    atlas: 'Aris_home.atlas'
-    # Character horizontal position offset on screen (between 0-1)
-    offset: 0.45
-    # Dialogue box display position configuration
-    dialogueDisplay:
-      # X coordinate position (can be a fraction)
-      x: -1/4 - 1/16
-      # Y coordinate position (can be a fraction)
-      y: -1/16
-      # Dialogue box position (left/right)
-      position: right
-
-# Bio page configuration
-bio:
-  student:
-    - name: CH0334_spr
-      # Live2D model file path
-      path: '/l2d/CH0334_spr/'
-      # Skeleton animation file
-      skel: 'CH0334_spr.skel'
-      # Texture atlas file
-      atlas: 'CH0334_spr.atlas'
-  btn:
-    - name: Blue Archive
-      path: /img/card/ba.png
-    - name: Arknights
-      path: /img/card/arknight.png
-```
-
-</details>
+Full field comments: **[`_config.example.yaml`](./_config.example.yaml)**.
 
 ## 🌐 About i18n
 
-This project supports multilingual internationalization. The configuration adopts a "**base config + language pack override**" structure, with the bio body split by language:
-
-- **`_config.yaml`**: the base configuration, holding language-agnostic content (resource paths, links, icons, etc.)
-- **`bio/{locale}.md`**: bio page body (Markdown); follows the UI language
-- **`src/locales/*.yaml`**: per-language translation files, deep-merged over the text content of the base config
-
-The site automatically detects the visitor's browser language and loads the matching language pack, falling back to English when unmatched. Language packs are split into independent chunks and loaded on demand, so they won't slow down the first screen.
-
-### Translation File Directory Structure
+**Base config + language pack overrides**: `_config.yaml` holds paths and links; `src/locales/*.yaml` overrides titles, UI strings, `memorialLobbies[].voice`, etc.; `bio/{locale}.md` is the bio body. Browser language is auto-detected; unmatched locales fall back to English. Language packs are separate chunks loaded on demand.
 
 ```
-src/locales/
-├── zh-CN.yaml  # Simplified Chinese translation file
-├── zh-TW.yaml  # Traditional Chinese translation file
-├── en-US.yaml  # English translation file
-└── ja-JP.yaml  # Japanese translation file
-
-bio/
-├── zh-CN.md    # Simplified Chinese bio body
-├── zh-TW.md    # Traditional Chinese bio body
-├── en-US.md    # English bio body
-└── ja-JP.md    # Japanese bio body
+src/locales/   zh-CN.yaml  zh-TW.yaml  en-US.yaml  ja-JP.yaml
+bio/           zh-CN.md    zh-TW.md    en-US.md    ja-JP.md
 ```
 
-### Translation File Configuration Items
-
-Taking `src/locales/en-US.yaml` as an example, the translation file contains the following configuration items:
-
-```yaml
-# Website title, description and keywords
-title: Website Title
-description: Website Description
-keywords: Keyword List
-
-# PWA Configuration
-manifest:
-  name: PWA App Name
-  short_name: PWA App Short Name
-  description: PWA App Description
-
-# Author name
-author: Author Name
-
-# Bottom project showcase area (matches dock in _config.yaml by index)
-dock:
-  - name: Project Name
-
-# Left contact information area
-contact:
-  - name: Contact Name
-
-# Task button configuration
-task:
-  name: Task Button Display Text
-
-# Memorial lobby character display name
-memorialLobbies:
-  - name: Character Name
-
-# Character voice dialogue translation (configured per character index)
-memorialLobbies[0]:
-  voice:
-    dialogue_key: Dialogue Content
-
-# Common interface translation strings
-translate:
-  about: About
-  projectWebsite: 'Project URL:'
-  info: Notification
-  ifSkip: Skip?
-  update: Site Update Notification
-  ok: Confirm
-  cancel: Cancel
-  bio: Biography
-  bioTitle: Self Introduction
-  prevPage: Previous
-  nextPage: Next
-
-bio:
-  btn:
-    - name: Blue Archive
-    - name: Arknights
-```
+Typical keys in locale files: `title`, `manifest`, `dock[].name`, `contact[].name`, `task.name`, `memorialLobbies[].name`, `memorialLobbies[N].voice`, `translate.*`, `bio.btn[].name`. See `src/locales/en-US.yaml` for a full example.
 
 ## 🎁 About Student Memorial Lobby L2D File Acquisition
 
