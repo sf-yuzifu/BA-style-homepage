@@ -99,6 +99,7 @@ translate:
   info: Info
   ifSkip: Skip?
   update: Sensei! The site has been updated. Refresh to view the newest content!
+  loadDegraded: Some resources failed to load after several attempts. You've entered with a degraded experience; check your network and refresh to retry.
   ok: OK
   cancel: Cancel
   bio: Biography

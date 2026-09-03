@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { computed, onUnmounted, watch } from 'vue'
+import { computed, ref, onUnmounted, watch } from 'vue'
 import { useReducedMotion } from '@/composables/useReducedMotion'
 import { useSettings } from '@/composables/useSettings'
+import { live2dReady } from '@/init/live2d'
 
 const { prefersReducedMotion } = useReducedMotion()
 const { clickEffect } = useSettings()
 
+// 点击特效推迟到加载屏结束后再初始化（live2dReady 按设计总会 resolve，含失败降级），
+// 避免在加载关键路径上额外解析 574KB chunk 并创建第二个 WebGL 上下文
+const appReady = ref(false)
+live2dReady.then(() => {
+  appReady.value = true
+})
+
 // 蔚蓝档案点击特效（全平台保留；系统「减少动效」或设置面板关闭时不加载）
-const enabled = computed(() => !prefersReducedMotion.value && clickEffect.value)
+const enabled = computed(() => appReady.value && !prefersReducedMotion.value && clickEffect.value)
 let fx: { destroy: () => void } | null = null
 
 watch(

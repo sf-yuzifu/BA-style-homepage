@@ -1,11 +1,16 @@
 import * as PIXI from 'pixi.js'
 import { useConfig } from '@/composables/useConfig'
+import { retryAsync } from '@/utils/retry'
 
 // Live2D 资源加载完成的共享 Promise（替代 window.l2d_complete 全局标记）
 let resolveLive2DReady!: () => void
 export const live2dReady = new Promise<void>((resolve) => {
   resolveLive2DReady = resolve
 })
+
+// 重试后仍加载失败的角色 path（降级进大厅时由 useLoading 给出用户可见提示）
+const failedLobbyPaths: string[] = []
+export const getFailedLobbyPaths = (): readonly string[] => failedLobbyPaths
 
 export async function initLive2D(): Promise<boolean> {
   try {
@@ -39,13 +44,14 @@ export async function initLive2D(): Promise<boolean> {
         PIXI.Assets.add({ alias: skeletonAlias, src: lobby.path + lobby.skel })
         PIXI.Assets.add({ alias: atlasAlias, src: lobby.path + lobby.atlas })
 
-        // 加载资源
-        await PIXI.Assets.load([skeletonAlias, atlasAlias])
+        // 加载资源（失败自动重试 3 次；PIXI 加载失败会清掉缓存的 rejected Promise，重试会真实重新请求）
+        await retryAsync(() => PIXI.Assets.load([skeletonAlias, atlasAlias]))
 
         console.log(`Live2D资源加载完成: ${lobby.path} (别名: ${skeletonAlias}, ${atlasAlias})`)
       } catch (error) {
-        console.error(`Live2D资源加载失败: ${lobby.path}`, error)
-        // 即使单个资源加载失败，也继续加载其他资源
+        // 重试后仍失败：记录该角色并继续加载其他角色，最终降级进大厅
+        console.error(`Live2D资源重试后仍加载失败: ${lobby.path}`, error)
+        failedLobbyPaths.push(lobby.path)
       }
     })
 

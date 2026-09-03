@@ -111,7 +111,9 @@ export function useResourceLoader() {
 
       console.error(`资源加载失败: ${id}`, error)
 
-      // 即使加载失败，也算作完成，避免无限加载
+      // 降级策略：失败也计入完成，保证进度能到 100% 进大厅。
+      // 真实的失败重试在上游完成（init/live2d.ts 逐角色重试 3 次），这里只是兜底统计；
+      // 重试后仍失败的角色由 useLoading 在进大厅时统一给出用户可见提示
       loadedCount.value++
     }
   }

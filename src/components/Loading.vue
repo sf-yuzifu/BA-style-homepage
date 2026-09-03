@@ -36,7 +36,7 @@ onUnmounted(() => {
         <img :src="imgList[1]" alt="" />
         <img :src="imgList[2]" alt="" />
         <img :src="imgList[3]" alt="" />
-        <video v-if="canPlayTransition" autoplay muted preload="auto">
+        <video v-if="canPlayTransition" muted preload="auto">
           <source :src="TRANSITION_MOV" type='video/mp4; codecs="hvc1"' />
           <source :src="TRANSITION_WEBM" type='video/webm; codecs="vp9"' />
         </video>

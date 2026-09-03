@@ -18,6 +18,7 @@ import { prefersReducedMotionNow } from '@/composables/useReducedMotion'
 import { consumeLocaleChangePending } from '@/composables/useConfig'
 import { useSettings } from '@/composables/useSettings'
 import type { AppConfig } from '@/types/config'
+import { retryAsync } from '@/utils/retry'
 import { tryCreatePixiApp } from './createPixiApp'
 import { initTracks } from './useSpineTracks'
 
@@ -288,12 +289,15 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
 
       addAssetAlias(skeletonAlias, skeletonPath)
       addAssetAlias(atlasAlias, atlasPath)
-      await PIXI.Assets.load([skeletonAlias, atlasAlias])
+      // 失败自动重试 3 次（预加载阶段已失败的角色，切换/进场时再试一次）
+      await retryAsync(() => PIXI.Assets.load([skeletonAlias, atlasAlias]))
 
       animation = Spine.from(skeletonAlias, atlasAlias)
       if (!animation) return
       finishSpineSetup(animation, skeletonPath, atlasPath)
-    } catch {
+    } catch (error) {
+      // 重试后仍失败：保持大厅其他部分可用（降级），不再静默吞掉错误
+      console.error(`Live2D角色资源重试后仍加载失败，跳过该角色: ${lobby.path}`, error)
       return
     }
 
@@ -400,12 +404,15 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
 
       addAssetAlias(skeletonAlias, skeletonPath)
       addAssetAlias(atlasAlias, atlasPath)
-      await PIXI.Assets.load([skeletonAlias, atlasAlias])
+      // 失败自动重试 3 次（预加载阶段已失败的角色，返回大厅时再试一次）
+      await retryAsync(() => PIXI.Assets.load([skeletonAlias, atlasAlias]))
 
       animation = Spine.from(skeletonAlias, atlasAlias)
       if (!animation) return
       finishSpineSetup(animation, skeletonPath, atlasPath)
-    } catch {
+    } catch (error) {
+      // 重试后仍失败：保持大厅其他部分可用（降级），不再静默吞掉错误
+      console.error(`Live2D角色资源重试后仍加载失败，跳过该角色: ${lobby.path}`, error)
       return
     }
 

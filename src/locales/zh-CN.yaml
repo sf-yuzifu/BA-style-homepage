@@ -97,6 +97,7 @@ translate:
   info: 通知
   ifSkip: 是否跳过？
   update: 老师！站点已更新，刷新即可访问最新内容！
+  loadDegraded: 部分资源多次加载失败，已降级进入大厅；建议检查网络后刷新重试。
   ok: 确认
   cancel: 取消
   bio: 个人简介

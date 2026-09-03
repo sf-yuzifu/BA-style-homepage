@@ -153,6 +153,7 @@ export interface TranslateConfig {
   info?: string
   ifSkip?: string
   update?: string
+  loadDegraded?: string
   ok?: string
   cancel?: string
   bio?: string

@@ -1,8 +1,9 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { Modal } from '@arco-design/web-vue'
 import { useResourceLoader } from './useResourceLoader'
 import { useConfig } from './useConfig'
 import { loadFonts } from '@/init/fonts'
-import { initLive2D } from '@/init/live2d'
+import { getFailedLobbyPaths, initLive2D } from '@/init/live2d'
 import { prefersReducedMotionNow } from './useReducedMotion'
 
 export function useLoading() {
@@ -16,7 +17,7 @@ export function useLoading() {
 
   // 使用资源加载管理器和配置
   const resourceLoader = useResourceLoader()
-  const { waitForConfig } = useConfig()
+  const { configs, waitForConfig } = useConfig()
 
   // 平滑动画函数
   const animateProgress = () => {
@@ -179,6 +180,23 @@ export function useLoading() {
     isReady.value = true
 
     console.log('应用加载完成，准备切换到主界面')
+
+    notifyIfDegraded()
+  }
+
+  // 有角色资源重试后仍失败时，给出用户可见的降级提示（与 PWA 更新提示一致走 Modal）
+  const notifyIfDegraded = () => {
+    if (getFailedLobbyPaths().length === 0) return
+
+    const t = configs.value?.translate
+    Modal.open({
+      title: t?.info || 'Info',
+      content:
+        t?.loadDegraded ||
+        'Some resources failed to load after several attempts. Check your network and refresh to retry.',
+      okText: t?.ok || 'OK',
+      hideCancel: true
+    })
   }
 
   onMounted(() => {
