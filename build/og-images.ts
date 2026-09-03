@@ -16,6 +16,25 @@ const OG_BIO_FILE = 'og-bio.jpg'
 export const OG_HOME_SHOT = path.join('shots', 'zh', 'pic1.png')
 export const OG_BIO_SHOT = path.join('shots', 'zh', 'pic2.png')
 
+/** _config.yaml 的 og 字段：OG 源图路径（相对仓库根目录），可覆盖默认 shots/zh/ */
+export interface OgShots {
+  home?: string
+  bio?: string
+}
+
+/** 解析 OG 源图路径：优先 _config.yaml 的 og.home / og.bio，缺省回退 shots/zh/ */
+export function resolveOgShots(og?: OgShots): { home: string; bio: string } {
+  return {
+    home: og?.home?.trim() || OG_HOME_SHOT,
+    bio: og?.bio?.trim() || OG_BIO_SHOT
+  }
+}
+
+/** 用户配置的仓库相对路径 → 绝对路径（统一分隔符） */
+function resolveShot(root: string, rel: string): string {
+  return path.join(root, ...rel.split('/'))
+}
+
 const JPEG = { quality: 82, mozjpeg: true } as const
 
 function escapeHtmlAttr(text: string): string {
@@ -73,7 +92,7 @@ function patchBioHtml(html: string, bioTitle: string, siteUrl: string): string {
 
 type OgCache = { home: Buffer | null; bio: Buffer | null }
 
-function createOgMiddleware(root: string, cache: OgCache) {
+function createOgMiddleware(root: string, cache: OgCache, shots: { home: string; bio: string }) {
   return async (
     req: { url?: string },
     res: { setHeader: (k: string, v: string) => void; end: (b: Buffer) => void },
@@ -87,8 +106,7 @@ function createOgMiddleware(root: string, cache: OgCache) {
     }
     try {
       if (!cache[kind]) {
-        const rel = kind === 'home' ? OG_HOME_SHOT : OG_BIO_SHOT
-        cache[kind] = await renderOgJpeg(path.join(root, rel))
+        cache[kind] = await renderOgJpeg(resolveShot(root, shots[kind]))
       }
       res.setHeader('Content-Type', 'image/jpeg')
       res.setHeader('Cache-Control', 'no-cache')
@@ -103,10 +121,12 @@ function createOgMiddleware(root: string, cache: OgCache) {
 export async function writeOgBuildArtifacts(
   root: string,
   outDir: string,
-  siteUrl: string
+  siteUrl: string,
+  og?: OgShots
 ): Promise<void> {
-  const homeBuf = await renderOgJpeg(path.join(root, OG_HOME_SHOT))
-  const bioBuf = await renderOgJpeg(path.join(root, OG_BIO_SHOT))
+  const shots = resolveOgShots(og)
+  const homeBuf = await renderOgJpeg(resolveShot(root, shots.home))
+  const bioBuf = await renderOgJpeg(resolveShot(root, shots.bio))
   await fs.promises.writeFile(path.join(outDir, OG_HOME_FILE), homeBuf)
   await fs.promises.writeFile(path.join(outDir, OG_BIO_FILE), bioBuf)
 
@@ -125,11 +145,12 @@ export async function writeOgBuildArtifacts(
 }
 
 /** 用 shots 封面裁切生成 og-home.jpg / og-bio.jpg，并写出 bio/index.html 供爬虫读独立卡片 */
-export function ogImagesPlugin(siteUrl: string): Plugin {
+export function ogImagesPlugin(siteUrl: string, og?: OgShots): Plugin {
   let root = process.cwd()
   let outDir = path.resolve('dist')
   let isBuild = false
   const cache: OgCache = { home: null, bio: null }
+  const shots = resolveOgShots(og)
 
   return {
     name: 'vite-plugin-og-images',
@@ -139,11 +160,11 @@ export function ogImagesPlugin(siteUrl: string): Plugin {
       isBuild = config.command === 'build'
     },
     configureServer(server) {
-      server.middlewares.use(createOgMiddleware(root, cache))
+      server.middlewares.use(createOgMiddleware(root, cache, shots))
     },
     async closeBundle() {
       if (!isBuild) return
-      await writeOgBuildArtifacts(root, outDir, siteUrl)
+      await writeOgBuildArtifacts(root, outDir, siteUrl, og)
     }
   }
 }

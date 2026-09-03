@@ -28,6 +28,11 @@ interface BuildConfig {
   keywords?: string
   url?: string
   manifest?: Partial<ManifestOptions>
+  /** 社交分享卡片（OG 图）源图，缺省 shots/zh/pic1.png / pic2.png */
+  og?: {
+    home?: string
+    bio?: string
+  }
 }
 
 const config = load(fs.readFileSync('_config.yaml', 'utf8')) as BuildConfig
@@ -156,7 +161,7 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
     // 须在 viteCompression 之后注册，closeBundle 时先转 WebP 再 gzip 新产物
     l2dWebpPlugin(),
     yaml(),
-    ogImagesPlugin(siteUrl)
+    ogImagesPlugin(siteUrl, config.og)
   ]
 
   if (mode === 'analyze') {

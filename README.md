@@ -169,7 +169,8 @@ Fork 后主要改两处：
 
 - **图标**：默认 `public/js/iconfont.js`（`iconfont: /js/iconfont.js`）；可在 [iconfont.cn](https://www.iconfont.cn/) 自建 Symbol JS 替换，`dock` / `contact` 也可用 `imgSrc`。
 - **`bin-wrapper-china`**：`package.json` 的 `resolutions` 方便境内安装 `sharp`；海外若 `yarn install` 异常可删该条目后重装。
-- **History 路由 / OG 图 / 子路径 `base`**：见上方「部署方式」。
+- **History 路由 / 子路径 `base`**：见上方「部署方式」。
+- **OG 分享卡片**：构建时用 sharp 从 `shots/zh/pic1.png` / `pic2.png` 裁切出 `/og-home.jpg`、`/og-bio.jpg`；换自己的截图请改 `_config.yaml` 的 `og.home` / `og.bio` 指向新路径，勿直接删除源图（缺失会构建失败）。
 
 完整字段注释见 **[`_config.example.yaml`](./_config.example.yaml)**。
 

@@ -4,6 +4,7 @@ import path from 'node:path'
 import { load } from 'js-yaml'
 import { z } from 'zod'
 import type { Plugin } from 'vite'
+import { resolveOgShots } from './og-images'
 
 const LOCALES = ['zh-CN', 'zh-TW', 'en-US', 'ja-JP'] as const
 const LOBBY_INDEX_KEY = /^memorialLobbies\[(\d+)\]$/
@@ -150,7 +151,13 @@ const siteConfigSchema = z.strictObject({
     })
     .optional(),
   memorialLobbies: z.array(memorialLobbySchema).optional(),
-  bio: bioConfigSchema.optional()
+  bio: bioConfigSchema.optional(),
+  og: z
+    .strictObject({
+      home: z.string().optional(),
+      bio: z.string().optional()
+    })
+    .optional()
 })
 
 const localeOverlaySchema = z.strictObject({
@@ -302,8 +309,6 @@ export function validateProjectConfig(root: string): string[] {
   }
 
   for (const rel of [
-    'shots/zh/pic1.png',
-    'shots/zh/pic2.png',
     'public/img/loading/bg.png',
     'public/img/loading/avatar1.png',
     'public/img/loading/avatar2.png',
@@ -314,10 +319,7 @@ export function validateProjectConfig(root: string): string[] {
     'public/transfrom.mov'
   ]) {
     if (!fs.existsSync(path.join(root, rel))) {
-      const hint = rel.startsWith('shots/')
-        ? '社交分享卡片用 sharp 从此裁切'
-        : '加载屏本地素材，勿改回 Yostar CDN'
-      errors.push(`  ${rel.replaceAll('\\', '/')}: 找不到文件（${hint}）`)
+      errors.push(`  ${rel.replaceAll('\\', '/')}: 找不到文件（加载屏本地素材，勿改回 Yostar CDN）`)
     }
   }
 
@@ -329,6 +331,19 @@ export function validateProjectConfig(root: string): string[] {
       `  _config.yaml: YAML 解析失败 — ${error instanceof Error ? error.message : String(error)}`
     )
     return errors
+  }
+
+  // OG 源图：_config.yaml 的 og.home / og.bio 可覆盖默认 shots/zh/（社交分享卡片用 sharp 从此裁切）
+  const ogShots = resolveOgShots((raw as { og?: { home?: string; bio?: string } } | null)?.og)
+  for (const [field, rel] of [
+    ['og.home', ogShots.home],
+    ['og.bio', ogShots.bio]
+  ] as const) {
+    if (!fs.existsSync(path.join(root, ...rel.split('/')))) {
+      errors.push(
+        `  ${rel.replaceAll('\\', '/')}: 找不到文件（社交分享卡片 OG 图源，可在 _config.yaml 的 ${field} 自定义）`
+      )
+    }
   }
 
   const parsed = siteConfigSchema.safeParse(raw)

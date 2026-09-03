@@ -169,7 +169,8 @@ Run `yarn build` and redeploy. The build validates `_config.yaml` and `public/` 
 
 - **Icons**: Default `public/js/iconfont.js` (`iconfont: /js/iconfont.js`). Use your own [iconfont.cn](https://www.iconfont.cn/) Symbol JS export, or `imgSrc` on `dock` / `contact` items.
 - **`bin-wrapper-china`**: `package.json` `resolutions` helps `sharp` install in China; delete it if `yarn install` fails elsewhere.
-- **History routes / OG images / subpath `base`**: see **Deployment** above.
+- **History routes / subpath `base`**: see **Deployment** above.
+- **OG share cards**: at build time, sharp crops `shots/zh/pic1.png` / `pic2.png` into `/og-home.jpg` and `/og-bio.jpg`. To use your own screenshots, point `og.home` / `og.bio` in `_config.yaml` at the new paths — do not delete the source files (the build fails if they are missing).
 
 Full field comments: **[`_config.example.yaml`](./_config.example.yaml)**.
 

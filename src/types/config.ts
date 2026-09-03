@@ -214,6 +214,11 @@ export interface AppConfig {
   memorialLobbies?: MemorialLobby[]
   bio?: BioConfig
   translate?: TranslateConfig
+  /** 社交分享卡片（OG 图）源图，仅构建期 vite 插件使用，运行时忽略 */
+  og?: {
+    home?: string
+    bio?: string
+  }
 }
 
 /** Compatibility aliases for parallel migrations / older call sites */
