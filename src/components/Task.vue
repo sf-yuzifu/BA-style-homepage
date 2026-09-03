@@ -30,14 +30,17 @@ const randomCurtainDuration = () => Math.floor(Math.random() * 2 + 4) * 250
 
 let curtainTimer: ReturnType<typeof setTimeout> | null = null
 
+// noopener 防 tabnabbing，与 init/links.ts 动态 <a> 的 rel="noopener noreferrer" 行为一致
+const openTaskPage = () => {
+  const href = taskInfo.value.href
+  if (href && href !== '#') {
+    window.open(href, '_blank', 'noopener,noreferrer')
+  }
+}
+
 const openCurtain = () => {
   curtain.value = true
-  setTimeout(() => {
-    const href = taskInfo.value.href
-    if (href && href !== '#') {
-      window.open(href)
-    }
-  }, PAGE_OPEN_DELAY)
+  setTimeout(openTaskPage, PAGE_OPEN_DELAY)
   setTimeout(() => {
     bg.value = false
     curtain.value = false
@@ -57,10 +60,7 @@ const onFlashError = () => {
 
 const skip = () => {
   if (prefersReducedMotionNow()) {
-    const href = taskInfo.value.href
-    if (href && href !== '#') {
-      window.open(href)
-    }
+    openTaskPage()
     return
   }
   if (canPlayTransition) {
