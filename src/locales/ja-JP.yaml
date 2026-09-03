@@ -108,6 +108,9 @@ translate:
   prevPage: 前へ
   nextPage: 次へ
   skipIntro: オープニングをスキップ
+  backToLobby: ロビーに戻る
+  l2dExpand: Live2D を全画面で鑑賞
+  l2dCollapse: 全画面鑑賞を終了
   carouselPage: '{n} ページ目'
   walletApBattery: バッテリー同期中（{percent}%）
   walletApRecover: 6分ごとに1AP回復

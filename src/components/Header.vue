@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { navigateWithCurtain } from '@/init/links'
 import { IconArrowLeft } from '@arco-design/web-vue/es/icon'
 
+import { useConfig } from '@/composables/useConfig'
 import { useWallet } from '@/composables/useWallet'
 import { useIconFont } from '@/composables/useIconFont'
 
@@ -11,6 +13,9 @@ defineProps({
     default: ''
   }
 })
+
+const { configs } = useConfig()
+const currentConfig = computed(() => configs.value)
 
 const { ap, maxAp, gold, pyroxene, apTooltip, goldTooltip, pyroxeneTooltip } = useWallet()
 
@@ -27,6 +32,7 @@ const goBack = () => {
       class="back-button css-cursor-hover-enabled"
       role="button"
       tabindex="0"
+      :aria-label="currentConfig?.translate?.backToLobby"
       @click="goBack"
       @keydown.enter.prevent="goBack"
       @keydown.space.prevent="goBack"
@@ -67,6 +73,7 @@ const goBack = () => {
         class="home css-cursor-hover-enabled"
         role="button"
         tabindex="0"
+        :aria-label="currentConfig?.translate?.backToLobby"
         @click="goBack"
         @keydown.enter.prevent="goBack"
         @keydown.space.prevent="goBack"

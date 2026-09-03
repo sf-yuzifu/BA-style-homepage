@@ -107,6 +107,9 @@ translate:
   prevPage: 上一頁
   nextPage: 下一頁
   skipIntro: 跳過開場動畫
+  backToLobby: 返回大廳
+  l2dExpand: 全螢幕觀賞 Live2D
+  l2dCollapse: 退出全螢幕觀賞
   carouselPage: 第 {n} 頁
   walletApBattery: 電量同步中（{percent}%）
   walletApRecover: 每 6 分鐘回復 1 點

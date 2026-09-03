@@ -107,6 +107,9 @@ translate:
   prevPage: Previous
   nextPage: Next
   skipIntro: Skip intro
+  backToLobby: Back to lobby
+  l2dExpand: Full-screen Live2D view
+  l2dCollapse: Exit full-screen view
   carouselPage: Page {n}
   walletApBattery: 'Battery sync: {percent}%'
   walletApRecover: Recovers 1 AP every 6 minutes

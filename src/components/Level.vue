@@ -55,6 +55,7 @@ const goToBio = () => {
     class="level-box"
     role="button"
     tabindex="0"
+    :aria-label="currentConfig?.translate?.bio"
     @click="goToBio"
     @keydown.enter.prevent="goToBio"
     @keydown.space.prevent="goToBio"

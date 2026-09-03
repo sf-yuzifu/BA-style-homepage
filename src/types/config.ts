@@ -154,6 +154,9 @@ export interface TranslateConfig {
   ifSkip?: string
   update?: string
   loadDegraded?: string
+  backToLobby?: string
+  l2dExpand?: string
+  l2dCollapse?: string
   ok?: string
   cancel?: string
   bio?: string

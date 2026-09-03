@@ -105,6 +105,9 @@ translate:
   prevPage: 上一页
   nextPage: 下一页
   skipIntro: 跳过开场动画
+  backToLobby: 返回大厅
+  l2dExpand: 全屏观赏 Live2D
+  l2dCollapse: 退出全屏观赏
   carouselPage: 第 {n} 页
   walletApBattery: 电量同步中（{percent}%）
   walletApRecover: 每 6 分钟回复 1 点

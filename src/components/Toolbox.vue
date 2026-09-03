@@ -102,6 +102,9 @@ onUnmounted(() => {
       :class="{ 'toolbox-l2d': props.l2dOnly, canHover: !hover && !props.canskip }"
       role="button"
       tabindex="0"
+      :aria-label="
+        props.l2dOnly ? currentConfig?.translate?.l2dCollapse : currentConfig?.translate?.l2dExpand
+      "
       @click="change"
       @keydown.enter.prevent="change"
       @keydown.space.prevent="change"
