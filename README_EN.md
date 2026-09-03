@@ -192,7 +192,7 @@ The site persists data in browser `localStorage`. Forkers and users can clear en
 | `fa-locale` | string | Language: `auto` or `zh-CN` / `zh-TW` / `en-US` / `ja-JP` |
 | `fa-wallet` | JSON | Wallet: `ap`, `apSettleAt`, `gold`, `dwellSeconds`, `pyroxene`, `signInDays`, `lastSignIn` |
 
-Changes to these keys sync across open tabs.
+Changes to these keys sync across open tabs; deleting a key makes other open tabs fall back to defaults as well.
 
 ## 🌐 About i18n
 

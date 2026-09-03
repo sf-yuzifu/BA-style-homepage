@@ -232,6 +232,7 @@ const registerLocaleStorageSync = () => {
   localeStorageSyncRegistered = true
   window.addEventListener('storage', (event) => {
     if (event.key !== LOCALE_STORAGE_KEY) return
+    // newValue 为 null（其他标签页删键）时 parseLocalePreference 回退 'auto'，即恢复跟随浏览器
     syncLocaleFromStorage(event.newValue)
   })
 }

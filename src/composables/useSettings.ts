@@ -97,7 +97,12 @@ const registerStorageSync = () => {
   if (storageSyncRegistered) return
   storageSyncRegistered = true
   window.addEventListener('storage', (event) => {
-    if (event.key !== STORAGE_KEY || event.newValue == null) return
+    if (event.key !== STORAGE_KEY) return
+    // 其他标签页删键（newValue === null）：视为清档，本标签页恢复默认设置
+    if (event.newValue == null) {
+      applyPersistedState({})
+      return
+    }
     try {
       applyPersistedState(JSON.parse(event.newValue) as SettingsPersistedState)
     } catch {

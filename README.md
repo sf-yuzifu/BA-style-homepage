@@ -192,7 +192,7 @@ Fork 后主要改两处：
 | `fa-locale` | 字符串 | 语言偏好：`auto`（跟随浏览器）或 `zh-CN` / `zh-TW` / `en-US` / `ja-JP` |
 | `fa-wallet` | JSON | 钱包：体力 `ap`、恢复时间 `apSettleAt`、信用点 `gold`、陪伴秒数 `dwellSeconds`、青辉石 `pyroxene`、签到 `signInDays` / `lastSignIn` |
 
-多标签页之间会同步 `fa-settings` / `fa-locale` / `fa-wallet` 的变更。
+多标签页之间会同步 `fa-settings` / `fa-locale` / `fa-wallet` 的变更；删除某个键时，其他已打开的标签页会同步恢复默认值。
 
 ## 🌐 有关 i18n
 

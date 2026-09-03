@@ -102,6 +102,24 @@ const applyPersistedState = (state: WalletPersistedState, maxApValue: number) =>
   settleAp(maxApValue)
 }
 
+// 其他标签页删键（清档）：本标签页回到与全新访问一致的初始状态
+// （信用点 / 青辉石取 _config.yaml 初始值，体力回满，签到与陪伴时长清零；
+//  清零后下一次 tick 的 checkSignIn 会补当日签到，与刷新页面行为一致）
+const resetPersistedState = (maxApValue: number, initialGold: number, initialPyroxene: number) => {
+  applyingRemote = true
+  try {
+    gold.value = initialGold
+    pyroxene.value = initialPyroxene
+    dwellSeconds.value = 0
+    signInDays.value = 0
+    lastSignIn = ''
+    apLocal.value = maxApValue
+    apSettleAt = Date.now()
+  } finally {
+    applyingRemote = false
+  }
+}
+
 export function useWallet() {
   const { configs } = useConfig()
 
@@ -168,7 +186,12 @@ export function useWallet() {
     if (!storageSyncRegistered) {
       storageSyncRegistered = true
       window.addEventListener('storage', (event) => {
-        if (event.key !== STORAGE_KEY || event.newValue == null) return
+        if (event.key !== STORAGE_KEY) return
+        // 其他标签页删键（newValue === null）：视为清档，本标签页恢复初始状态
+        if (event.newValue == null) {
+          resetPersistedState(maxAp.value, configs.value?.gold ?? 0, configs.value?.pyroxene ?? 0)
+          return
+        }
         try {
           applyPersistedState(JSON.parse(event.newValue) as WalletPersistedState, maxAp.value)
         } catch {
