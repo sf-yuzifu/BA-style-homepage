@@ -231,7 +231,7 @@ bio/           zh-CN.md    zh-TW.md    en-US.md    ja-JP.md
 | 类型 | 典型路径 / 位置 |
 |------|----------------|
 | Spine / Live2D 角色模型与动画 | `public/l2d/` |
-| 角色语音 | `public/voices/` |
+| 角色语音 | 各角色 `memorialLobbies[].path` 下的 `zh-CN/`、`ja-JP/`（如 `public/l2d/aris_battle/ja-JP/*.mp3`，文件名为 spine talk 事件 key） |
 | 游戏 UI 贴图、幕布、加载素材等 | `public/shitim/`、`public/img/` 部分文件 |
 | 角色台词文案 | 语言包 `memorialLobbies[].voice` 等 |
 

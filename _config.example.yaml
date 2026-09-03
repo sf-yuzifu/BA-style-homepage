@@ -7,7 +7,6 @@
 # 多语言文案在 src/locales/*.yaml 覆盖；个人简介正文在 bio/{locale}.md
 #
 # 语音（可选）：各角色 path 下 ja-JP/、zh-CN/ 目录，文件名为 spine talk 事件 key + .mp3
-# 从 OGG 批量转码：yarn voices:mp3
 
 # --- 站点基本信息 / Site meta ---
 

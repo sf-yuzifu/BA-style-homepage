@@ -231,7 +231,7 @@ The following materials that may appear in this repository or on the demo site a
 | Type | Typical paths |
 |------|----------------|
 | Spine / Live2D character models & animations | `public/l2d/` |
-| Character voice lines | `public/voices/` |
+| Character voice lines | `zh-CN/` / `ja-JP/` under each character's `memorialLobbies[].path` (e.g. `public/l2d/aris_battle/ja-JP/*.mp3`, named after spine talk event keys) |
 | In-game UI art, curtains, loading assets, etc. | `public/shitim/`, parts of `public/img/` |
 | Character dialogue text | Locale `memorialLobbies[].voice`, etc. |
 
