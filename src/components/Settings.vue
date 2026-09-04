@@ -155,22 +155,26 @@ const moveTab = (step: number) => {
     <template #title>{{ t.settings || 'Settings' }}</template>
 
     <div class="settings">
-      <nav class="tabs scroll-hidden" role="tablist" :aria-label="t.settings || 'Settings'">
+      <nav
+        class="tabs scroll-hidden"
+        role="tablist"
+        aria-orientation="vertical"
+        :aria-label="t.settings || 'Settings'"
+      >
         <template v-for="(tab, index) in tabs" :key="tab.key">
-          <span
+          <!-- 原生 button：Enter/Space 激活交由浏览器原生行为，方向键切换见 moveTab -->
+          <button
+            type="button"
             class="tab css-cursor-hover-enabled"
             :class="{ active: tab.key === activeTab }"
             role="tab"
-            tabindex="0"
             :aria-selected="tab.key === activeTab"
             @click="selectTab(tab.key)"
-            @keydown.enter.prevent="selectTab(tab.key)"
-            @keydown.space.prevent="selectTab(tab.key)"
             @keydown.up.prevent="moveTab(-1)"
             @keydown.down.prevent="moveTab(1)"
           >
             {{ tab.label }}
-          </span>
+          </button>
           <span v-if="index < tabs.length - 1" class="tab-divider" aria-hidden="true"></span>
         </template>
         <span class="deco" aria-hidden="true"></span>
@@ -331,6 +335,10 @@ const moveTab = (step: number) => {
 }
 
 .tab {
+  /* 原生 button 的 UA 样式重置：视觉保持与 span 时代一致（背景由 hover/active 态给） */
+  appearance: none;
+  background: none;
+  font-family: inherit;
   padding: clamp(12px, 0.75vw, 100vw) clamp(10px, 0.625vw, 100vw);
   font-size: clamp(20px, 1.25vw, 100vw);
   color: #003153;
