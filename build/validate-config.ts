@@ -17,6 +17,15 @@ const manifestIconSchema = z.strictObject({
   purpose: z.string().optional()
 })
 
+const manifestScreenshotSchema = z.strictObject({
+  src: nonEmpty,
+  sizes: nonEmpty,
+  type: z.string().optional(),
+  label: z.string().optional(),
+  platform: z.string().optional(),
+  form_factor: z.enum(['narrow', 'wide']).optional()
+})
+
 const manifestSchema = z.strictObject({
   name: nonEmpty,
   short_name: nonEmpty,
@@ -24,6 +33,10 @@ const manifestSchema = z.strictObject({
   theme_color: nonEmpty,
   start_url: nonEmpty,
   id: nonEmpty,
+  // 未配置时构建期默认 standalone（见 vite.config.ts pwaManifest）
+  display: z.enum(['fullscreen', 'standalone', 'minimal-ui', 'browser']).optional(),
+  // 未配置时构建期默认引用 og-images 生成的 1280×720 截图；自定义须放 public/
+  screenshots: z.array(manifestScreenshotSchema).optional(),
   icons: z.array(manifestIconSchema).min(1, '至少需要一个图标')
 })
 
@@ -360,6 +373,16 @@ export function validateProjectConfig(root: string): string[] {
 
     for (const icon of parsed.data.manifest?.icons ?? []) {
       const miss = checkPublicFile(root, icon.src, `_config.yaml → manifest.icons src=${icon.src}`)
+      if (miss) errors.push(miss)
+    }
+
+    // 用户自定义的 PWA 截图须存在于 public/（缺省截图由 og-images 构建期生成，不在此校验）
+    for (const shot of parsed.data.manifest?.screenshots ?? []) {
+      const miss = checkPublicFile(
+        root,
+        shot.src,
+        `_config.yaml → manifest.screenshots src=${shot.src}`
+      )
       if (miss) errors.push(miss)
     }
 

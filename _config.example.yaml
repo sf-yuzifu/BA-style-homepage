@@ -36,6 +36,17 @@ manifest:
   theme_color: '#128AFA'
   start_url: /
   id: Homepage
+  # 显示模式 / Display mode：fullscreen | standalone | minimal-ui | browser
+  # 缺省 standalone（安装后独立窗口打开）；未填时构建自动补上
+  display: standalone
+  # 安装对话框截图 / Install dialog screenshots（可选）
+  # 缺省由构建自动生成 1280×720 JPEG（/screenshot-home.jpg、/screenshot-bio.jpg，
+  # 与 OG 图同源）；自定义时把图片放 public/ 并在此登记，构建会校验文件存在
+  # screenshots:
+  #   - src: /screenshot-home.jpg
+  #     sizes: 1280x720
+  #     type: image/jpeg
+  #     form_factor: wide
   icons:
     - src: /favicon512.png
       sizes: 512x512

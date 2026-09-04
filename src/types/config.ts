@@ -8,6 +8,15 @@ export interface ManifestIcon {
   purpose?: string
 }
 
+export interface ManifestScreenshot {
+  src: string
+  sizes: string
+  type?: string
+  label?: string
+  platform?: string
+  form_factor?: 'narrow' | 'wide'
+}
+
 export interface ManifestConfig {
   name: string
   short_name: string
@@ -15,6 +24,10 @@ export interface ManifestConfig {
   theme_color: string
   start_url: string
   id: string
+  /** 未配置时构建期默认 standalone */
+  display?: 'fullscreen' | 'standalone' | 'minimal-ui' | 'browser'
+  /** 未配置时构建期默认引用 og-images 生成的 1280×720 截图 */
+  screenshots?: ManifestScreenshot[]
   icons: ManifestIcon[]
 }
 

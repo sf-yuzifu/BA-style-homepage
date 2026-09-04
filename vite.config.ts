@@ -16,7 +16,13 @@ import yaml from '@rollup/plugin-yaml'
 import { l2dWebpPlugin } from './build/vite-plugin-l2d-webp'
 import { configValidatePlugin } from './build/validate-config'
 import { bioMarkdownPlugin } from './build/bio-markdown'
-import { ogImagesPlugin } from './build/og-images'
+import {
+  ogImagesPlugin,
+  PWA_SHOT_BIO_FILE,
+  PWA_SHOT_HOME_FILE,
+  PWA_SHOT_HEIGHT,
+  PWA_SHOT_WIDTH
+} from './build/og-images'
 
 type FontViteOptions = Parameters<typeof Font.vite>[0]
 
@@ -37,6 +43,28 @@ interface BuildConfig {
 
 const config = load(fs.readFileSync('_config.yaml', 'utf8')) as BuildConfig
 const siteUrl = (config.url || '').replace(/\/+$/, '')
+
+// PWA manifest 缺省补齐：display 默认 standalone（安装后独立窗口而非浏览器标签页）；
+// screenshots 缺省引用构建期由 og-images 同源生成的 1280×720 截图（Chrome 富安装对话框用），
+// fork 在 _config.yaml manifest.screenshots 自定义时覆盖（图片须放 public/，构建会校验存在性）
+const pwaManifest: Partial<ManifestOptions> = {
+  display: 'standalone',
+  ...config.manifest,
+  screenshots: config.manifest?.screenshots ?? [
+    {
+      src: `/${PWA_SHOT_HOME_FILE}`,
+      sizes: `${PWA_SHOT_WIDTH}x${PWA_SHOT_HEIGHT}`,
+      type: 'image/jpeg',
+      form_factor: 'wide'
+    },
+    {
+      src: `/${PWA_SHOT_BIO_FILE}`,
+      sizes: `${PWA_SHOT_WIDTH}x${PWA_SHOT_HEIGHT}`,
+      type: 'image/jpeg',
+      form_factor: 'wide'
+    }
+  ]
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(async ({ mode }): Promise<UserConfig> => {
@@ -153,7 +181,7 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
           }
         ]
       },
-      manifest: config.manifest
+      manifest: pwaManifest
     }),
     viteCompression({
       threshold: 10240 // the unit is Bytes

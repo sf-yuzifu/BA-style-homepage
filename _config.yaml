@@ -45,6 +45,9 @@ manifest:
   # PWA应用唯一标识符
   id: Homepage
 
+  # PWA显示模式 - standalone 安装后以独立窗口打开（非浏览器标签页）
+  display: standalone
+
   # PWA图标配置
   icons:
     # 大尺寸图标 - 用于桌面安装

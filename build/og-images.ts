@@ -12,6 +12,13 @@ export const OG_HEIGHT = 630
 const OG_HOME_FILE = 'og-home.jpg'
 const OG_BIO_FILE = 'og-bio.jpg'
 
+/** PWA manifest 缺省截图（Chrome 富安装对话框的 wide 轨要求 ≥ 1280×720）；
+ * 与 OG 同源 16:9 裁切，构建期随 OG 一起写出 */
+export const PWA_SHOT_WIDTH = 1280
+export const PWA_SHOT_HEIGHT = 720
+export const PWA_SHOT_HOME_FILE = 'screenshot-home.jpg'
+export const PWA_SHOT_BIO_FILE = 'screenshot-bio.jpg'
+
 /** README 主截图（中文界面）；16:9 cover 裁到 1200×630 */
 export const OG_HOME_SHOT = path.join('shots', 'zh', 'pic1.png')
 export const OG_BIO_SHOT = path.join('shots', 'zh', 'pic2.png')
@@ -44,11 +51,15 @@ function escapeHtmlAttr(text: string): string {
     .replace(/</g, '&lt;')
 }
 
-async function renderOgJpeg(absSrc: string): Promise<Buffer> {
+function renderCroppedJpeg(absSrc: string, width: number, height: number): Promise<Buffer> {
   return sharp(absSrc)
-    .resize(OG_WIDTH, OG_HEIGHT, { fit: 'cover', position: 'centre' })
+    .resize(width, height, { fit: 'cover', position: 'centre' })
     .jpeg(JPEG)
     .toBuffer()
+}
+
+async function renderOgJpeg(absSrc: string): Promise<Buffer> {
+  return renderCroppedJpeg(absSrc, OG_WIDTH, OG_HEIGHT)
 }
 
 function readBioLabel(root: string): string {
@@ -117,7 +128,7 @@ function createOgMiddleware(root: string, cache: OgCache, shots: { home: string;
   }
 }
 
-/** 构建产物：两张 OG JPEG + 带独立 meta 的 bio/index.html */
+/** 构建产物：两张 OG JPEG + PWA 缺省截图（1280×720）+ 带独立 meta 的 bio/index.html */
 export async function writeOgBuildArtifacts(
   root: string,
   outDir: string,
@@ -129,6 +140,20 @@ export async function writeOgBuildArtifacts(
   const bioBuf = await renderOgJpeg(resolveShot(root, shots.bio))
   await fs.promises.writeFile(path.join(outDir, OG_HOME_FILE), homeBuf)
   await fs.promises.writeFile(path.join(outDir, OG_BIO_FILE), bioBuf)
+
+  // manifest.screenshots 缺省值（用户在 _config.yaml 自定义时不会引用这两个文件，多写两份无害）
+  const shotHomeBuf = await renderCroppedJpeg(
+    resolveShot(root, shots.home),
+    PWA_SHOT_WIDTH,
+    PWA_SHOT_HEIGHT
+  )
+  const shotBioBuf = await renderCroppedJpeg(
+    resolveShot(root, shots.bio),
+    PWA_SHOT_WIDTH,
+    PWA_SHOT_HEIGHT
+  )
+  await fs.promises.writeFile(path.join(outDir, PWA_SHOT_HOME_FILE), shotHomeBuf)
+  await fs.promises.writeFile(path.join(outDir, PWA_SHOT_BIO_FILE), shotBioBuf)
 
   const indexPath = path.join(outDir, 'index.html')
   const html = await fs.promises.readFile(indexPath, 'utf8')
