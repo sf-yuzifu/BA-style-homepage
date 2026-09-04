@@ -9,7 +9,6 @@ import { prefersReducedMotionNow } from './useReducedMotion'
 export function useLoading() {
   const loading = ref(true)
   const percent = ref(0)
-  const isReady = ref(false)
 
   // 添加平滑动画相关状态
   const targetPercent = ref(0)
@@ -152,7 +151,6 @@ export function useLoading() {
 
     percent.value = 1
     loading.value = false
-    isReady.value = true
 
     notifyIfDegraded()
   }
@@ -187,20 +185,6 @@ export function useLoading() {
     }
   })
 
-  return {
-    // 响应式状态
-    loading,
-    percent,
-    isReady,
-
-    // 资源加载器状态
-    resourceLoader,
-
-    // 方法
-    startLoading,
-    finishLoading,
-
-    // 获取详细状态
-    getLoadingStatus: () => resourceLoader.getStatus()
-  }
+  // 仅 App.vue 消费（加载屏显隐 + 进度百分比）；内部方法与状态不外曝
+  return { loading, percent }
 }

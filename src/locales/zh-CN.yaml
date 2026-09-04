@@ -93,7 +93,6 @@ memorialLobbies[2]:
 # 通用界面翻译字符串
 translate:
   about: 关于
-  projectWebsite: 项目地址：
   info: 通知
   ifSkip: 是否跳过？
   update: 老师！站点已更新，刷新即可访问最新内容！
@@ -126,9 +125,7 @@ translate:
   settingsVolume: 音量
   settingsMute: 静音
   settingsVoice: 语音
-  settingsVoiceDesc: 关闭后仍会显示台词字幕，但不再下载语音文件。
   settingsBgm: BGM
-  settingsBgmDesc: 关闭后横幅播放器暂停，不再消耗流量。
   settingsIntro: 开场演出
   settingsIntroDesc: 手动切换角色时始终播放各自的入场演出。
   settingsIntroAlways: 每次进入

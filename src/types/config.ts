@@ -162,7 +162,6 @@ export interface BioConfig {
 /** 翻译文案；已知键为可选 string，另支持任意扩展键。简介正文在 bio/{locale}.md */
 export interface TranslateConfig {
   about?: string
-  projectWebsite?: string
   info?: string
   ifSkip?: string
   update?: string
@@ -193,9 +192,7 @@ export interface TranslateConfig {
   settingsVolume?: string
   settingsMute?: string
   settingsVoice?: string
-  settingsVoiceDesc?: string
   settingsBgm?: string
-  settingsBgmDesc?: string
   settingsIntro?: string
   settingsIntroDesc?: string
   settingsIntroAlways?: string

@@ -29,7 +29,7 @@ onUnmounted(() => {
 
 <template>
   <div class="loading_wrapper">
-    <div ref="loadingImg" class="avatar_img bounce-top">
+    <div class="avatar_img bounce-top">
       <img class="loading" :src="imgUrl" alt="" />
       <div class="hide">
         <img :src="imgList[0]" alt="" />

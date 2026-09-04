@@ -96,7 +96,6 @@ memorialLobbies[2]:
 # 共通インターフェース翻訳文字列
 translate:
   about: について
-  projectWebsite: 'ソースコード: '
   info: 情報
   ifSkip: スキップしますか？
   update: 先生！サイトが更新されました。最新の内容を見るにはページを更新してください！
@@ -129,9 +128,7 @@ translate:
   settingsVolume: 音量
   settingsMute: ミュート
   settingsVoice: ボイス
-  settingsVoiceDesc: オフでも字幕は表示されますが、音声ファイルは読み込みません。
   settingsBgm: BGM
-  settingsBgmDesc: オフにするとバナープレイヤーは一時停止し、通信量を消費しません。
   settingsIntro: オープニング演出
   settingsIntroDesc: キャラクターを手動で切り替えたときは、常に各自の登場演出を再生します。
   settingsIntroAlways: 毎回再生

@@ -28,24 +28,6 @@ const progress = computed(() => {
 })
 
 export function useResourceLoader() {
-  // 平滑进度计算 - 在加载过程中提供更自然的进度体验
-  const getSmoothProgress = () => {
-    if (totalCount.value === 0) return 0
-
-    const baseProgress = loadedCount.value / totalCount.value
-
-    // 如果资源正在加载，提供部分进度反馈
-    let loadingProgress = baseProgress
-    for (const resource of resources.value.values()) {
-      if (resource.status === 'loading') {
-        // 对于正在加载的资源，给予20%的虚拟进度
-        loadingProgress += 0.2 / totalCount.value
-      }
-    }
-
-    return Math.min(loadingProgress, baseProgress + 0.1) // 最大不超过基础进度+10%
-  }
-
   // 添加资源到加载队列
   const addResource = (id: string, url: string, type: ResourceType = 'generic') => {
     if (resources.value.has(id)) {
@@ -213,7 +195,6 @@ export function useResourceLoader() {
     loadResource,
     loadAll,
     getStatus,
-    reset,
-    getSmoothProgress
+    reset
   }
 }

@@ -95,7 +95,6 @@ memorialLobbies[2]:
 # Common interface translation strings
 translate:
   about: About
-  projectWebsite: 'Source Code: '
   info: Info
   ifSkip: Skip?
   update: Sensei! The site has been updated. Refresh to view the newest content!
@@ -128,9 +127,7 @@ translate:
   settingsVolume: Volume
   settingsMute: Mute
   settingsVoice: Voice
-  settingsVoiceDesc: Subtitles stay visible when off; voice files are no longer downloaded.
   settingsBgm: BGM
-  settingsBgmDesc: The banner player pauses when off, saving bandwidth.
   settingsIntro: Opening cutscene
   settingsIntroDesc: Switching characters manually always plays their own entrance.
   settingsIntroAlways: Every visit

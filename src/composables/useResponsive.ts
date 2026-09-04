@@ -2,30 +2,21 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 export function useResponsive() {
   const changeDirection = ref<'left' | 'right'>('left')
-  const isMobile = ref(false)
 
-  const updateResponsive = () => {
-    isMobile.value = window.innerWidth <= 768
+  const updateDirection = () => {
     changeDirection.value = window.innerWidth <= 768 ? 'right' : 'left'
   }
 
-  const checkScreenSize = () => {
-    updateResponsive()
-  }
-
   onMounted(() => {
-    checkScreenSize()
-    window.addEventListener('resize', checkScreenSize)
+    updateDirection()
+    window.addEventListener('resize', updateDirection)
   })
 
   onUnmounted(() => {
-    window.removeEventListener('resize', checkScreenSize)
+    window.removeEventListener('resize', updateDirection)
   })
 
   return {
-    changeDirection,
-    isMobile,
-    updateResponsive,
-    checkScreenSize
+    changeDirection
   }
 }
