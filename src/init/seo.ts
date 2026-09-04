@@ -115,6 +115,11 @@ function applySeo(config: AppConfig, locale: string, route: RouteLocationNormali
   } else if (config.favicon) {
     person.image = config.favicon
   }
+  // sameAs：联系方式链接，帮助搜索引擎关联同名社交账号（dock 是项目链接，不入 sameAs）
+  const sameAs = (config.contact ?? [])
+    .map((item) => item.href)
+    .filter((href): href is string => typeof href === 'string' && /^https?:\/\//i.test(href))
+  if (sameAs.length > 0) person.sameAs = sameAs
   setJsonLd(JSON_LD_ID, person)
 }
 
