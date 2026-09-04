@@ -115,6 +115,8 @@ translate:
   walletApRecover: 每 6 分鐘回復 1 點
   walletGold: 已累計陪伴 {hours} 小時
   walletPyroxene: 已連續簽到 {days} 天
+  musicUnknownSong: 未知歌曲
+  musicUnknownArtist: 未知藝術家
   settings: 選項
   settingsAudio: 音量
   settingsPresentation: 演出

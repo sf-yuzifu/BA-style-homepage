@@ -167,6 +167,8 @@ export interface TranslateConfig {
   walletApRecover?: string
   walletGold?: string
   walletPyroxene?: string
+  musicUnknownSong?: string
+  musicUnknownArtist?: string
   settings?: string
   settingsAudio?: string
   settingsPresentation?: string

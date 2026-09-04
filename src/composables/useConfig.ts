@@ -189,7 +189,7 @@ const loadConfig = async () => {
   } catch (error) {
     if (token !== configLoadToken) return
     console.error('加载配置失败:', error)
-    // 使用默认配置
+    // 使用兜底配置；文案与项目默认语言 en-US 一致（同 init/pwa.ts 的兜底）
     globalCurrentConfig.value = {
       level: 1,
       exp: 0,
@@ -198,12 +198,12 @@ const loadConfig = async () => {
       contact: [],
       memorialLobbies: [],
       banner: { musicID: [] },
-      title: '个人主页',
+      title: 'Fish Archive',
       translate: {
-        info: '更新提示',
-        update: '检测到新版本，是否立即更新？',
-        ok: '立即更新',
-        cancel: '稍后更新'
+        info: 'Update',
+        update: 'A new version is available. Refresh now?',
+        ok: 'Refresh',
+        cancel: 'Later'
       }
     }
   } finally {

@@ -134,10 +134,16 @@ const fetchSongData = async (songId: number): Promise<APlayerAudio | null> => {
       throw new Error('无效的响应数据')
     }
 
-    // 检查必要的字段
+    // 检查必要的字段（歌名 / 艺术家缺失时走 i18n 兜底，默认 en-US 与项目默认语言一致）
+    const t = configs.value?.translate
     const songInfo: APlayerAudio = {
-      name: readString(data.title) || readString(data.name) || '未知歌曲',
-      artist: readString(data.author) || readString(data.artist) || '未知艺术家',
+      name:
+        readString(data.title) || readString(data.name) || t?.musicUnknownSong || 'Unknown song',
+      artist:
+        readString(data.author) ||
+        readString(data.artist) ||
+        t?.musicUnknownArtist ||
+        'Unknown artist',
       url: readString(data.url) || '',
       cover: readString(data.pic),
       lrc: readString(data.lrc) || ''

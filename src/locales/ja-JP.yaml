@@ -116,6 +116,8 @@ translate:
   walletApRecover: 6分ごとに1AP回復
   walletGold: 一緒に過ごした時間：{hours}時間
   walletPyroxene: '{days}日連続ログイン'
+  musicUnknownSong: 不明な曲
+  musicUnknownArtist: 不明なアーティスト
   settings: 設定
   settingsAudio: 音量
   settingsPresentation: 演出

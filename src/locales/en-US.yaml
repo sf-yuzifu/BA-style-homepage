@@ -115,6 +115,8 @@ translate:
   walletApRecover: Recovers 1 AP every 6 minutes
   walletGold: '{hours} hours spent together'
   walletPyroxene: 'Daily sign-in streak: {days}'
+  musicUnknownSong: Unknown song
+  musicUnknownArtist: Unknown artist
   settings: Options
   settingsAudio: Volume
   settingsPresentation: Presentation
