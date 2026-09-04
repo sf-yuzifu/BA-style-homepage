@@ -5,11 +5,13 @@
     <meta charset="UTF-8" />
     <!-- Third-party preconnect (dns-prefetch as fallback):
          api.injahow.cn - music API
-         at.alicdn.com - Iconfont script -->
+         iconfontOrigin - remote iconfont script (only when iconfont is remote) -->
     <link rel="preconnect" href="https://api.injahow.cn" />
     <link rel="dns-prefetch" href="https://api.injahow.cn" />
-    <link rel="preconnect" href="https://at.alicdn.com" />
-    <link rel="dns-prefetch" href="https://at.alicdn.com" />
+    <% if (iconfontOrigin) { %>
+    <link rel="preconnect" href="<%- iconfontOrigin %>" />
+    <link rel="dns-prefetch" href="<%- iconfontOrigin %>" />
+    <% } %>
     <meta content="yes" name="mobile-web-app-capable" />
     <meta content="yes" name="apple-mobile-web-app-capable" />
     <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style" />

@@ -33,6 +33,7 @@ interface BuildConfig {
   description?: string
   keywords?: string
   url?: string
+  iconfont?: string
   manifest?: Partial<ManifestOptions>
   /** 社交分享卡片（OG 图）源图，缺省 shots/zh/pic1.png / pic2.png */
   og?: {
@@ -43,6 +44,13 @@ interface BuildConfig {
 
 const config = load(fs.readFileSync('_config.yaml', 'utf8')) as BuildConfig
 const siteUrl = (config.url || '').replace(/\/+$/, '')
+
+// iconfont 为远程地址（http(s):// 或协议相对 //）时取其 origin 供 preconnect；
+// 默认本地 /js/iconfont.js 为 ''，index.html 据此跳过无效的第三方预热
+const iconfontOrigin = (() => {
+  const m = (config.iconfont?.trim() || '').match(/^(?:https?:)?\/\/([^/]+)/)
+  return m ? `https://${m[1]}` : ''
+})()
 
 // PWA manifest 缺省补齐：display 默认 standalone（安装后独立窗口而非浏览器标签页）；
 // screenshots 缺省引用构建期由 og-images 同源生成的 1280×720 截图（Chrome 富安装对话框用），
@@ -87,6 +95,8 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
           themeColor: config.manifest?.theme_color,
           description: config.description,
           keywords: config.keywords,
+          // 远程 iconfont 的 origin（本地内置时为 ''，模板据此跳过 preconnect）
+          iconfontOrigin,
           // 站点规范地址（去除尾部斜杠），供 og:image/og:url/canonical 拼绝对 URL
           siteUrl,
           ogImage: siteUrl ? `${siteUrl}/og-home.jpg` : '/og-home.jpg'
