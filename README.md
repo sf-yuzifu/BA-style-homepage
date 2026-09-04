@@ -109,6 +109,8 @@
 | Netlify / Cloudflare Pages | `public/_redirects`（构建后进入 `dist`） |
 | Apache | `public/.htaccess`（构建后进入 `dist`） |
 
+其中 `vercel.json` 的全量回退（`/(.*)` → `/index.html`）依赖 Vercel 的**静态优先**语义：应用 rewrite 前会先查文件系统，命中真实文件（静态资源、`bio/index.html`）时不回退。若把这条规则照搬到只按 rewrite 转发、不查文件的主机 / 网关上，静态资源会被回退成 HTML，需自行收窄 `source` 或改用该主机自己的回退配置。
+
 Nginx / 宝塔把站点根指到 `dist` 后，在 server 里加上：
 
 ```nginx
@@ -171,6 +173,7 @@ Fork 后主要改两处：
 - **`bin-wrapper-china`**：`package.json` 的 `resolutions` 方便境内安装 `sharp`；海外若 `yarn install` 异常可删该条目后重装。
 - **History 路由 / 子路径 `base`**：见上方「部署方式」。
 - **OG 分享卡片**：构建时用 sharp 从 `shots/zh/pic1.png` / `pic2.png` 裁切出 `/og-home.jpg`、`/og-bio.jpg`；换自己的截图请改 `_config.yaml` 的 `og.home` / `og.bio` 指向新路径，勿直接删除源图（缺失会构建失败）。
+- **转场视频 `transfrom.mov`**：Safari / iOS 的 HEVC+alpha 转场轨，由 `yarn transition:mov` 从 `public/transfrom.webm` 转出；脚本依赖 macOS 的 `hevc_videotoolbox` 编码器，**仅 macOS 可执行**。不改转场视频则无需理会；要替换请在 macOS 上重新生成（直接删除 `.mov` 会让 Safari 落到无透明通道的 WebM 轨）。
 
 完整字段注释见 **[`_config.example.yaml`](./_config.example.yaml)**。
 

@@ -109,6 +109,8 @@ Hosts that only know about the root `index.html` will 404 on `/bio`. This repo s
 | Netlify / Cloudflare Pages | `public/_redirects` (copied into `dist`) |
 | Apache | `public/.htaccess` (copied into `dist`) |
 
+The catch-all fallback in `vercel.json` (`/(.*)` → `/index.html`) relies on Vercel's **static-first** semantics: the filesystem is checked before rewrites apply, so real files (assets, `bio/index.html`) are never rewritten. If you copy this rule to a host or gateway that forwards by rewrite alone without a filesystem check, static assets would be rewritten to HTML — narrow the `source` yourself or use that host's own fallback config instead.
+
 Nginx / BtPanel — point the site root at `dist` and add:
 
 ```nginx
@@ -171,6 +173,7 @@ Run `yarn build` and redeploy. The build validates `_config.yaml` and `public/` 
 - **`bin-wrapper-china`**: `package.json` `resolutions` helps `sharp` install in China; delete it if `yarn install` fails elsewhere.
 - **History routes / subpath `base`**: see **Deployment** above.
 - **OG share cards**: at build time, sharp crops `shots/zh/pic1.png` / `pic2.png` into `/og-home.jpg` and `/og-bio.jpg`. To use your own screenshots, point `og.home` / `og.bio` in `_config.yaml` at the new paths — do not delete the source files (the build fails if they are missing).
+- **Transition video `transfrom.mov`**: the HEVC+alpha transition track for Safari / iOS, regenerated from `public/transfrom.webm` via `yarn transition:mov`. The script relies on macOS's `hevc_videotoolbox` encoder, so **it only runs on macOS**. Ignore it if you keep the default transition; to replace it, regenerate the `.mov` on a Mac (deleting the `.mov` outright makes Safari fall back to the WebM track without an alpha channel).
 
 Full field comments: **[`_config.example.yaml`](./_config.example.yaml)**.
 
