@@ -51,14 +51,12 @@ const goToBio = () => {
 </script>
 
 <template>
-  <div
+  <!-- 原生 button：Enter/Space 激活交由浏览器原生行为，无需手动键盘监听 -->
+  <button
+    type="button"
     class="level-box"
-    role="button"
-    tabindex="0"
     :aria-label="currentConfig?.translate?.bio"
     @click="goToBio"
-    @keydown.enter.prevent="goToBio"
-    @keydown.space.prevent="goToBio"
   >
     <div class="container">
       <div class="level css-cursor-hover-enabled">
@@ -82,11 +80,18 @@ const goToBio = () => {
         </div>
       </div>
     </div>
-  </div>
+  </button>
 </template>
 
 <style scoped>
 .level-box {
+  /* 原生 button 的 UA 样式重置：视觉保持与 div 时代一致 */
+  appearance: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
   width: clamp(300px, 18.75vw, 100vw);
   height: clamp(96px, 6vw, 100vw);
   background: linear-gradient(120deg, #003153, #2265bb 15%, #003153 70%, #003153);

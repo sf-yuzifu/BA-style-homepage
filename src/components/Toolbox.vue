@@ -83,31 +83,25 @@ onUnmounted(() => {
       <span>{{ pyroxene.toLocaleString() }}</span>
       <div class="wallet-tip">{{ pyroxeneTooltip }}</div>
     </div>
-    <a
+    <button
+      type="button"
       class="settings toolbox"
       :class="{ 'toolbox-l2d': props.l2dOnly }"
-      role="button"
-      tabindex="0"
       :aria-label="currentConfig?.translate?.settings"
       @click="openSettings"
-      @keydown.enter.prevent="openSettings"
-      @keydown.space.prevent="openSettings"
     >
       <icon-apps class="css-cursor-hover-enabled" />
-    </a>
-    <a
+    </button>
+    <button
       v-if="!props.l2dUnavailable"
       id="change"
+      type="button"
       class="l2d toolbox"
       :class="{ 'toolbox-l2d': props.l2dOnly, canHover: !hover && !props.canskip }"
-      role="button"
-      tabindex="0"
       :aria-label="
         props.l2dOnly ? currentConfig?.translate?.l2dCollapse : currentConfig?.translate?.l2dExpand
       "
       @click="change"
-      @keydown.enter.prevent="change"
-      @keydown.space.prevent="change"
       :style="{
         transition:
           'transform 0.3s ' +
@@ -121,7 +115,7 @@ onUnmounted(() => {
       }"
     >
       <img alt="" :src="img" />
-    </a>
+    </button>
     <Settings v-model:visible="showSettings" />
   </div>
 </template>
@@ -136,6 +130,11 @@ onUnmounted(() => {
 }
 
 .toolbox-box .toolbox {
+  /* 原生 button 的 UA 样式重置：视觉保持与 a/div 时代一致 */
+  appearance: none;
+  border: none;
+  padding: 0;
+  font: inherit;
   position: relative;
   min-width: 220px;
   min-height: 56px;

@@ -204,32 +204,27 @@ if (import.meta.env.DEV) {
 
 <template>
   <div id="change" v-if="!props.l2dOnly && !webglFailed">
-    <img
+    <!-- 原生 button：Enter/Space 由浏览器接管；←/→ 方向键切换角色保留（非原生行为） -->
+    <button
+      type="button"
       class="css-cursor-hover-enabled"
-      role="button"
-      tabindex="0"
       :aria-label="currentConfig?.translate?.prevPage"
       @click="setL2D('-')"
-      @keydown.enter.prevent="setL2D('-')"
-      @keydown.space.prevent="setL2D('-')"
       @keydown.left.prevent="setL2D('-')"
       @keydown.right.prevent="setL2D('+')"
-      src="/l2d/arrow.png"
-      alt=""
-    />
-    <img
+    >
+      <img src="/l2d/arrow.png" alt="" />
+    </button>
+    <button
+      type="button"
       class="css-cursor-hover-enabled"
-      role="button"
-      tabindex="0"
       :aria-label="currentConfig?.translate?.nextPage"
       @click="setL2D('+')"
-      @keydown.enter.prevent="setL2D('+')"
-      @keydown.space.prevent="setL2D('+')"
       @keydown.left.prevent="setL2D('-')"
       @keydown.right.prevent="setL2D('+')"
-      src="/l2d/arrow.png"
-      alt=""
-    />
+    >
+      <img src="/l2d/arrow.png" alt="" />
+    </button>
   </div>
   <div
     v-if="props.l2dOnly && canSkip && !webglFailed"
@@ -329,14 +324,25 @@ if (import.meta.env.DEV) {
   box-sizing: border-box;
 }
 
-img {
+#change button {
+  /* 原生 button 的 UA 样式重置：尺寸/动画由原 img 转移到 button 上 */
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
   width: clamp(32px, 2vw, 100vw);
   height: auto;
   animation: move 2s ease-in-out infinite;
   z-index: 1000;
 }
 
-img:last-child {
+#change button img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+#change button:last-child {
   transform: rotate(180deg);
   animation: moveReverse 2s ease-in-out infinite;
 }
@@ -366,12 +372,12 @@ img:last-child {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  img {
+  #change button {
     animation: none;
     transform: translateX(clamp(30px, 1.875vw, 100vw));
   }
 
-  img:last-child {
+  #change button:last-child {
     transform: rotate(180deg) translateX(clamp(30px, 1.875vw, 100vw));
   }
 }

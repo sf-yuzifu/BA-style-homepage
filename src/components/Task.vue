@@ -88,17 +88,15 @@ const skip = () => {
 
 <template>
   <transition name="down2">
-    <div
+    <!-- 原生 button：Enter/Space 激活交由浏览器原生行为（skip 内的 inFlight 守卫同样覆盖键盘连发） -->
+    <button
       v-if="!props.l2dOnly"
+      type="button"
       :name="taskInfo.name"
       class="task css-cursor-hover-enabled"
-      role="button"
-      tabindex="0"
       :aria-label="taskInfo.name"
       @click="skip"
-      @keydown.enter.prevent="skip"
-      @keydown.space.prevent="skip"
-    ></div>
+    ></button>
   </transition>
   <transition name="curtain">
     <div v-if="bg" class="video-container">
@@ -157,6 +155,11 @@ const skip = () => {
 }
 
 .task {
+  /* 原生 button 的 UA 样式重置：视觉保持与 div 时代一致 */
+  appearance: none;
+  border: none;
+  padding: 0;
+  font: inherit;
   position: absolute;
   bottom: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-bottom));
   right: calc(clamp(30px, 1.875vw, 100vw) + var(--safe-right));

@@ -28,17 +28,14 @@ const goBack = () => {
 
 <template>
   <div class="header">
-    <div
+    <button
+      type="button"
       class="back-button css-cursor-hover-enabled"
-      role="button"
-      tabindex="0"
       :aria-label="currentConfig?.translate?.backToLobby"
       @click="goBack"
-      @keydown.enter.prevent="goBack"
-      @keydown.space.prevent="goBack"
     >
       <icon-arrow-left class="back-icon" />
-    </div>
+    </button>
 
     <div class="page-title">
       <p>{{ title }}</p>
@@ -69,17 +66,14 @@ const goBack = () => {
 
       <a-divider direction="vertical" class="divider"></a-divider>
 
-      <div
+      <button
+        type="button"
         class="home css-cursor-hover-enabled"
-        role="button"
-        tabindex="0"
         :aria-label="currentConfig?.translate?.backToLobby"
         @click="goBack"
-        @keydown.enter.prevent="goBack"
-        @keydown.space.prevent="goBack"
       >
         <icon-font type="icon-home" />
-      </div>
+      </button>
     </div>
   </div>
 </template>
@@ -101,6 +95,11 @@ const goBack = () => {
 }
 
 .back-button {
+  /* 原生 button 的 UA 样式重置：视觉保持与 div 时代一致 */
+  appearance: none;
+  border: none;
+  padding: 0;
+  font: inherit;
   height: calc(78 / 56 * 100%);
   margin-top: clamp(8px, 0.5vw, 100vw);
   box-shadow: 0px clamp(2px, 0.125vw, 100vw) clamp(4px, 0.25vw, 100vw) clamp(2px, 0.125vw, 100vw)
@@ -203,6 +202,12 @@ const goBack = () => {
 }
 
 .home {
+  /* 原生 button 的 UA 样式重置：视觉保持与 div 时代一致 */
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
   margin: 0 0 0 clamp(8px, 0.5vw, 100vw);
   color: #003153;
   font-size: clamp(42px, 2.625vw, 100vw);

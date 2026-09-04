@@ -161,48 +161,41 @@ onUnmounted(() => {
     <div class="bio-background"></div>
     <!-- 主容器 -->
     <div class="bio-container">
-      <!-- Carousel 指示器 (移动端: 圆点, 电脑端: 箭头) -->
+      <!-- Carousel 指示器 (移动端: 圆点, 电脑端: 箭头)；原生 button，Enter/Space 由浏览器接管 -->
       <div class="carousel-dots">
-        <div
+        <button
           v-for="index in 2"
           :key="index - 1"
+          type="button"
           class="dot"
           :class="{ active: currentSlide === index - 1 }"
-          role="button"
-          tabindex="0"
           :aria-label="slideLabel(index - 1)"
           @click="goToSlide(index - 1)"
-          @keydown.enter.prevent="goToSlide(index - 1)"
-          @keydown.space.prevent="goToSlide(index - 1)"
-        ></div>
+        ></button>
       </div>
 
       <!-- 电脑端箭头导航 -->
       <div class="carousel-arrows">
-        <img
-          src="/l2d/arrow.png"
+        <button
+          type="button"
           class="arrow arrow-left css-cursor-hover-enabled"
           :class="{ disabled: currentSlide === 0 }"
-          role="button"
-          tabindex="0"
-          :aria-disabled="currentSlide === 0"
+          :disabled="currentSlide === 0"
+          :aria-label="translate.prevPage || ''"
           @click="goToSlide(0)"
-          @keydown.enter.prevent="goToSlide(0)"
-          @keydown.space.prevent="goToSlide(0)"
-          :alt="translate.prevPage || ''"
-        />
-        <img
-          src="/l2d/arrow.png"
+        >
+          <img src="/l2d/arrow.png" alt="" />
+        </button>
+        <button
+          type="button"
           class="arrow arrow-right css-cursor-hover-enabled"
           :class="{ disabled: currentSlide === 1 }"
-          role="button"
-          tabindex="0"
-          :aria-disabled="currentSlide === 1"
+          :disabled="currentSlide === 1"
+          :aria-label="translate.nextPage || ''"
           @click="goToSlide(1)"
-          @keydown.enter.prevent="goToSlide(1)"
-          @keydown.space.prevent="goToSlide(1)"
-          :alt="translate.nextPage || ''"
-        />
+        >
+          <img src="/l2d/arrow.png" alt="" />
+        </button>
       </div>
 
       <div ref="carouselWrapper" class="carousel-wrapper">
@@ -320,6 +313,10 @@ onUnmounted(() => {
 }
 
 .carousel-dots .dot {
+  /* 原生 button 的 UA 样式重置：视觉保持与 div 时代一致 */
+  appearance: none;
+  border: none;
+  padding: 0;
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -347,12 +344,23 @@ onUnmounted(() => {
 }
 
 .carousel-arrows .arrow {
+  /* 原生 button 的 UA 样式重置：尺寸/动画由原 img 转移到 button 上 */
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
   width: clamp(32px, 2vw, 100vw);
   height: auto;
   pointer-events: auto;
   transition: opacity 0.3s;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   animation: moveReverse 2s ease-in-out infinite;
+}
+
+.carousel-arrows .arrow img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .carousel-arrows .arrow-left {
