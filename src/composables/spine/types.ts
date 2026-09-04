@@ -49,10 +49,3 @@ export interface SpineInteractionContext {
       }
     | undefined
 }
-
-/** Compatibility aliases */
-export type SpineContext = SpineInteractionContext
-export type SpineCtx = SpineInteractionContext
-export type InteractionContext = SpineInteractionContext
-export type SpineObject = Spine
-export type DragBoneClips = DragClips

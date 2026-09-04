@@ -149,9 +149,6 @@ export interface BioBtn {
   path: string
 }
 
-/** @deprecated 旧类型名，请使用 {@link BioBtn} */
-export type BioBth = BioBtn
-
 export interface BioConfig {
   student?: BioStudent[]
   btn?: BioBtn[]
@@ -235,19 +232,3 @@ export interface AppConfig {
     bio?: string
   }
 }
-
-/** Compatibility aliases for parallel migrations / older call sites */
-export type BoneOffsetConfig = GazeConfig &
-  PatConfig &
-  Partial<Pick<DragBoneConfig, 'radius' | 'anchor' | 'clips' | 'bone'>>
-export type BoneInteractionConfig = BoneOffsetConfig
-export type BoneFollowConfig = BoneOffsetConfig
-export type BoneRangeConfig = BoneOffsetConfig
-export type BoneDragRangeConfig = PatConfig
-export type DragBoneItemConfig = DragBoneConfig
-export type DragBoneConfigItem = DragBoneConfig
-export type DragBoneClipConfig = NonNullable<DragBoneConfig['clips']>
-export type DragBoneClips = DragBoneClipConfig
-export type LobbyInteractions = InteractionsConfig
-export type TranslateStrings = TranslateConfig
-export type BioCard = BioBtn
