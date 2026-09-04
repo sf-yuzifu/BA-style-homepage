@@ -106,6 +106,7 @@ translate:
   prevPage: 上一頁
   nextPage: 下一頁
   skipIntro: 跳過開場動畫
+  skip: 跳過
   backToLobby: 返回大廳
   l2dExpand: 全螢幕觀賞 Live2D
   l2dCollapse: 退出全螢幕觀賞

@@ -161,6 +161,7 @@ export interface TranslateConfig {
   about?: string
   info?: string
   ifSkip?: string
+  skip?: string
   update?: string
   loadDegraded?: string
   backToLobby?: string

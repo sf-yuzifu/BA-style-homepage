@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import type { Spine } from '@esotericsoftware/spine-pixi-v7'
 import { useConfig } from '@/composables/useConfig'
 import { useModalOpen } from '@/composables/useModalOpen'
@@ -107,6 +107,45 @@ pointerHooks.cancelHoverRaf = pointer.cancelHoverRaf
 
 const { setL2D, skipStartIdle, webglFailed } = spine
 
+/** SKIP 按钮瞬态可见：演出开始展示 1s 后自动隐藏，之后由 hover（桌面）/ 点按（触屏）唤起 */
+const skipShown = ref(false)
+let skipHideTimer: number | null = null
+// 触屏判定与 Toolbox 一致：hover: none 视为触屏
+const hoverMedia = window.matchMedia('(hover: none)')
+const isTouch = ref(hoverMedia.matches)
+const onHoverMediaChange = (e: MediaQueryListEvent) => {
+  isTouch.value = e.matches
+}
+
+// Background 在加载屏撤下后才挂载（App.vue v-if="!loading"），immediate 即覆盖首访开场；
+// 之后切角色 canSkip false→true 翻转同样走这里
+watch(
+  canSkip,
+  (skippable) => {
+    if (skipHideTimer) {
+      clearTimeout(skipHideTimer)
+      skipHideTimer = null
+    }
+    skipShown.value = skippable
+    if (skippable) {
+      skipHideTimer = window.setTimeout(() => {
+        skipShown.value = false
+        skipHideTimer = null
+      }, 1000)
+    }
+  },
+  { immediate: true }
+)
+
+/** 全屏跳过层点击：桌面直接弹跳过确认；触屏先点按唤起 SKIP 按钮（还原游戏内点按出 UI） */
+const onSkipLayerClick = () => {
+  if (isTouch.value) {
+    skipShown.value = !skipShown.value
+    return
+  }
+  skipStartIdle()
+}
+
 const {
   side: dialogueSide,
   layerStyle: dialogueLayerStyle,
@@ -149,11 +188,17 @@ const onWindowResize = () => {
 onMounted(() => {
   window.addEventListener('keydown', onLobbyKeydown)
   window.addEventListener('resize', onWindowResize)
+  hoverMedia.addEventListener('change', onHoverMediaChange)
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', onLobbyKeydown)
   window.removeEventListener('resize', onWindowResize)
+  hoverMedia.removeEventListener('change', onHoverMediaChange)
+  if (skipHideTimer) {
+    clearTimeout(skipHideTimer)
+    skipHideTimer = null
+  }
 })
 
 if (import.meta.env.DEV) {
@@ -226,20 +271,27 @@ if (import.meta.env.DEV) {
       <img src="/l2d/arrow.png" alt="" />
     </button>
   </div>
+  <!-- 演出期间全屏点击跳过层（桌面点任意处弹确认；触屏点按先唤起下方 SKIP 按钮）。
+       透明层不再可聚焦——「可聚焦不可见」是 a11y 瑕疵，键盘走下方可见 SKIP 按钮 -->
   <div
     v-if="props.l2dOnly && canSkip && !webglFailed"
     style="position: fixed; width: 100%; height: 100%; z-index: 2"
-    role="button"
-    tabindex="0"
-    :aria-label="
-      typeof currentConfig?.translate?.skipIntro === 'string'
-        ? currentConfig.translate.skipIntro
-        : undefined
-    "
-    @click="skipStartIdle()"
-    @keydown.enter.prevent="skipStartIdle()"
-    @keydown.space.prevent="skipStartIdle()"
+    aria-hidden="true"
+    @click="onSkipLayerClick"
   ></div>
+  <!-- 可见 SKIP 按钮：还原游戏内演出常驻 SKIP，与跳过层同条件；
+       短文案 skip + skipStartIdle 确认 Modal；显示 1s 后自动隐藏，
+       桌面 hover / 键盘聚焦（skip-link 模式）/ 触屏点按跳过层可唤起 -->
+  <button
+    v-if="props.l2dOnly && canSkip && !webglFailed"
+    type="button"
+    class="skip-intro css-cursor-hover-enabled"
+    :class="{ 'skip-hidden': !skipShown }"
+    :style="{ pointerEvents: isTouch && !skipShown ? 'none' : undefined }"
+    @click="skipStartIdle()"
+  >
+    <span>{{ currentConfig?.translate?.skip || 'Skip' }}</span>
+  </button>
   <div v-if="dialogueVisible" class="dialogue-layer" :style="dialogueLayerStyle">
     <div
       class="dialogue"
@@ -369,6 +421,63 @@ if (import.meta.env.DEV) {
   100% {
     transform: rotate(180deg) translateX(clamp(10px, 0.625vw, 100vw));
   }
+}
+
+/* 演出期间常驻的可见 SKIP：复用工具箱按钮视觉（斜切白底盒），位于右上角工具箱常态位置。
+   宽度随内容走（各语言文案长度差大），z-index 高于跳过层（2）、低于台词层（50） */
+.skip-intro {
+  appearance: none;
+  border: none;
+  padding: 0 clamp(28px, 1.75vw, 100vw);
+  font: inherit;
+  font-weight: bold;
+  position: fixed;
+  right: calc(clamp(20px, 1.25vw, 100vw) + var(--safe-right));
+  top: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-top));
+  z-index: 3;
+  min-height: clamp(56px, 3.5vw, 100vw);
+  background: #fffd;
+  color: #003153;
+  transform: translateY(0) skew(-10deg);
+  border-radius: clamp(6px, 0.375vw, 100vw);
+  filter: drop-shadow(0px 0px clamp(3px, 0.1875vw, 100vw) #0003);
+  transition:
+    background-color 0.3s,
+    transform 0.3s,
+    opacity 0.6s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(26px, 1.625vw, 100vw);
+  white-space: nowrap;
+  opacity: 1;
+}
+
+/* 自动隐藏后仍留唤起口：桌面 hover、键盘聚焦（聚焦即显现，skip-link 模式）。
+   触屏隐藏时另有 pointer-events: none，点按落到跳过层换成唤起按钮 */
+.skip-intro.skip-hidden {
+  opacity: 0;
+}
+
+.skip-intro.skip-hidden:hover,
+.skip-intro.skip-hidden:focus-visible {
+  opacity: 1;
+}
+
+.skip-intro span {
+  transform: skew(10deg);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.skip-intro:hover {
+  background: #fffe;
+}
+
+.skip-intro:active {
+  transform: translateY(0) skew(-10deg) scale(0.9);
 }
 
 @media (prefers-reduced-motion: reduce) {

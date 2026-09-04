@@ -106,6 +106,7 @@ translate:
   prevPage: Previous
   nextPage: Next
   skipIntro: Skip intro
+  skip: Skip
   backToLobby: Back to lobby
   l2dExpand: Full-screen Live2D view
   l2dCollapse: Exit full-screen view
