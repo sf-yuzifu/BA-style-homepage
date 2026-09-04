@@ -1,11 +1,7 @@
 <!doctype html>
-<!-- 静态 lang 用项目回退语言 en-US（首屏元信息/加载屏文案均为英文）；运行时 useConfig 会按实际语言覆盖 -->
 <html lang="en-US">
   <head>
     <meta charset="UTF-8" />
-    <!-- Third-party preconnect (dns-prefetch as fallback):
-         api.injahow.cn - music API
-         iconfontOrigin - remote iconfont script (only when iconfont is remote) -->
     <link rel="preconnect" href="https://api.injahow.cn" />
     <link rel="dns-prefetch" href="https://api.injahow.cn" />
     <% if (iconfontOrigin) { %>
@@ -21,11 +17,9 @@
     <meta name="description" content="<%- description %>" />
     <meta name="keywords" content="<%- keywords %>" />
     <meta name="author" content="<%- author %>" />
-    <!-- Open Graph / social share card (og-home.jpg cover-cropped from shots at build) -->
     <meta property="og:title" content="<%- title %>" />
     <meta property="og:description" content="<%- description %>" />
     <meta property="og:type" content="website" />
-    <!-- 静态 og:locale 用项目回退语言 en_US（与静态 lang/首屏文案一致）；运行时 init/seo.ts 按实际语言覆盖并补 og:locale:alternate -->
     <meta property="og:locale" content="en_US" />
     <meta property="og:image" content="<%- ogImage %>" />
     <meta property="og:image:width" content="1200" />

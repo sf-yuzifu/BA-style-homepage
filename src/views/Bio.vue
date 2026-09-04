@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, h } from 'vue'
 import { Modal } from '@arco-design/web-vue'
 import { useConfig } from '@/composables/useConfig'
+import { useStrokeWidth } from '@/composables/useStrokeWidth'
 import Header from '@/components/Header.vue'
 import Live2D from '@/components/Live2D.vue'
 import type { BioBtn } from '@/types/config'
@@ -94,23 +95,7 @@ const openImageDialog = (btn: BioBtn) => {
   })
 }
 
-const windowWidth = ref(window.innerWidth)
-
-const updateWidth = () => {
-  windowWidth.value = window.innerWidth
-}
-
-onMounted(() => {
-  window.addEventListener('resize', updateWidth)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', updateWidth)
-})
-
-const strokeWidth = computed(() => {
-  return Math.max(4, Math.round(windowWidth.value * 0.0025))
-})
+const { strokeWidth } = useStrokeWidth()
 
 // Carousel 指示器状态
 const currentSlide = ref(0)

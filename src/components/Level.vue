@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
+import { useStrokeWidth } from '@/composables/useStrokeWidth'
 import { navigateWithCurtain } from '@/init/links'
 
 const { configs } = useConfig()
@@ -27,23 +28,7 @@ const author = computed(() => {
   return currentConfig.value.author
 })
 
-const windowWidth = ref(window.innerWidth)
-
-const updateWidth = () => {
-  windowWidth.value = window.innerWidth
-}
-
-onMounted(() => {
-  window.addEventListener('resize', updateWidth)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', updateWidth)
-})
-
-const strokeWidth = computed(() => {
-  return Math.max(4, Math.round(windowWidth.value * 0.0025))
-})
+const { strokeWidth } = useStrokeWidth()
 
 const goToBio = () => {
   navigateWithCurtain('/bio')
