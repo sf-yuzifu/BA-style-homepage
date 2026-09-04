@@ -100,7 +100,7 @@ export function useLoading() {
     { immediate: true }
   )
 
-  // 初始化资源加载
+  // 注册资源加载队列（只注册，不开始加载；真实加载在 startLoading 中与进度消费并行启动）
   const initializeResourceLoading = async () => {
     // 等待配置加载完成
     const config = await waitForConfig()
@@ -108,27 +108,30 @@ export function useLoading() {
     // 添加字体加载任务
     resourceLoader.addResource('fonts_ready', '', 'font')
 
-    // 添加Live2D资源（根据实际配置动态添加）
+    // 添加Live2D资源：按角色注册（粒度 N+1），逐角色完成时进度条线性推进
     if (config.memorialLobbies && Array.isArray(config.memorialLobbies)) {
       config.memorialLobbies.forEach((lobby, index) => {
-        resourceLoader.addResource(`live2d_skeleton_${index}`, lobby.path + lobby.skel, 'live2d')
-        resourceLoader.addResource(`live2d_atlas_${index}`, lobby.path + lobby.atlas, 'live2d')
+        resourceLoader.addResource(`live2d_${index}`, lobby.path + lobby.skel, 'live2d')
       })
     }
-
-    // 等待字体加载完成
-    await loadFonts()
-
-    // 等待Live2D加载完成
-    await initLive2D()
   }
 
   // 开始加载
   const startLoading = async () => {
     await initializeResourceLoading()
 
-    // 开始批量加载
+    // 真实加载与进度消费并行：字体 / L2D 立即开始下载，
+    // loadAll 逐项等待真实完成事件（字体就绪 / 逐角色加载完成），进度条实时推进
+    const fontsPromise = loadFonts()
+    const live2dPromise = initLive2D()
     await resourceLoader.loadAll()
+    // loadAll 内部已吞掉单项错误（失败计入完成、降级进大厅）；
+    // 这里再观察一遍两个加载 Promise：initLive2D 自身不抛错，
+    // loadFonts 极端失败时明确日志（进度按降级已走完，不会像旧版那样留在加载屏）
+    await Promise.all([
+      fontsPromise.catch((error) => console.error('字体加载失败，按降级继续:', error)),
+      live2dPromise
+    ])
   }
 
   onUnmounted(() => {

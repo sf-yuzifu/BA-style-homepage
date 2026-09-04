@@ -12,6 +12,29 @@ export const live2dReady = new Promise<void>((resolve) => {
 const failedLobbyPaths: string[] = []
 export const getFailedLobbyPaths = (): readonly string[] => failedLobbyPaths
 
+// 逐角色加载完成的共享 Promise（加载屏进度条按角色粒度推进）：
+// 懒创建 deferred，使 useResourceLoader 无需关心 initLive2D 的启动时序；
+// 无论成败都在 finally 中推进——失败降级（计入完成）语义与 resourceLoader 的 error 兜底一致
+const lobbySettlers: Array<{ promise: Promise<void>; resolve: () => void }> = []
+
+const lobbySettler = (index: number) => {
+  let entry = lobbySettlers[index]
+  if (!entry) {
+    let resolve!: () => void
+    const promise = new Promise<void>((r) => {
+      resolve = r
+    })
+    entry = { promise, resolve }
+    lobbySettlers[index] = entry
+  }
+  return entry
+}
+
+export const getLobbySettled = (index: number): Promise<void> => lobbySettler(index).promise
+
+/** 标记单个角色加载完成（成败都调用，进度条按角色粒度推进） */
+const settleLobby = (index: number) => lobbySettler(index).resolve()
+
 export async function initLive2D(): Promise<boolean> {
   try {
     const { waitForConfig } = useConfig()
@@ -52,6 +75,9 @@ export async function initLive2D(): Promise<boolean> {
         // 重试后仍失败：记录该角色并继续加载其他角色，最终降级进大厅
         console.error(`Live2D资源重试后仍加载失败: ${lobby.path}`, error)
         failedLobbyPaths.push(lobby.path)
+      } finally {
+        // 逐角色回报完成事件（成败都推进加载屏进度条）
+        settleLobby(index)
       }
     })
 

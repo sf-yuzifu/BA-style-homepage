@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { live2dReady } from '@/init/live2d'
+import { getLobbySettled, live2dReady } from '@/init/live2d'
 
 export type ResourceStatus = 'pending' | 'loading' | 'loaded' | 'error'
 export type ResourceType = 'font' | 'live2d' | 'generic'
@@ -146,10 +146,17 @@ export function useResourceLoader() {
     }
   }
 
-  // 加载Live2D资源（实际加载在 init/live2d.ts 中进行，这里等待共享 Promise 完成）
+  // 加载Live2D资源（实际加载在 init/live2d.ts 中进行）：
+  // live2d_${index} 按角色等待其完成事件，进度条随角色逐个推进；
+  // 无法解析出角色索引时回退等待全局完成 Promise（兜底，正常不会走到）
   const loadLive2D = async (resource: ResourceItem) => {
-    console.log(`Live2D资源准备就绪: ${resource.id}`)
-    await live2dReady
+    const match = /^live2d_(\d+)$/.exec(resource.id)
+    if (match) {
+      console.log(`等待Live2D角色资源: ${resource.id}`)
+      await getLobbySettled(Number(match[1]))
+    } else {
+      await live2dReady
+    }
   }
 
   // 开始批量加载（并行加载，进度由 loadedCount 响应式更新，界面平滑动画由 useLoading 负责）
