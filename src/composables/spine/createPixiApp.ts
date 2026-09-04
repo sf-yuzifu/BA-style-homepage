@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js'
-import { isWebGLSupported } from '@pixi/utils'
 
 /**
  * 创建 PIXI 应用；WebGL 不可用或上下文创建失败时返回 null，由调用方降级为静态背景。
@@ -9,7 +8,7 @@ export function tryCreatePixiApp(
   options?: ConstructorParameters<typeof PIXI.Application>[0]
 ): PIXI.Application | null {
   try {
-    if (!isWebGLSupported()) {
+    if (!PIXI.utils.isWebGLSupported()) {
       console.error('WebGL is not available; Live2D will use a static background')
       return null
     }
