@@ -5,7 +5,6 @@ import fs from 'fs'
 
 import { defineConfig, type PluginOption, type UserConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vueJsx from '@vitejs/plugin-vue-jsx'
 import viteCompression from 'vite-plugin-compression'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -13,16 +12,16 @@ import type { ManifestOptions } from 'vite-plugin-pwa'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import Font from 'vite-plugin-font'
 import yaml from '@rollup/plugin-yaml'
-import { l2dWebpPlugin } from './build/vite-plugin-l2d-webp'
-import { configValidatePlugin } from './build/validate-config'
-import { bioMarkdownPlugin } from './build/bio-markdown'
+import { l2dWebpPlugin } from './build/vite-plugin-l2d-webp.ts'
+import { configValidatePlugin } from './build/validate-config.ts'
+import { bioMarkdownPlugin } from './build/bio-markdown.ts'
 import {
   ogImagesPlugin,
   PWA_SHOT_BIO_FILE,
   PWA_SHOT_HOME_FILE,
   PWA_SHOT_HEIGHT,
   PWA_SHOT_WIDTH
-} from './build/og-images'
+} from './build/og-images.ts'
 
 type FontViteOptions = Parameters<typeof Font.vite>[0]
 
@@ -80,7 +79,6 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
     configValidatePlugin(),
     bioMarkdownPlugin(),
     vue(),
-    vueJsx(),
     Font.vite({
       css: {
         fontFamily: 'Resource Han Rounded CN'

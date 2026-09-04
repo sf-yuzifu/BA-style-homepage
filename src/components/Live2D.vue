@@ -48,7 +48,10 @@ onMounted(async () => {
     width: containerWidth,
     height: containerHeight,
     backgroundAlpha: 0,
-    antialias: true
+    // 同大厅：Spine 边缘靠图集 alpha 平滑，MSAA 收益极小；
+    // 渲染倍率压到 1.5，降低低端 GPU 每帧光栅开销
+    antialias: false,
+    resolution: Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 1.5)
   })
   if (!pixiApp) return
   app = pixiApp

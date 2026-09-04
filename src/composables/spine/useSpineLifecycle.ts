@@ -115,8 +115,10 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     width: 2560,
     height: 1440,
     backgroundAlpha: 0,
-    antialias: true,
-    resolution: Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 2),
+    // Spine 边缘由图集 alpha 平滑（MSAA 只作用于几何边缘，此处收益极小），
+    // 关闭 MSAA 并把渲染倍率压到 1.5，显著降低低端 GPU 的每帧光栅开销
+    antialias: false,
+    resolution: Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 1.5),
     powerPreference: 'high-performance'
   })
   const canvas = (l2d?.view as HTMLCanvasElement | undefined) ?? null
@@ -517,9 +519,8 @@ export function useSpineLifecycle(deps: SpineLifecycleDeps) {
     window.addEventListener('resize', handleWindowResize)
   })
 
-  onBeforeRouteLeave((_to, _from, next) => {
+  onBeforeRouteLeave(() => {
     stopAllVoiceAndCleanup()
-    next()
   })
 
   onActivated(() => {

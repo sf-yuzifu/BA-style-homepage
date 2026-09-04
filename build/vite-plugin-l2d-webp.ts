@@ -82,7 +82,7 @@ export function l2dWebpPlugin(): Plugin {
           const webpName = pngName.replace(/\.png$/i, '.webp')
           const webpPath = path.join(atlasDir, webpName)
 
-          let pngSize = 0
+          let pngSize: number
           try {
             pngSize = (await fs.stat(pngPath)).size
           } catch {

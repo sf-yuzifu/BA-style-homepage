@@ -4,7 +4,7 @@ import path from 'node:path'
 import { load } from 'js-yaml'
 import { z } from 'zod'
 import type { Plugin } from 'vite'
-import { resolveOgShots } from './og-images'
+import { resolveOgShots } from './og-images.ts'
 
 const LOCALES = ['zh-CN', 'zh-TW', 'en-US', 'ja-JP'] as const
 const LOBBY_INDEX_KEY = /^memorialLobbies\[(\d+)\]$/
