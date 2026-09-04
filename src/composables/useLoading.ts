@@ -82,14 +82,8 @@ export function useLoading() {
       targetPercent.value = smoothProgress
       startAnimation()
 
-      console.log(
-        `加载进度更新: ${(smoothProgress * 100).toFixed(1)}% (${newState.loaded}/${newState.total})`
-      )
-
       // 检查是否所有资源都加载完成
       if (newState.isComplete && !newState.isLoading) {
-        console.log('资源加载完成，准备隐藏加载界面')
-
         // 确保进度达到100%
         targetPercent.value = 1
         startAnimation()
@@ -106,22 +100,8 @@ export function useLoading() {
     { immediate: true }
   )
 
-  // 监听完成状态变化
-  watch(
-    [() => resourceLoader.isComplete.value, () => resourceLoader.isLoading.value],
-    ([isComplete, isLoading]) => {
-      console.log(`加载状态变化 - 完成: ${isComplete}, 加载中: ${isLoading}`)
-
-      if (isComplete && !isLoading) {
-        console.log('检测到资源加载完成')
-      }
-    }
-  )
-
   // 初始化资源加载
   const initializeResourceLoading = async () => {
-    console.log('开始初始化资源加载...')
-
     // 等待配置加载完成
     const config = await waitForConfig()
 
@@ -129,42 +109,34 @@ export function useLoading() {
     resourceLoader.addResource('fonts_ready', '', 'font')
 
     // 添加Live2D资源（根据实际配置动态添加）
-    const lobbyCount = Array.isArray(config.memorialLobbies) ? config.memorialLobbies.length : 0
     if (config.memorialLobbies && Array.isArray(config.memorialLobbies)) {
       config.memorialLobbies.forEach((lobby, index) => {
         resourceLoader.addResource(`live2d_skeleton_${index}`, lobby.path + lobby.skel, 'live2d')
         resourceLoader.addResource(`live2d_atlas_${index}`, lobby.path + lobby.atlas, 'live2d')
       })
-      console.log(`添加了 ${lobbyCount} 个Live2D角色的资源`)
     }
-
-    console.log(`资源加载器初始化完成，共 ${resourceLoader.totalCount.value} 个资源`)
 
     // 等待字体加载完成
     await loadFonts()
 
     // 等待Live2D加载完成
     await initLive2D()
-
-    console.log('字体和Live2D初始化完成')
   }
 
   // 开始加载
   const startLoading = async () => {
-    console.log('开始资源加载...')
-
     await initializeResourceLoading()
 
     // 开始批量加载
-    console.log('开始批量加载资源...')
     await resourceLoader.loadAll()
   }
 
   onUnmounted(() => {
-    // 清理动画帧
+    // 清理动画帧与资源加载状态
     if (animationFrame.value) {
       cancelAnimationFrame(animationFrame.value)
     }
+    resourceLoader.reset()
   })
 
   // 完成加载（仅在资源全部就绪时调用）
@@ -178,8 +150,6 @@ export function useLoading() {
     percent.value = 1
     loading.value = false
     isReady.value = true
-
-    console.log('应用加载完成，准备切换到主界面')
 
     notifyIfDegraded()
   }
@@ -212,10 +182,6 @@ export function useLoading() {
     } else {
       setTimeout(begin, 300)
     }
-  })
-
-  onUnmounted(() => {
-    resourceLoader.reset()
   })
 
   return {
