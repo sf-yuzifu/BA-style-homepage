@@ -29,6 +29,8 @@ const PAGE_OPEN_DELAY = 300 // 幕布拉开后打开目标页面的延迟
 const randomCurtainDuration = () => Math.floor(Math.random() * 2 + 4) * 250
 
 let curtainTimer: ReturnType<typeof setTimeout> | null = null
+/** 在途守卫：一次点击只触发一次转场与 window.open，连点 / 双击 / 长按 Enter 连发不重复打开标签页 */
+let inFlight = false
 
 // noopener 防 tabnabbing，与 init/links.ts 动态 <a> 的 rel="noopener noreferrer" 行为一致
 const openTaskPage = () => {
@@ -44,6 +46,8 @@ const openCurtain = () => {
   setTimeout(() => {
     bg.value = false
     curtain.value = false
+    // 幕布收场后复位守卫，允许用户之后再次打开
+    inFlight = false
   }, randomCurtainDuration())
 }
 
@@ -59,8 +63,15 @@ const onFlashError = () => {
 }
 
 const skip = () => {
+  // 在途守卫：转场进行中忽略后续点击，防止旧定时器 / reduced-motion 直跳路径重复 window.open
+  if (inFlight) return
+  inFlight = true
   if (prefersReducedMotionNow()) {
     openTaskPage()
+    // 无幕布可等，延迟复位守卫以允许之后再次打开
+    setTimeout(() => {
+      inFlight = false
+    }, CURTAIN_OPEN_DELAY)
     return
   }
   if (canPlayTransition) {
