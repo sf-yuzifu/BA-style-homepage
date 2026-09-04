@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { IconMuteFill, IconSoundFill } from '@arco-design/web-vue/es/icon'
 import { useAboutCopyright } from '@/composables/useAboutCopyright'
 import { useConfig, type LocalePreference } from '@/composables/useConfig'
@@ -134,6 +134,21 @@ const selectTab = (key: TabKey) => {
   activeTab.value = key
 }
 
+// 窄屏（≤767px）时 Tab 变横向排列：aria-orientation 随之切换，方向键两组都收
+const tabsMedia = window.matchMedia('(max-width: 767px)')
+const tabsHorizontal = ref(tabsMedia.matches)
+const onTabsMediaChange = (e: MediaQueryListEvent) => {
+  tabsHorizontal.value = e.matches
+}
+
+onMounted(() => {
+  tabsMedia.addEventListener('change', onTabsMediaChange)
+})
+
+onUnmounted(() => {
+  tabsMedia.removeEventListener('change', onTabsMediaChange)
+})
+
 const moveTab = (step: number) => {
   const list = tabs.value
   const index = list.findIndex((tab) => tab.key === activeTab.value)
@@ -158,11 +173,12 @@ const moveTab = (step: number) => {
       <nav
         class="tabs scroll-hidden"
         role="tablist"
-        aria-orientation="vertical"
+        :aria-orientation="tabsHorizontal ? 'horizontal' : 'vertical'"
         :aria-label="t.settings || 'Settings'"
       >
         <template v-for="(tab, index) in tabs" :key="tab.key">
-          <!-- 原生 button：Enter/Space 激活交由浏览器原生行为，方向键切换见 moveTab -->
+          <!-- 原生 button：Enter/Space 激活交由浏览器原生行为；
+               方向键切换见 moveTab——纵向 ↑/↓、横向 ←/→，两组都收避免布局切换后失灵 -->
           <button
             type="button"
             class="tab css-cursor-hover-enabled"
@@ -172,6 +188,8 @@ const moveTab = (step: number) => {
             @click="selectTab(tab.key)"
             @keydown.up.prevent="moveTab(-1)"
             @keydown.down.prevent="moveTab(1)"
+            @keydown.left.prevent="moveTab(-1)"
+            @keydown.right.prevent="moveTab(1)"
           >
             {{ tab.label }}
           </button>
