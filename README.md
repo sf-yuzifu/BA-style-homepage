@@ -195,6 +195,15 @@ Fork 后主要改两处：
   | 酷狗 | `kugou` | 32 位 hash | 同上；hash 在酷狗网页版歌曲页/分享参数中可找到 |
   | 酷我 | `kuwo` | 数字 rid | 歌名/歌手/封面自动获取；也可写 `{ id, name, artist }` 对象覆盖元数据 |
   | 直链/自托管 | `local` | `{ url, name, artist, cover? }` | 音频放 `public/` 下（如 `public/music/demo.mp3`）；name/artist 必填 |
+  | Spotify | `spotify` | 歌曲/歌单链接 | **构建期匹配用**，运行时忽略；见下方说明 |
+
+- **Spotify 歌单同步**：Spotify 音频受 DRM + 登录墙限制无法直接播放，但可以把 Spotify 当「歌单源」、网易云/QQ 当「播放器」。在 `banner.music.spotify` 填入公开歌单/单曲链接后运行：
+
+  ```bash
+  yarn spotify:sync
+  ```
+
+  脚本会抓取曲目列表（歌名/艺人/时长），到网易云和 QQ 音乐搜索匹配（打分：歌名归一化 + 艺人交集 + 时长容差），网易云候选批量探活过滤 VIP，最后输出可直接粘贴进 `_config.yaml` 的 `netease` / `tencent` 片段。已知限制：embed 页歌单曲目上限约 50 首；匹配存在误差（同名歌/翻唱），建议抽查报告；热门 VIP 曲国内源无免费原版时会落到免费翻唱/Live 版或跳过。
 
 - **History 路由 / 子路径 `base`**：见上方「部署方式」。
 - **OG 分享卡片**：构建时用 sharp 从 `shots/zh/pic1.png` / `pic2.png` 裁切出 `/og-home.jpg`、`/og-bio.jpg`；换自己的截图请改 `_config.yaml` 的 `og.home` / `og.bio` 指向新路径，勿直接删除源图（缺失会构建失败）。

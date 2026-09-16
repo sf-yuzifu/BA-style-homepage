@@ -143,13 +143,22 @@ const localMusicEntrySchema = z.strictObject({
   cover: z.string().optional()
 })
 
+/** Spotify 歌曲/歌单链接；仅供构建期 `yarn spotify:sync` 读取，运行时忽略 */
+const spotifyUrlSchema = z
+  .string()
+  .regex(
+    /^https?:\/\/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(?:track|playlist)\/[A-Za-z0-9]+/,
+    '须为 open.spotify.com 的 track 或 playlist 链接'
+  )
+
 const musicGroupSchema = z.strictObject({
   netease: z.array(z.number()).optional(),
   neteasePlaylist: z.array(z.number()).optional(),
   tencent: z.array(musicIdString).optional(),
   kugou: z.array(musicIdString).optional(),
   kuwo: z.array(kuwoEntrySchema).optional(),
-  local: z.array(localMusicEntrySchema).optional()
+  local: z.array(localMusicEntrySchema).optional(),
+  spotify: z.array(spotifyUrlSchema).optional()
 })
 
 const bioConfigSchema = z
