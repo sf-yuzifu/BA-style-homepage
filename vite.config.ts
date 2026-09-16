@@ -34,6 +34,17 @@ interface BuildConfig {
   url?: string
   iconfont?: string
   manifest?: Partial<ManifestOptions>
+  banner?: {
+    musicID?: number[]
+    music?: {
+      netease?: number[]
+      neteasePlaylist?: number[]
+      tencent?: unknown[]
+      kugou?: unknown[]
+      kuwo?: unknown[]
+      local?: unknown[]
+    }
+  }
   /** 社交分享卡片（OG 图）源图，缺省 shots/zh/pic1.png / pic2.png */
   og?: {
     home?: string
@@ -49,6 +60,28 @@ const siteUrl = (config.url || '').replace(/\/+$/, '')
 const iconfontOrigin = (() => {
   const m = (config.iconfont?.trim() || '').match(/^(?:https?:)?\/\/([^/]+)/)
   return m ? `https://${m[1]}` : ''
+})()
+
+// 按 _config.yaml 实际配置的音源注入对应 API 的 preconnect（local 直链无需预热；
+// 网易含旧字段 musicID——运行时会并入 netease 一起进随机池）
+const musicApiOrigins = (() => {
+  const music = config.banner?.music
+  const hasNetease =
+    (config.banner?.musicID?.length ?? 0) > 0 ||
+    (music?.netease?.length ?? 0) > 0 ||
+    (music?.neteasePlaylist?.length ?? 0) > 0
+  const origins = new Set<string>()
+  if (hasNetease) origins.add('https://api.injahow.cn')
+  if (music?.tencent?.length) {
+    origins.add('https://c.y.qq.com')
+    origins.add('https://u.y.qq.com')
+  }
+  if (music?.kugou?.length) origins.add('https://m.kugou.com')
+  if (music?.kuwo?.length) {
+    origins.add('https://search.kuwo.cn')
+    origins.add('https://antiserver.kuwo.cn')
+  }
+  return [...origins]
 })()
 
 // PWA manifest 缺省补齐：display 默认 standalone（安装后独立窗口而非浏览器标签页）；
@@ -95,6 +128,8 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
           keywords: config.keywords,
           // 远程 iconfont 的 origin（本地内置时为 ''，模板据此跳过 preconnect）
           iconfontOrigin,
+          // 实际配置到的音源 API origin 列表（模板循环输出 preconnect + dns-prefetch）
+          musicApiOrigins,
           // 站点规范地址（去除尾部斜杠），供 og:image/og:url/canonical 拼绝对 URL
           siteUrl,
           ogImage: siteUrl ? `${siteUrl}/og-home.jpg` : '/og-home.jpg'

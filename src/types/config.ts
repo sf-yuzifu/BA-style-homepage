@@ -50,8 +50,42 @@ export interface TaskConfig {
   href?: string
 }
 
+/** 直链/自托管音频条目：元数据须手写（无接口可查） */
+export interface LocalMusicEntry {
+  url: string
+  name?: string
+  artist?: string
+  cover?: string
+}
+
+/** 酷我条目：数字 rid 简写等价 `{ id }`；name/artist/cover 可覆盖接口返回值 */
+export interface KuwoMusicEntry {
+  id: number
+  name?: string
+  artist?: string
+  cover?: string
+}
+
+/** 按源分组的音乐列表；与旧字段 musicID 合并进同一随机池 */
+export interface MusicGroupConfig {
+  /** 网易云单曲 ID */
+  netease?: number[]
+  /** 网易云歌单 ID（启动时一次展开为单曲） */
+  neteasePlaylist?: number[]
+  /** QQ 音乐 songmid（仅免费曲可播，VIP 自动跳过） */
+  tencent?: string[]
+  /** 酷狗文件 hash（仅免费曲可播，VIP 自动跳过） */
+  kugou?: string[]
+  /** 酷我 rid */
+  kuwo?: (number | KuwoMusicEntry)[]
+  /** 直链/自托管音频 */
+  local?: LocalMusicEntry[]
+}
+
 export interface BannerConfig {
-  musicID: number[]
+  /** @deprecated 旧键：网易云单曲 ID 列表，等价 `music.netease`，读取时两者合并 */
+  musicID?: number[]
+  music?: MusicGroupConfig
 }
 
 export interface ICPConfig {

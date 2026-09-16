@@ -1,4 +1,10 @@
-import type { AppConfig, LocaleCode, MemorialLobby } from '@/types/config'
+import type {
+  AppConfig,
+  KuwoMusicEntry,
+  LocaleCode,
+  LocalMusicEntry,
+  MemorialLobby
+} from '@/types/config'
 
 // 语言映射配置
 const LANGUAGE_MAP: Record<string, LocaleCode> = {
@@ -22,7 +28,15 @@ const DEFAULT_CONFIG = {
   contact: [] as AppConfig['contact'],
   memorialLobbies: [] as NonNullable<AppConfig['memorialLobbies']>,
   banner: {
-    musicID: [] as number[]
+    musicID: [],
+    music: {
+      netease: [],
+      neteasePlaylist: [],
+      tencent: [],
+      kugou: [],
+      kuwo: [],
+      local: []
+    }
   }
 } as AppConfig
 
@@ -50,6 +64,65 @@ export function detectBrowserLanguage(supportedLanguages: string[]): LocaleCode 
 
   // 默认返回英语
   return 'en-US'
+}
+
+/** 数字数组清洗：去非法值、去重 */
+const cleanNumberList = (value: unknown): number[] => {
+  if (!Array.isArray(value)) return []
+  return [...new Set(value.map(Number).filter((n) => Number.isFinite(n) && n > 0))]
+}
+
+/** 字符串 ID 数组清洗（QQ songmid / 酷狗 hash；YAML 未加引号的数字也接受） */
+const cleanStringList = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return []
+  return [
+    ...new Set(
+      value
+        .map((v) => (typeof v === 'string' ? v.trim() : typeof v === 'number' ? String(v) : ''))
+        .filter((s) => s.length > 0)
+    )
+  ]
+}
+
+/**
+ * banner 归一化：旧字段 musicID 合并进 music.netease（去重），各源数组清洗非法值。
+ * 酷我条目数字简写统一展开为 `{ id }` 对象。
+ */
+function normalizeBanner(banner: AppConfig['banner']): AppConfig['banner'] {
+  const music = banner?.music
+  const kuwo: KuwoMusicEntry[] = []
+  if (Array.isArray(music?.kuwo)) {
+    for (const entry of music.kuwo) {
+      if (typeof entry === 'number' && Number.isFinite(entry) && entry > 0) {
+        kuwo.push({ id: entry })
+      } else if (entry && typeof entry === 'object' && typeof entry.id === 'number') {
+        kuwo.push(entry)
+      }
+    }
+  }
+
+  const local: LocalMusicEntry[] = Array.isArray(music?.local)
+    ? music.local.filter(
+        (e): e is LocalMusicEntry =>
+          !!e && typeof e === 'object' && typeof e.url === 'string' && e.url.length > 0
+      )
+    : []
+
+  const netease = cleanNumberList([...(banner?.musicID ?? []), ...(music?.netease ?? [])]).filter(
+    (id) => id > 0
+  )
+
+  return {
+    musicID: [],
+    music: {
+      netease,
+      neteasePlaylist: cleanNumberList(music?.neteasePlaylist),
+      tencent: cleanStringList(music?.tencent),
+      kugou: cleanStringList(music?.kugou),
+      kuwo,
+      local
+    }
+  }
 }
 
 /**
@@ -98,13 +171,7 @@ export function validateConfig(config: unknown): AppConfig {
         : DEFAULT_CONFIG.memorialLobbies,
 
       // 确保banner配置安全
-      banner: {
-        ...DEFAULT_CONFIG.banner,
-        ...raw.banner,
-        musicID: Array.isArray(raw.banner?.musicID)
-          ? raw.banner.musicID.map((id) => Number(id) || 0)
-          : (DEFAULT_CONFIG.banner?.musicID ?? [])
-      },
+      banner: normalizeBanner(raw.banner),
 
       bio: raw.bio
         ? (() => {

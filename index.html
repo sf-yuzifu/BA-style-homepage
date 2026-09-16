@@ -2,8 +2,10 @@
 <html lang="en-US">
   <head>
     <meta charset="UTF-8" />
-    <link rel="preconnect" href="https://api.injahow.cn" />
-    <link rel="dns-prefetch" href="https://api.injahow.cn" />
+    <% musicApiOrigins.forEach(function(origin) { %>
+    <link rel="preconnect" href="<%- origin %>" />
+    <link rel="dns-prefetch" href="<%- origin %>" />
+    <% }) %>
     <% if (iconfontOrigin) { %>
     <link rel="preconnect" href="<%- iconfontOrigin %>" />
     <link rel="dns-prefetch" href="<%- iconfontOrigin %>" />

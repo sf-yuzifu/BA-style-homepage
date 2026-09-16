@@ -123,6 +123,35 @@ const bioBtnSchema = z.strictObject({
   path: nonEmpty
 })
 
+/** QQ songmid / 酷狗 hash：YAML 里不加引号时可能是数字，统一转字符串 */
+const musicIdString = z.union([nonEmpty, z.number()]).transform((v) => String(v))
+
+const kuwoEntrySchema = z.union([
+  z.number(),
+  z.strictObject({
+    id: z.number(),
+    name: z.string().optional(),
+    artist: z.string().optional(),
+    cover: z.string().optional()
+  })
+])
+
+const localMusicEntrySchema = z.strictObject({
+  url: nonEmpty,
+  name: z.string().optional(),
+  artist: z.string().optional(),
+  cover: z.string().optional()
+})
+
+const musicGroupSchema = z.strictObject({
+  netease: z.array(z.number()).optional(),
+  neteasePlaylist: z.array(z.number()).optional(),
+  tencent: z.array(musicIdString).optional(),
+  kugou: z.array(musicIdString).optional(),
+  kuwo: z.array(kuwoEntrySchema).optional(),
+  local: z.array(localMusicEntrySchema).optional()
+})
+
 const bioConfigSchema = z
   .strictObject({
     student: z.array(bioStudentSchema).optional(),
@@ -160,7 +189,8 @@ const siteConfigSchema = z.strictObject({
     .optional(),
   banner: z
     .strictObject({
-      musicID: z.array(z.number()).optional()
+      musicID: z.array(z.number()).optional(),
+      music: musicGroupSchema.optional()
     })
     .optional(),
   memorialLobbies: z.array(memorialLobbySchema).optional(),
@@ -209,7 +239,8 @@ const localeOverlaySchema = z.strictObject({
     .optional(),
   banner: z
     .strictObject({
-      musicID: z.array(z.number()).optional()
+      musicID: z.array(z.number()).optional(),
+      music: musicGroupSchema.optional()
     })
     .optional(),
   memorialLobbies: z.array(memorialLobbySchema.partial()).optional(),
@@ -403,6 +434,24 @@ export function validateProjectConfig(root: string): string[] {
     parsed.data.bio?.btn?.forEach((card, i) => {
       const miss = checkPublicFile(root, card.path, `_config.yaml → bio.btn[${i}].path`)
       if (miss) errors.push(miss)
+    })
+
+    // local 音乐：url/cover 指向 public/ 的路径须真实存在（外链 http(s):// 不校验）
+    parsed.data.banner?.music?.local?.forEach((entry, i) => {
+      const missUrl = checkPublicFile(
+        root,
+        entry.url,
+        `_config.yaml → banner.music.local[${i}].url`
+      )
+      if (missUrl) errors.push(missUrl)
+      if (entry.cover) {
+        const missCover = checkPublicFile(
+          root,
+          entry.cover,
+          `_config.yaml → banner.music.local[${i}].cover`
+        )
+        if (missCover) errors.push(missCover)
+      }
     })
   }
 

@@ -86,10 +86,42 @@ task:
   href: 'https://example.com/blog'
 
 # --- 音乐 Banner / Music player ---
+#
+# 支持多音源，全部合并进同一随机池；不配置的源直接省略。
+# 旧字段 banner.musicID（网易云单曲 ID 列表）仍有效，自动并入 music.netease。
+#
+# 各源限制：
+#   netease / neteasePlaylist — 经 api.injahow.cn 公共 Meting 实例，VIP 曲多数可播
+#   tencent / kugou           — 浏览器侧 JSONP 直连官方接口，仅免费曲可播，VIP 自动跳过
+#   kuwo                      — 同上；歌名/歌手/封面自动获取
+#   local                     — 直链/自托管（放 public/ 下），name/artist 必填
 
 banner:
-  musicID:
-    - 2059151619
+  music:
+    # 网易云单曲 ID（分享链接 /song?id=xxxx 末尾数字）
+    netease:
+      - 2059151619
+    # 网易云歌单 ID（/playlist?id=xxxx），启动时一次展开为单曲
+    neteasePlaylist:
+      - 2619366284
+    # QQ 音乐 songmid（歌曲页地址 /songmid/xxxx）
+    tencent:
+      - '0042rlGx2WHBrG'
+    # 酷狗 hash（32 位十六进制，可在酷狗网页版歌曲页/分享参数中找到）
+    kugou:
+      - 48C685F679FFC7CF08B8A8341CA9DB44
+    # 酷我 rid（纯数字，歌曲页 /play/xxxx 末尾数字；也可写对象形式覆盖元数据：
+    #   - id: 3262923
+    #     name: 雪月花
+    #     artist: →Pia-no-jaC←）
+    kuwo:
+      - 3262923
+    # 直链/自托管音频
+    local:
+      - url: /music/demo.mp3
+        name: Demo
+        artist: Me
+        cover: /img/cover.png
 
 # --- 回忆大厅 Live2D / Memorial lobbies ---
 #

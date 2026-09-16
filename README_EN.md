@@ -44,7 +44,7 @@ All site content (site info, contacts, project showcase, music list, Live2D char
 
 ### 🎵 Atmosphere
 
-- Banner music player (random playback from NetEase Cloud Music)
+- Banner music player (random playback across multiple sources: NetEase Cloud tracks/playlists, QQ Music, Kugou, Kuwo, self-hosted audio)
 - Blue Archive-style click effects
 - Custom game-style virtual cursor
 - Wallet system: AP syncs with your device battery (falls back to recovering 1 AP per 6 minutes), credits accumulate with time spent on site, and pyroxene comes from daily sign-in rewards (persisted in localStorage, hover for details)
@@ -185,6 +185,17 @@ Run `yarn build` and redeploy. The build validates `_config.yaml` and `public/` 
 **Forking notes:**
 
 - **Icons**: Default `public/js/iconfont.js` (`iconfont: /js/iconfont.js`). Use your own [iconfont.cn](https://www.iconfont.cn/) Symbol JS export, or `imgSrc` on `dock` / `contact` items.
+- **Music banner sources**: `banner.music` is grouped by source; everything merges into one random pool (omit sources you don't use; the legacy `banner.musicID` field still works and is folded into `music.netease`):
+
+  | Source | Key | Value | Notes |
+  | --- | --- | --- | --- |
+  | NetEase track | `netease` | numeric ID | From share link `/song?id=xxxx`; via public Meting instance, most VIP tracks play |
+  | NetEase playlist | `neteasePlaylist` | numeric ID | `/playlist?id=xxxx`, expanded once at startup |
+  | QQ Music | `tencent` | songmid string | Browser-side JSONP to official endpoints; **free tracks only** — VIP entries are skipped automatically |
+  | Kugou | `kugou` | 32-char hash | Same as above; the hash is in the song page / share parameters on Kugou web |
+  | Kuwo | `kuwo` | numeric rid | Title/artist/cover fetched automatically; or use `{ id, name, artist }` to override |
+  | Direct / self-hosted | `local` | `{ url, name, artist, cover? }` | Put audio under `public/` (e.g. `public/music/demo.mp3`); name/artist required |
+
 - **History routes / subpath `base`**: see **Deployment** above.
 - **OG share cards**: at build time, sharp crops `shots/zh/pic1.png` / `pic2.png` into `/og-home.jpg` and `/og-bio.jpg`. To use your own screenshots, point `og.home` / `og.bio` in `_config.yaml` at the new paths — do not delete the source files (the build fails if they are missing).
 - **Transition video `transfrom.mov`**: the HEVC+alpha transition track for Safari / iOS, regenerated from `public/transfrom.webm` via `yarn transition:mov`. The script relies on macOS's `hevc_videotoolbox` encoder, so **it only runs on macOS**. Ignore it if you keep the default transition; to replace it, regenerate the `.mov` on a Mac (deleting the `.mov` outright makes Safari fall back to the WebM track without an alpha channel).

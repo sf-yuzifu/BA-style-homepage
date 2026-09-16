@@ -3,20 +3,23 @@ import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick, type Ref } 
 import { Howl } from 'howler'
 import { useConfig } from '@/composables/useConfig'
 import { useSettings } from '@/composables/useSettings'
-
-interface SongInfo {
-  name: string
-  artist: string
-  url: string
-  cover?: string
-}
+import {
+  buildMusicPool,
+  expandNeteasePlaylist,
+  listPlaylistIds,
+  resolveTrack,
+  SourceUnavailableError,
+  TrackUnavailableError,
+  type PoolItem,
+  type SongInfo
+} from '@/composables/musicSources'
+import type { MusicGroupConfig } from '@/types/config'
 
 // 使用i18n配置系统
 const { configs } = useConfig()
 const { effectiveBgmVolume } = useSettings()
 
 const ifICP = computed(() => configs.value?.ICP || '')
-const songlist = computed(() => configs.value?.banner?.musicID || [])
 const translate = computed(() => configs.value?.translate)
 
 /** API 最终失败后隐藏整个 Banner，不留空白占位 */
@@ -113,11 +116,27 @@ const retryOrHide = () => {
   }
 }
 
+/**
+ * 单曲不可播（VIP/下架）：不计入 API 连续失败，直接换下一首；
+ * 连续不可播达到池大小（全部抽完都播不了）才隐藏，防止全 VIP 配置死循环
+ */
+let skipCount = 0
+
+const skipToNext = () => {
+  skipCount++
+  if (skipCount >= Math.max(pool.length, 1)) {
+    hideBanner()
+  } else {
+    void addRandomSong()
+  }
+}
+
 /** 装载并播放一首歌曲（静音时只装载不播放，恢复音量后续播） */
 const playSong = (song: SongInfo) => {
   releaseCurrent()
-  songName.value = song.name
-  songArtist.value = song.artist
+  const t = translate.value
+  songName.value = song.name || t?.musicUnknownSong || 'Unknown song'
+  songArtist.value = song.artist || t?.musicUnknownArtist || 'Unknown artist'
   songCover.value = song.cover || ''
   coverFailed.value = false
   progress.value = 0
@@ -126,8 +145,9 @@ const playSong = (song: SongInfo) => {
   const howl = new Howl({
     src: [song.url],
     // meting 的 url 是无扩展名的 302 跳转（?server=netease&type=url&id=...），
-    // howler 按 URL 后缀嗅探格式会得到 null 并直接 loaderror——必须显式声明格式
-    format: ['mp3'],
+    // howler 按 URL 后缀嗅探格式会得到 null 并直接 loaderror——必须显式声明格式；
+    // 各源格式不同（网易/酷狗/酷我 mp3、QQ m4a），由解析器按源指定
+    format: song.format,
     // BGM 是长音频：走 HTML5 Audio 流式播放，不整段下载解码成 PCM
     html5: true,
     volume: effectiveBgmVolume.value,
@@ -135,8 +155,9 @@ const playSong = (song: SongInfo) => {
       // 所有回调都过这道理代闸：已被顶替/释放的旧 Howl 的迟到事件一律忽略
       if (howl !== currentHowl) return
       autoplayBlocked = false
-      // 真正开始播放才算成功：归零重试计数（fetch 成功不算数——装载失败的曲目也要能重试到位）
+      // 真正开始播放才算成功：归零重试与跳过计数（fetch 成功不算数——装载失败的曲目也要能重试到位）
       retryCount = 0
+      skipCount = 0
       playing.value = true
       startProgressLoop()
     },
@@ -174,89 +195,42 @@ const playSong = (song: SongInfo) => {
   if (effectiveBgmVolume.value > 0) howl.play()
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === 'object' && value !== null
+// ---- 随机池：配置分组拍平 + 歌单启动时一次展开 ----
+
+let pool: PoolItem[] = []
+/** 歌单展开中：首播前等待，避免先播单曲再涌入一堆歌单曲 */
+let poolReady: Promise<void> = Promise.resolve()
+
+const rebuildPool = (music: MusicGroupConfig | undefined) => {
+  pool = buildMusicPool(music)
 }
 
-const readString = (value: unknown): string | undefined => {
-  return typeof value === 'string' ? value : undefined
-}
-
-/**
- * 解析封面直链：meting 的 pic 是 302 中转且固定跳 90x90（param=90y90），海报满铺太糊——
- * 用 HEAD 跟出最终 CDN 地址（两端都带 CORS），再把尺寸参数改成 300x300；
- * 解析失败退回原地址（90x90 也能看）
- */
-const resolveCover = async (picUrl: string): Promise<string | undefined> => {
-  if (!picUrl) return undefined
-  try {
-    const response = await fetch(picUrl, {
-      method: 'HEAD',
-      signal: AbortSignal.timeout(8000)
-    })
-    const finalUrl = response.url || picUrl
-    return finalUrl.replace(/([?&]param=)\d+y\d+/, '$1300y300')
-  } catch {
-    return picUrl
+const expandPlaylists = async (music: MusicGroupConfig | undefined) => {
+  const ids = listPlaylistIds(music)
+  if (ids.length === 0) return
+  const results = await Promise.allSettled(ids.map((id) => expandNeteasePlaylist(id)))
+  const resolved: PoolItem[] = []
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      for (const song of result.value) {
+        resolved.push({ kind: 'resolved', song })
+      }
+    } else {
+      // 歌单展开失败不隐藏 Banner（其它源照常工作）
+      console.error('歌单展开失败:', result.reason)
+    }
   }
-}
-
-// 获取歌曲数据
-const fetchSongData = async (songId: number): Promise<SongInfo | null> => {
-  try {
-    const response = await fetch(
-      `https://api.injahow.cn/meting/?server=netease&type=song&id=${songId}`,
-      { signal: AbortSignal.timeout(8000) }
-    )
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
-    }
-    const json: unknown = await response.json()
-
-    // 检查响应数据结构
-    console.log('API响应:', json)
-
-    // Meting API 返回数组，单曲类型取第一项
-    const data = Array.isArray(json) ? json[0] : json
-
-    // 验证数据结构
-    if (!isRecord(data)) {
-      throw new Error('无效的响应数据')
-    }
-
-    // 检查必要的字段（歌名 / 艺术家缺失时走 i18n 兜底，默认 en-US 与项目默认语言一致）
-    const t = translate.value
-    const song: SongInfo = {
-      name:
-        readString(data.title) || readString(data.name) || t?.musicUnknownSong || 'Unknown song',
-      artist:
-        readString(data.author) ||
-        readString(data.artist) ||
-        t?.musicUnknownArtist ||
-        'Unknown artist',
-      url: readString(data.url) || '',
-      cover: await resolveCover(readString(data.pic) || '')
-    }
-
-    // 验证URL字段
-    if (!song.url) {
-      throw new Error('歌曲URL不存在')
-    }
-
-    console.log('歌曲信息:', song)
-    return song
-  } catch (error) {
-    console.error('获取歌曲数据失败:', error)
-    return null
+  if (resolved.length > 0) {
+    pool = [...pool, ...resolved]
   }
 }
 
 // 抽签不放回：一袋抽完才重置；列表变化时自动重建
 let songBag: number[] = []
-let songBagSource: readonly number[] | null = null
+let songBagSource: readonly PoolItem[] | null = null
 let songBagCurrentIndex = -1
 
-function drawRandomIndex(list: readonly number[]): number {
+function drawRandomIndex(list: readonly PoolItem[]): number {
   if (songBagSource !== list) {
     songBag = []
     songBagSource = list
@@ -280,34 +254,31 @@ function drawRandomIndex(list: readonly number[]): number {
 // 随机加载一首歌
 const addRandomSong = async () => {
   try {
-    // 检查歌曲列表是否有效
-    if (!songlist.value || songlist.value.length === 0) {
+    await poolReady
+    if (pool.length === 0) {
       console.warn('歌曲列表为空')
       hideBanner()
       return
     }
 
-    // 随机选择一首歌
-    const randomIndex = drawRandomIndex(songlist.value)
-    const songId = songlist.value[randomIndex]
+    const item = pool[drawRandomIndex(pool)]
+    console.log('尝试加载曲目:', item)
 
-    if (!songId) {
-      throw new Error('无效的歌曲ID')
-    }
-
-    console.log(`尝试加载歌曲 ID: ${songId}`)
-
-    // 获取歌曲数据
-    const songData = await fetchSongData(songId)
-
-    if (!songData) {
-      throw new Error('无法获取歌曲数据')
-    }
-
+    const songData = await resolveTrack(item)
     playSong(songData)
-    console.log('歌曲加载成功:', songData.name)
+    console.log('歌曲加载成功:', songData.name || songData.url)
   } catch (error) {
-    console.error('添加歌曲失败:', error)
+    // 分级失败语义：单曲不可播换下一首（不计入连续失败）；源接口故障走重试/隐藏
+    if (error instanceof TrackUnavailableError) {
+      console.warn('曲目不可播，换下一首:', error.message)
+      skipToNext()
+      return
+    }
+    if (error instanceof SourceUnavailableError) {
+      console.error('音源接口故障:', error.message)
+    } else {
+      console.error('添加歌曲失败:', error)
+    }
     retryOrHide()
   }
 }
@@ -332,6 +303,7 @@ const nextSong = () => {
     retryTimer = null
   }
   retryCount = 0
+  skipCount = 0
   void addRandomSong()
 }
 
@@ -413,9 +385,21 @@ watch([songName, songArtist], () => {
   void nextTick(checkMarquee)
 })
 
+// 配置热更新（如语言切换重新合并配置）时重建随机池
+const musicConfig = computed(() => configs.value?.banner?.music)
+watch(musicConfig, (music) => {
+  rebuildPool(music)
+})
+
 // 初始化
 onMounted(() => {
-  // 初始加载一首歌
+  // 拍平随机池并展开歌单
+  const music = configs.value?.banner?.music
+  rebuildPool(music)
+  const expansion = expandPlaylists(music)
+  // 池里已有其它源曲目（单曲/QQ/酷狗/…）时立即开播，歌单后台展开后自动并入随机池；
+  // 仅当只有歌单源时才阻塞首播等展开完成
+  poolReady = pool.length > 0 ? Promise.resolve() : expansion
   void addRandomSong()
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)

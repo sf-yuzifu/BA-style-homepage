@@ -44,7 +44,7 @@
 
 ### 🎵 氛围体验
 
-- Banner 音乐播放器（网易云音乐随机播放）
+- Banner 音乐播放器（多音源随机播放：网易云单曲/歌单、QQ 音乐、酷狗、酷我、自托管直链）
 - 《蔚蓝档案》风格点击特效
 - 自定义游戏风格虚拟光标
 - 体力 / 信用点 / 青辉石数值系统：体力同步设备电量（不支持时按 6 分钟/点恢复），信用点随停留时长累计，青辉石每日签到领取（本地 localStorage 持久化，悬停可查看说明）
@@ -185,6 +185,17 @@ Fork 后主要改两处：
 **Fork 提示：**
 
 - **图标**：默认 `public/js/iconfont.js`（`iconfont: /js/iconfont.js`）；可在 [iconfont.cn](https://www.iconfont.cn/) 自建 Symbol JS 替换，`dock` / `contact` 也可用 `imgSrc`。
+- **音乐 Banner 音源**：`banner.music` 按源分组配置，全部合并进同一随机池（不配置的源省略即可；旧字段 `banner.musicID` 仍有效，自动并入 `music.netease`）：
+
+  | 源 | 配置键 | 取值 | 说明 |
+  | --- | --- | --- | --- |
+  | 网易云单曲 | `netease` | 数字 ID | 分享链接 `/song?id=xxxx` 末尾数字；经公共 Meting 实例，VIP 曲多数可播 |
+  | 网易云歌单 | `neteasePlaylist` | 数字 ID | `/playlist?id=xxxx`，启动时一次展开为单曲 |
+  | QQ 音乐 | `tencent` | songmid 字符串 | 浏览器侧 JSONP 直连官方接口；**仅免费曲可播**，VIP 自动跳过换下一首 |
+  | 酷狗 | `kugou` | 32 位 hash | 同上；hash 在酷狗网页版歌曲页/分享参数中可找到 |
+  | 酷我 | `kuwo` | 数字 rid | 歌名/歌手/封面自动获取；也可写 `{ id, name, artist }` 对象覆盖元数据 |
+  | 直链/自托管 | `local` | `{ url, name, artist, cover? }` | 音频放 `public/` 下（如 `public/music/demo.mp3`）；name/artist 必填 |
+
 - **History 路由 / 子路径 `base`**：见上方「部署方式」。
 - **OG 分享卡片**：构建时用 sharp 从 `shots/zh/pic1.png` / `pic2.png` 裁切出 `/og-home.jpg`、`/og-bio.jpg`；换自己的截图请改 `_config.yaml` 的 `og.home` / `og.bio` 指向新路径，勿直接删除源图（缺失会构建失败）。
 - **转场视频 `transfrom.mov`**：Safari / iOS 的 HEVC+alpha 转场轨，由 `yarn transition:mov` 从 `public/transfrom.webm` 转出；脚本依赖 macOS 的 `hevc_videotoolbox` 编码器，**仅 macOS 可执行**。不改转场视频则无需理会；要替换请在 macOS 上重新生成（直接删除 `.mov` 会让 Safari 落到无透明通道的 WebM 轨）。
