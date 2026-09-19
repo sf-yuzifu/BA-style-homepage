@@ -4,6 +4,17 @@ import { useConfig } from '@/composables/useConfig'
 import { useStrokeWidth } from '@/composables/useStrokeWidth'
 import { navigateWithCurtain } from '@/init/links'
 
+/**
+ * 等级/经验卡片：大厅（lobby）与简介页（bio）共用。
+ * - lobby：原生 button，点击幕帘跳转 /bio；渐变底 + 右侧斜切尾巴；
+ *   窄屏（≤495px）收成 Lv 方块，hover 展开数值
+ * - bio：静态展示 div；半透明平底，整卡 skewX(-10deg)、容器反斜校正；
+ *   窄屏（≤768px，随轮播断点）改为流内相对定位
+ */
+const props = defineProps<{
+  variant: 'lobby' | 'bio'
+}>()
+
 const { configs } = useConfig()
 
 const currentConfig = computed(() => configs.value)
@@ -30,21 +41,27 @@ const author = computed(() => {
 
 const { strokeWidth } = useStrokeWidth()
 
+const isLobby = computed(() => props.variant === 'lobby')
+
 const goToBio = () => {
+  if (!isLobby.value) return
   navigateWithCurtain('/bio')
 }
 </script>
 
 <template>
-  <!-- 原生 button：Enter/Space 激活交由浏览器原生行为，无需手动键盘监听 -->
-  <button
-    type="button"
+  <!-- 大厅变体是原生 button：Enter/Space 激活交由浏览器原生行为，无需手动键盘监听；
+       简介页变体是纯展示 div（无 aria-label、不进 Tab 序） -->
+  <component
+    :is="isLobby ? 'button' : 'div'"
+    :type="isLobby ? 'button' : undefined"
     class="level-box"
-    :aria-label="currentConfig?.translate?.bio"
+    :class="`level-box--${props.variant}`"
+    :aria-label="isLobby ? currentConfig?.translate?.bio : undefined"
     @click="goToBio"
   >
     <div class="container">
-      <div class="level css-cursor-hover-enabled">
+      <div class="level" :class="{ 'css-cursor-hover-enabled': isLobby }">
         <span>Lv.</span>
         <p>{{ level }}</p>
       </div>
@@ -65,44 +82,21 @@ const goToBio = () => {
         </div>
       </div>
     </div>
-  </button>
+  </component>
 </template>
 
 <style scoped>
+/* ===== 共用骨架与内容 ===== */
+
 .level-box {
-  /* 原生 button 的 UA 样式重置：视觉保持与 div 时代一致 */
-  appearance: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  color: inherit;
-  text-align: left;
-  width: clamp(300px, 18.75vw, 100vw);
   height: clamp(96px, 6vw, 100vw);
-  background: linear-gradient(120deg, #003153, #2265bb 15%, #003153 70%, #003153);
   position: absolute;
-  left: var(--safe-left);
-  top: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-top));
   border-radius: clamp(8px, 0.5vw, 100vw);
-  filter: drop-shadow(0 clamp(3px, 0.1875vw, 100vw) clamp(3px, 0.1875vw, 100vw) black);
   display: flex;
   z-index: 2;
 }
 
-.level-box:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: clamp(-20px, -1.25vw, 100vw);
-  bottom: 0;
-  width: clamp(60px, 3.75vw, 100vw);
-  border-radius: clamp(8px, 0.5vw, 100vw);
-  background: #003153;
-  transform: skewX(-10deg);
-  z-index: -1;
-}
-
-.level-box .container {
+.container {
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -133,6 +127,10 @@ const goToBio = () => {
   color: #fff;
   font-size: clamp(24px, 1.5vw, 100vw);
   font-weight: medium;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .container .level span {
@@ -157,24 +155,55 @@ const goToBio = () => {
   font-weight: medium;
 }
 
+/* ===== 大厅变体（可点击卡片） ===== */
+
+.level-box--lobby {
+  /* 原生 button 的 UA 样式重置：视觉保持与 div 时代一致 */
+  appearance: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: clamp(300px, 18.75vw, 100vw);
+  background: linear-gradient(120deg, #003153, #2265bb 15%, #003153 70%, #003153);
+  left: var(--safe-left);
+  top: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-top));
+  filter: drop-shadow(0 clamp(3px, 0.1875vw, 100vw) clamp(3px, 0.1875vw, 100vw) black);
+}
+
+/* 右侧探出的斜切尾巴 */
+.level-box--lobby:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: clamp(-20px, -1.25vw, 100vw);
+  bottom: 0;
+  width: clamp(60px, 3.75vw, 100vw);
+  border-radius: clamp(8px, 0.5vw, 100vw);
+  background: #003153;
+  transform: skewX(-10deg);
+  z-index: -1;
+}
+
 @media screen and (max-width: 495px) {
-  .right {
+  .level-box--lobby .right {
     display: none;
   }
 
-  .name {
+  .level-box--lobby .name {
     word-break: keep-all;
   }
 
-  .level-box:hover {
+  .level-box--lobby:hover {
     width: calc(100% - 60px);
   }
 
-  .level-box:hover .right {
+  .level-box--lobby:hover .right {
     display: flex;
   }
 
-  .level-box {
+  .level-box--lobby {
     width: 100px;
     transition: all 0.3s;
     z-index: 10;
@@ -183,13 +212,36 @@ const goToBio = () => {
     border-radius: 8px;
   }
 
-  .level-box:before {
+  .level-box--lobby:before {
     display: none;
   }
 
-  .level-box .container {
+  .level-box--lobby .container {
     transform: skewX(10deg);
     margin: auto 26px;
+  }
+}
+
+/* ===== 简介页变体（静态展示） ===== */
+
+.level-box--bio {
+  width: 40%;
+  background: #003153dd;
+  bottom: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-bottom));
+  transform: skewX(-10deg);
+}
+
+/* 整卡倾斜，容器反斜校正保持内容水平 */
+.level-box--bio .container {
+  transform: skewX(10deg);
+}
+
+@media screen and (max-width: 768px) {
+  .level-box--bio {
+    width: 80%;
+    position: relative;
+    /* relative 时 bottom 会把元素顶上去；安全区已从容器高度扣除，勿再叠一层 */
+    bottom: clamp(40px, 2.5vw, 100vw);
   }
 }
 </style>

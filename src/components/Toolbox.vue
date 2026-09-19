@@ -3,11 +3,10 @@ import { IconApps } from '@arco-design/web-vue/es/icon'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 import { useConfig } from '@/composables/useConfig'
-import { useWallet } from '@/composables/useWallet'
 import Settings from '@/components/Settings.vue'
+import WalletItem from '@/components/WalletItem.vue'
 
 const { configs } = useConfig()
-const { ap, maxAp, gold, pyroxene, apTooltip, goldTooltip, pyroxeneTooltip } = useWallet()
 
 const emit = defineEmits<{
   switch: []
@@ -68,21 +67,25 @@ onUnmounted(() => {
 
 <template>
   <div class="toolbox-box">
-    <div class="toolbox" :class="{ 'toolbox-l2d': props.l2dOnly }">
-      <img src="/img/ap.png" alt="" />
-      <span>{{ ap + '/' + maxAp }}</span>
-      <div class="wallet-tip">{{ apTooltip }}</div>
-    </div>
-    <div class="toolbox" :class="{ 'toolbox-l2d': props.l2dOnly }">
-      <img src="/img/gold.png" alt="" />
-      <span>{{ gold.toLocaleString() }}</span>
-      <div class="wallet-tip">{{ goldTooltip }}</div>
-    </div>
-    <div class="toolbox" :class="{ 'toolbox-l2d': props.l2dOnly }">
-      <img src="/img/pyroxene.png" alt="" />
-      <span>{{ pyroxene.toLocaleString() }}</span>
-      <div class="wallet-tip">{{ pyroxeneTooltip }}</div>
-    </div>
+    <!-- 钱包条目：.toolbox 卡片壳 class 透传到 WalletItem 根节点，hover 触发区仍是整张卡片 -->
+    <WalletItem
+      kind="ap"
+      variant="card"
+      class="toolbox"
+      :class="{ 'toolbox-l2d': props.l2dOnly }"
+    />
+    <WalletItem
+      kind="gold"
+      variant="card"
+      class="toolbox"
+      :class="{ 'toolbox-l2d': props.l2dOnly }"
+    />
+    <WalletItem
+      kind="pyroxene"
+      variant="card"
+      class="toolbox"
+      :class="{ 'toolbox-l2d': props.l2dOnly }"
+    />
     <button
       type="button"
       class="settings toolbox"
@@ -153,45 +156,7 @@ onUnmounted(() => {
   align-items: center;
 }
 
-/* 数值说明 tooltip：悬停显示（skew(10deg) 用于抵消父盒子的倾斜） */
-.wallet-tip {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + clamp(8px, 0.5vw, 100vw));
-  transform: translateX(-50%) skew(10deg);
-  padding: clamp(6px, 0.375vw, 100vw) clamp(12px, 0.75vw, 100vw);
-  background: #fff;
-  color: #003153;
-  font-size: clamp(18px, 1.125vw, 100vw);
-  border-radius: clamp(6px, 0.375vw, 100vw);
-  filter: drop-shadow(0px clamp(2px, 0.125vw, 100vw) clamp(4px, 0.25vw, 100vw) #0003);
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-  z-index: 3;
-}
-
-.toolbox:hover .wallet-tip {
-  opacity: 1;
-}
-
-.toolbox img {
-  height: 70%;
-  transform: skew(10deg);
-  margin: 0 clamp(8px, 0.5vw, 100vw) 0 clamp(10px, 0.625vw, 100vw);
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-.toolbox span {
-  font-size: clamp(26px, 1.625vw, 100vw);
-  transform: skew(10deg);
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
+/* 数值说明 tooltip 与图标/数值样式已收敛进 WalletItem.vue（含 skew 反倾斜与展开方向） */
 
 .toolbox-box .toolbox.settings,
 .toolbox-box .toolbox.l2d {

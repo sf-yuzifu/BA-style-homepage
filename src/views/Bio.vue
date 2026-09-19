@@ -2,8 +2,8 @@
 import { ref, computed, onMounted, onUnmounted, h } from 'vue'
 import { Modal } from '@arco-design/web-vue'
 import { useConfig } from '@/composables/useConfig'
-import { useStrokeWidth } from '@/composables/useStrokeWidth'
 import Header from '@/components/Header.vue'
+import LevelCard from '@/components/LevelCard.vue'
 import Live2D from '@/components/Live2D.vue'
 import type { BioBtn } from '@/types/config'
 
@@ -31,26 +31,6 @@ const bioHtml = computed(
 )
 
 const currentConfig = computed(() => configs.value)
-
-const exp = computed(() => {
-  if (!currentConfig.value || currentConfig.value.exp === undefined) return 0
-  return currentConfig.value.exp
-})
-
-const nextExp = computed(() => {
-  if (!currentConfig.value || currentConfig.value.nextExp === undefined) return 100
-  return currentConfig.value.nextExp
-})
-
-const level = computed(() => {
-  if (!currentConfig.value || currentConfig.value.level === undefined) return 1
-  return currentConfig.value.level
-})
-
-const author = computed(() => {
-  if (!currentConfig.value || !currentConfig.value.author) return 'Unknown'
-  return currentConfig.value.author
-})
 
 // i18n 翻译
 const translate = computed(() => {
@@ -94,8 +74,6 @@ const openImageDialog = (btn: BioBtn) => {
     footer: false
   })
 }
-
-const { strokeWidth } = useStrokeWidth()
 
 // Carousel 指示器状态
 const currentSlide = ref(0)
@@ -187,30 +165,8 @@ onUnmounted(() => {
         <div class="carousel-track">
           <div class="carousel-slide" id="left">
             <Live2D />
-            <div class="level-box">
-              <div class="container">
-                <div class="level">
-                  <span>Lv.</span>
-                  <p>{{ level }}</p>
-                </div>
-                <div class="right">
-                  <span class="name">{{ author }}</span>
-                  <div>
-                    <a-progress
-                      :percent="nextExp > 0 ? exp / nextExp : 1"
-                      :show-text="false"
-                      :color="exp >= nextExp ? '#ffe433' : '#89d5fd'"
-                      :stroke-width="strokeWidth"
-                      trackColor="#535E67"
-                    >
-                    </a-progress>
-                    <p :style="{ color: exp >= nextExp ? '#ffe433' : '#66E0FE' }">
-                      {{ exp >= nextExp ? 'MAX' : exp + '/' + nextExp }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- 等级卡片与大厅同源（LevelCard，简介页变体为静态展示） -->
+            <LevelCard variant="bio" />
           </div>
           <div class="carousel-slide" id="right">
             <div class="intro-title">
@@ -405,79 +361,7 @@ onUnmounted(() => {
   height: 100%;
 }
 
-/* Level.vue 样式复刻 */
-.level-box {
-  width: 40%;
-  height: clamp(96px, 6vw, 100vw);
-  background: #003153dd;
-  position: absolute;
-  bottom: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-bottom));
-  border-radius: clamp(8px, 0.5vw, 100vw);
-  transform: skewX(-10deg);
-  display: flex;
-  z-index: 2;
-}
-
-.level-box .container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin: auto 0 auto clamp(26px, 1.625vw, 100vw);
-  width: 100%;
-  height: calc(100% - clamp(26px, 1.625vw, 100vw));
-  transform: skewX(10deg);
-}
-
-.level {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: transform 0.1s;
-}
-
-.level-box:active .level {
-  transform: scale(0.85);
-}
-
-.container .level p {
-  color: #fff;
-  font-size: clamp(42px, 2.625vw, 100vw);
-  font-weight: medium;
-  transform: skewX(-10deg);
-}
-
-.container .name {
-  color: #fff;
-  font-size: clamp(24px, 1.5vw, 100vw);
-  font-weight: medium;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
-
-.container .level span {
-  color: #ffe433;
-  font-size: clamp(24px, 1.5vw, 100vw);
-  font-weight: medium;
-  transform: skewX(-10deg);
-}
-
-.right {
-  align-self: flex-start;
-  margin: 0 clamp(20px, 1.25vw, 100vw);
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  justify-content: space-between;
-  height: 100%;
-}
-
-.right p {
-  font-size: clamp(20px, 1.25vw, 100vw);
-  font-weight: medium;
-  color: #003153;
-}
+/* 等级卡片样式已收敛进 LevelCard.vue（简介页变体含 768px 流内定位切换） */
 
 #right {
   display: flex;
@@ -617,13 +501,6 @@ onUnmounted(() => {
   /* 调整左侧内容 */
   #left {
     justify-content: end;
-  }
-
-  .level-box {
-    width: 80%;
-    position: relative;
-    /* relative 时 bottom 会把元素顶上去；安全区已从容器高度扣除，勿再叠一层 */
-    bottom: clamp(40px, 2.5vw, 100vw);
   }
 
   /* 调整右侧内容 */

@@ -2,7 +2,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 /**
  * 经验条描边宽度：跟随视口宽度缩放（与游戏 UI 比例一致），下限 4px。
- * Level.vue（大厅）与 Bio.vue（简介页）共用。
+ * LevelCard.vue 使用（大厅与简介页的等级卡片已收敛为同一组件）。
  */
 export function useStrokeWidth() {
   const windowWidth = ref(window.innerWidth)

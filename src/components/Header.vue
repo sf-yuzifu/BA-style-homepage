@@ -4,8 +4,8 @@ import { navigateWithCurtain } from '@/init/links'
 import { IconArrowLeft } from '@arco-design/web-vue/es/icon'
 
 import { useConfig } from '@/composables/useConfig'
-import { useWallet } from '@/composables/useWallet'
 import { useIconFont } from '@/composables/useIconFont'
+import WalletItem from '@/components/WalletItem.vue'
 
 defineProps({
   title: {
@@ -16,8 +16,6 @@ defineProps({
 
 const { configs } = useConfig()
 const currentConfig = computed(() => configs.value)
-
-const { ap, maxAp, gold, pyroxene, apTooltip, goldTooltip, pyroxeneTooltip } = useWallet()
 
 const { IconFont } = useIconFont()
 
@@ -42,27 +40,16 @@ const goBack = () => {
     </div>
 
     <div class="toolbox">
-      <div class="item">
-        <img src="/img/ap.png" alt="" />
-        <p style="white-space: nowrap">{{ ap + '/' + maxAp }}</p>
-        <div class="wallet-tip">{{ apTooltip }}</div>
-      </div>
+      <!-- 钱包条目：.item class 透传到 WalletItem 根节点，hover 触发区与原 .item 一致 -->
+      <WalletItem kind="ap" variant="strip" class="item" />
 
       <a-divider direction="vertical" class="divider"></a-divider>
 
-      <div class="item">
-        <img src="/img/gold.png" alt="" />
-        <p>{{ gold.toLocaleString() }}</p>
-        <div class="wallet-tip">{{ goldTooltip }}</div>
-      </div>
+      <WalletItem kind="gold" variant="strip" class="item" />
 
       <a-divider direction="vertical" class="divider"></a-divider>
 
-      <div class="item">
-        <img src="/img/pyroxene.png" alt="" />
-        <p>{{ pyroxene.toLocaleString() }}</p>
-        <div class="wallet-tip">{{ pyroxeneTooltip }}</div>
-      </div>
+      <WalletItem kind="pyroxene" variant="strip" class="item" />
 
       <a-divider direction="vertical" class="divider"></a-divider>
 
@@ -152,53 +139,12 @@ const goBack = () => {
 }
 
 .item {
-  position: relative;
+  /* 条目内容（图标/数值/tooltip）样式已收敛进 WalletItem.vue 的 strip 变体；
+     此处只留头栏布局：撑满高度、居中、加粗、条间距 */
   height: 100%;
-  display: flex;
   justify-content: center;
-  align-items: center;
-  color: #003153;
   font-weight: bold;
   margin: 0 clamp(8px, 0.5vw, 100vw);
-  font-size: clamp(26px, 1.625vw, 100vw);
-}
-
-/* 数值说明 tooltip：悬停显示（Header 在页面顶部，tooltip 向下展开） */
-.wallet-tip {
-  position: absolute;
-  left: 50%;
-  top: calc(100% + clamp(8px, 0.5vw, 100vw));
-  transform: translateX(-50%);
-  padding: clamp(6px, 0.375vw, 100vw) clamp(12px, 0.75vw, 100vw);
-  background: #fff;
-  color: #003153;
-  font-size: clamp(18px, 1.125vw, 100vw);
-  border-radius: clamp(6px, 0.375vw, 100vw);
-  box-shadow: 0 clamp(2px, 0.125vw, 100vw) clamp(8px, 0.5vw, 100vw) 0 rgba(0, 0, 0, 0.15);
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-  z-index: 3;
-}
-
-.item:hover .wallet-tip {
-  opacity: 1;
-}
-
-.item p {
-  margin: 0 clamp(8px, 0.5vw, 100vw);
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
-
-.item img {
-  height: 70%;
-  margin: 0 clamp(4px, 0.25vw, 100vw) 0 0;
-  user-select: none;
-  -webkit-user-drag: none;
 }
 
 .home {

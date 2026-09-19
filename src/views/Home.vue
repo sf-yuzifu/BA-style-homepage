@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, defineAsyncComponent } from 'vue'
 import Footer from '@/components/Footer.vue'
-import Level from '@/components/Level.vue'
+import LevelCard from '@/components/LevelCard.vue'
 import Toolbox from '@/components/Toolbox.vue'
 import Contact from '@/components/Contact.vue'
 import Task from '@/components/Task.vue'
@@ -68,7 +68,7 @@ const onWebglFailed = () => {
 
     <!-- 等级部分 -->
     <transition name="up">
-      <Level v-if="!l2dOnly" />
+      <LevelCard v-if="!l2dOnly" variant="lobby" />
     </transition>
 
     <!-- 工具箱 -->
