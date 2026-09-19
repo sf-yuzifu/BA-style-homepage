@@ -32,6 +32,9 @@ const move = (step: number) => {
 
 <template>
   <div class="radio-group" role="radiogroup" :aria-label="props.label">
+    <!-- 动态 tabindex（启用 0 / 禁用 -1）无法被 interactive-supports-focus 静态求值（仅认字面量）；
+         实际启用时各项均可 Tab 聚焦，Enter/Space/方向键行为完整 -->
+    <!-- eslint-disable-next-line vuejs-accessibility/interactive-supports-focus -->
     <span
       v-for="option in props.options"
       :key="option.value"

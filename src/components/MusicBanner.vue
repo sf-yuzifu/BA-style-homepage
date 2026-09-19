@@ -66,10 +66,7 @@ const onBarPointerUp = (e: PointerEvent) => {
   endSeek(ratioFromEvent(e) * duration.value)
 }
 
-/** 卡片整体点击仅在 mini 圆盘模式下生效（整个圆盘就是播放/暂停大按钮） */
-const onCardClick = () => {
-  if (isMini.value) togglePlay()
-}
+/** 播放/暂停在 mini 圆盘模式下由覆盖盘面的真实 button 承担（键盘可达），根容器不再挂点击 */
 
 // ---- 歌名/艺术家跑马灯：文本超宽时启用，双副本平移实现无缝循环 ----
 
@@ -133,7 +130,6 @@ onBeforeUnmount(() => {
       'is-hidden': !visible,
       'css-cursor-hover-enabled': isMini
     }"
-    @click="onCardClick"
   >
     <!-- 封面满铺（游戏大厅左下 EVENT 海报风） -->
     <img
@@ -180,7 +176,7 @@ onBeforeUnmount(() => {
       </p>
     </div>
 
-    <div class="music-banner__actions" @click.stop>
+    <div class="music-banner__actions">
       <button
         type="button"
         class="music-banner__btn css-cursor-hover-enabled"
@@ -205,6 +201,16 @@ onBeforeUnmount(() => {
         </svg>
       </button>
     </div>
+
+    <!-- mini 圆盘模式：整盘即播放/暂停大按钮——真实 button 覆盖盘面，键盘可达；
+         只盖住圆盘本身，下方丝带标题条（top > 100%）不在其内 -->
+    <button
+      v-if="isMini"
+      type="button"
+      class="music-banner__toggle"
+      :aria-label="playing ? translate?.musicPause : translate?.musicPlay"
+      @click="togglePlay"
+    ></button>
 
     <!-- 进度条贴卡片底边通栏：点击跳转 + 按住拖动 -->
     <div
@@ -467,6 +473,20 @@ onBeforeUnmount(() => {
   height: clamp(4px, 0.25vw, 100vw);
   border-radius: 999px;
   background: #89d5fd;
+}
+
+/* mini 圆盘的整盘播放按钮：透明覆盖盘面（不含探出盘外的丝带标题条），
+   焦点环走全局 button:focus-visible；按下缩放反馈由根元素 :active 承担（:active 沿祖先链生效） */
+.music-banner__toggle {
+  appearance: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  background: none;
 }
 
 /* mini 圆盘模式（显示 ICP 备案号时 / 窄屏）：整个圆盘即播放按钮，播放中缓慢旋转 */
