@@ -1,0 +1,462 @@
+import { type ComputedRef, type Ref } from 'vue'
+import { Spine } from '@esotericsoftware/spine-pixi-v8'
+import type { AnimationState, AnimationStateListener } from '@esotericsoftware/spine-core'
+import * as PIXI from 'pixi.js'
+import { Modal } from '@arco-design/web-vue'
+import type { ModalReturn } from '@arco-design/web-vue'
+import { prefersReducedMotionNow } from '@/composables/useReducedMotion'
+import { consumeLocaleChangePending } from '@/composables/useConfig'
+import { useSettings } from '@/composables/useSettings'
+import type { AppConfig } from '@/types/config'
+import { retryAsync } from '@/utils/retry'
+import { initTracks } from './useSpineTracks'
+import type { PixiStage } from './usePixiStage'
+
+export type L2DTarget = number | '+' | '-'
+
+export interface SpineLifecyclePointerHooks {
+  cancelPressSession: () => void
+  invalidateViewRect: () => void
+  addEventListenersToCanvas: () => void
+  removeEventListenersFromCanvas: () => void
+  cancelHoverRaf: () => void
+}
+
+interface InteractModule {
+  attach: (spine: Spine) => void
+  detach: () => void
+  update: (dt: number) => void
+}
+
+export interface SpineSwitcherDeps {
+  stage: PixiStage
+  emit: {
+    (e: 'canskip', value: boolean): void
+    (e: 'update:changeL2D', value: boolean): void
+  }
+  currentConfig: ComputedRef<AppConfig | null>
+  canSkip: Ref<boolean>
+  showDialogue: Ref<boolean>
+  talkPlayer: {
+    reset: () => void
+    stopAllVoices: () => void
+    clearVoiceAndDialogue: () => void
+    attachEventListener: (state: AnimationState) => void
+  }
+  gaze: InteractModule
+  pat: InteractModule
+  boneDrag: InteractModule
+  randomClips: { start: () => void; stop: () => void }
+  pointer: SpineLifecyclePointerHooks
+}
+
+const LIVE2D_TIME_SCALE = 1
+
+const parseOffset = (offset: number | string | undefined, fallback = 0.7): number => {
+  const parsed = Number(offset)
+  return Number.isNaN(parsed) ? fallback : parsed
+}
+
+const getLobbyAssetKey = (
+  lobby: { path?: string; skel?: string; atlas?: string } | undefined
+): string | null => {
+  if (!lobby?.path || !lobby.skel || !lobby.atlas) return null
+  return lobby.path + lobby.skel + '|' + lobby.path + lobby.atlas
+}
+
+/**
+ * 角色装配与切换：资源加载（重试 3 次）、Start_Idle 入场演出决策、
+ * SKIP 确认弹窗、交互模块挂载/卸载、keep-alive 恢复。
+ * 舞台（PIXI app/canvas）由 usePixiStage 托管，经 deps.stage 访问。
+ */
+export function useSpineSwitcher(deps: SpineSwitcherDeps) {
+  const {
+    stage,
+    emit,
+    currentConfig,
+    canSkip,
+    showDialogue,
+    talkPlayer,
+    gaze,
+    pat,
+    boneDrag,
+    randomClips,
+    pointer
+  } = deps
+
+  let animation: Spine | null = null
+  let id = 0
+  let animationReady = false
+  let modalRef: ModalReturn | null = null
+  let originalOffsetPercent = 70
+  let loadedL2DKey: string | null = null
+  let setL2DInFlight: Promise<void> | null = null
+  let isFirstLoad = true
+  // 首帧加载才受「开场演出」偏好约束；手动切换角色始终播放各自的入场
+  let introDecided = false
+
+  const { shouldPlayIntro, markIntroSeen } = useSettings()
+
+  const changeL2D = (value: boolean) => {
+    emit('update:changeL2D', value)
+  }
+
+  const handleBeforeUpdateWorldTransforms = () => {
+    const dt = PIXI.Ticker.shared.deltaMS / 1000
+    gaze.update(dt)
+    pat.update(dt)
+    boneDrag.update(dt)
+  }
+
+  const attachInteractions = (spine: Spine) => {
+    spine.beforeUpdateWorldTransforms = handleBeforeUpdateWorldTransforms
+    gaze.attach(spine)
+    pat.attach(spine)
+    boneDrag.attach(spine)
+    if (!prefersReducedMotionNow()) {
+      randomClips.start()
+    }
+  }
+
+  const detachInteractions = () => {
+    gaze.detach()
+    pat.detach()
+    boneDrag.detach()
+    randomClips.stop()
+  }
+
+  const addAssetAlias = (alias: string, src: string) => {
+    if (!PIXI.Assets.resolver.hasKey(alias)) {
+      PIXI.Assets.add({ alias, src })
+    }
+  }
+
+  const applyCanvasOffset = (lobby: NonNullable<AppConfig['memorialLobbies']>[number]) => {
+    const canvas = stage.getCanvas()
+    if (!canvas) return
+    originalOffsetPercent = parseOffset(lobby.offset) * 100
+    canvas.style.transform = `translateX(calc((50% - ${originalOffsetPercent} * 1%) * (1 - min(1, 100vw / 1200px))))`
+    pointer.invalidateViewRect()
+  }
+
+  const finishSpineSetup = (spine: Spine, skeletonPath: string, atlasPath: string) => {
+    initTracks(spine)
+    stage.getSpineLayer()?.addChild(spine)
+    loadedL2DKey = skeletonPath + '|' + atlasPath
+    spine.scale.set(0.85)
+    spine.state.setAnimation(0, 'Idle_01', true)
+    spine.state.timeScale = LIVE2D_TIME_SCALE
+    spine.autoUpdate = true
+    spine.y = 1440
+    spine.x = 2560 / 2
+    attachInteractions(spine)
+  }
+
+  const doSetL2D = async (num: L2DTarget): Promise<void> => {
+    if (stage.webglFailed.value) return
+    if (!(await stage.appReady)) return
+    stage.addCanvasToBackground()
+
+    if (!currentConfig.value?.memorialLobbies) {
+      return
+    }
+
+    const lobbies = currentConfig.value.memorialLobbies
+
+    let newId: number
+    switch (num) {
+      case '-':
+        newId = id === 0 ? lobbies.length - 1 : id - 1
+        break
+      case '+':
+        newId = id === lobbies.length - 1 ? 0 : id + 1
+        break
+      default:
+        newId = num
+    }
+
+    if (newId < 0 || newId >= lobbies.length) {
+      return
+    }
+
+    const lobby = lobbies[newId]
+    if (!lobby.path || !lobby.skel || !lobby.atlas) {
+      return
+    }
+
+    const assetKey = getLobbyAssetKey(lobby)
+    if (animation && assetKey && assetKey === loadedL2DKey && newId === id) {
+      consumeLocaleChangePending()
+      return
+    }
+
+    id = newId
+    canSkip.value = true
+    emit('canskip', true)
+    talkPlayer.reset()
+    pointer.cancelPressSession()
+    talkPlayer.stopAllVoices()
+
+    if (animation) {
+      detachInteractions()
+      stage.getSpineLayer()?.removeChild(animation)
+      animation.destroy()
+      animation = null
+    }
+
+    try {
+      const skeletonPath = lobby.path + lobby.skel
+      const atlasPath = lobby.path + lobby.atlas
+      const skeletonAlias = `skeleton_${id}`
+      const atlasAlias = `atlas_${id}`
+
+      addAssetAlias(skeletonAlias, skeletonPath)
+      addAssetAlias(atlasAlias, atlasPath)
+      // 失败自动重试 3 次（预加载阶段已失败的角色，切换/进场时再试一次）
+      await retryAsync(() => PIXI.Assets.load([skeletonAlias, atlasAlias]))
+
+      animation = Spine.from({ skeleton: skeletonAlias, atlas: atlasAlias })
+      if (!animation) return
+      finishSpineSetup(animation, skeletonPath, atlasPath)
+    } catch (error) {
+      // 重试后仍失败：保持大厅其他部分可用（降级），不再静默吞掉错误
+      console.error(`Live2D角色资源重试后仍加载失败，跳过该角色: ${lobby.path}`, error)
+      return
+    }
+
+    applyCanvasOffset(lobby)
+    showDialogue.value = false
+    let startIdle = 'Start_Idle_01'
+    if (!animation.state.data.skeletonData.findAnimation('Start_Idle_01'))
+      startIdle = 'Start_idle_01'
+    talkPlayer.attachEventListener(animation.state)
+    const skipIntroForLocale = consumeLocaleChangePending()
+    const isInitialLoad = !introDecided
+    introDecided = true
+    const playStartIdle =
+      !skipIntroForLocale &&
+      !prefersReducedMotionNow() &&
+      animation.state.data.skeletonData.findAnimation(startIdle) &&
+      (!isInitialLoad || shouldPlayIntro())
+    if (playStartIdle) {
+      if (isInitialLoad) markIntroSeen()
+      changeL2D(true)
+      animation.state.setAnimation(0, startIdle, false)
+      const currentTrack = animation.state.getCurrent(0)
+      if (
+        currentTrack &&
+        currentTrack.animation &&
+        currentTrack.animation.name !== 'Idle_01' &&
+        animation.state.data.skeletonData.findAnimation('Idle_01')
+      ) {
+        animation.state.addAnimation(0, 'Idle_01', true)
+      }
+      const targetAnimation = animation
+      const listener: AnimationStateListener = {
+        complete: (entry) => {
+          if (entry.trackIndex === 0 && entry.animation?.name !== 'Idle_01') {
+            changeL2D(false)
+            targetAnimation.state.listeners = []
+            talkPlayer.attachEventListener(targetAnimation.state)
+            canSkip.value = false
+            emit('canskip', false)
+            modalRef?.close()
+          }
+        }
+      }
+      animation.state.addListener(listener)
+    } else {
+      changeL2D(false)
+      canSkip.value = false
+      emit('canskip', false)
+      modalRef?.close()
+      if (animation?.state) {
+        const currentTrack = animation.state.getCurrent(0)
+        if (
+          currentTrack?.animation?.name !== 'Idle_01' &&
+          animation.state.data.skeletonData.findAnimation('Idle_01')
+        ) {
+          animation.state.setAnimation(0, 'Idle_01', true)
+        }
+        animation.state.listeners = []
+        talkPlayer.attachEventListener(animation.state)
+      }
+    }
+
+    animationReady = true
+    pointer.addEventListenersToCanvas()
+  }
+
+  const setL2D = (num: L2DTarget): Promise<void> => {
+    if (setL2DInFlight) return setL2DInFlight
+    setL2DInFlight = doSetL2D(num).finally(() => {
+      setL2DInFlight = null
+    })
+    return setL2DInFlight
+  }
+
+  const loadL2DSkipIdle = async (num: number): Promise<void> => {
+    if (stage.webglFailed.value) return
+    if (!(await stage.appReady)) return
+    stage.addCanvasToBackground()
+
+    if (!currentConfig.value?.memorialLobbies) {
+      return
+    }
+
+    canSkip.value = false
+    emit('canskip', false)
+    talkPlayer.reset()
+    pointer.cancelPressSession()
+    talkPlayer.stopAllVoices()
+
+    const lobbies = currentConfig.value.memorialLobbies
+    if (num < 0 || num >= lobbies.length) {
+      return
+    }
+
+    const lobby = lobbies[num]
+    if (!lobby.path || !lobby.skel || !lobby.atlas) {
+      return
+    }
+
+    try {
+      const skeletonPath = lobby.path + lobby.skel
+      const atlasPath = lobby.path + lobby.atlas
+      const skeletonAlias = `skeleton_${num}`
+      const atlasAlias = `atlas_${num}`
+
+      addAssetAlias(skeletonAlias, skeletonPath)
+      addAssetAlias(atlasAlias, atlasPath)
+      // 失败自动重试 3 次（预加载阶段已失败的角色，返回大厅时再试一次）
+      await retryAsync(() => PIXI.Assets.load([skeletonAlias, atlasAlias]))
+
+      animation = Spine.from({ skeleton: skeletonAlias, atlas: atlasAlias })
+      if (!animation) return
+      finishSpineSetup(animation, skeletonPath, atlasPath)
+    } catch (error) {
+      // 重试后仍失败：保持大厅其他部分可用（降级），不再静默吞掉错误
+      console.error(`Live2D角色资源重试后仍加载失败，跳过该角色: ${lobby.path}`, error)
+      return
+    }
+
+    applyCanvasOffset(lobby)
+    showDialogue.value = false
+    talkPlayer.attachEventListener(animation.state)
+    animationReady = true
+    pointer.addEventListenersToCanvas()
+  }
+
+  const stopAllVoiceAndCleanup = () => {
+    talkPlayer.clearVoiceAndDialogue()
+    if (modalRef) {
+      modalRef.close()
+      modalRef = null
+    }
+    pointer.cancelPressSession()
+    detachInteractions()
+    if (animation) {
+      if (animation.state) {
+        animation.state.listeners = []
+      }
+      stage.getSpineLayer()?.removeChild(animation)
+      animation.destroy()
+      animation = null
+    }
+    talkPlayer.reset()
+    animationReady = false
+  }
+
+  const skipStartIdle = () => {
+    if (modalRef) return
+
+    if (!animation || !animation.state || !animationReady) {
+      changeL2D(false)
+      return
+    }
+
+    try {
+      const currentTrack = animation.state.getCurrent(0)
+      if (!currentTrack || !currentTrack.animation) {
+        changeL2D(false)
+        return
+      }
+
+      if (
+        currentTrack.animation.name !== 'Idle_01' &&
+        animation.state.data.skeletonData.findAnimation('Idle_01')
+      ) {
+        if (!currentConfig.value?.translate) {
+          changeL2D(false)
+          return
+        }
+
+        modalRef = Modal.open({
+          title: currentConfig.value.translate.info,
+          content: currentConfig.value.translate.ifSkip || '',
+          okText: currentConfig.value.translate.ok,
+          cancelText: currentConfig.value.translate.cancel,
+          onOk: () => {
+            changeL2D(false)
+            talkPlayer.stopAllVoices()
+
+            if (animation && animation.state) {
+              animation.state.setAnimation(0, 'Idle_01', true)
+              initTracks(animation)
+              animation.state.listeners = []
+              talkPlayer.attachEventListener(animation.state)
+            }
+
+            canSkip.value = false
+            emit('canskip', false)
+          },
+          onClose: () => {
+            modalRef = null
+          }
+        })
+      }
+    } catch {
+      changeL2D(false)
+    }
+  }
+
+  const initLive2DWhenReady = () => {
+    if (!currentConfig.value?.memorialLobbies) {
+      return
+    }
+
+    const lobby = currentConfig.value.memorialLobbies[id]
+    const key = getLobbyAssetKey(lobby)
+    if (animation && key && key === loadedL2DKey) {
+      consumeLocaleChangePending()
+      return
+    }
+
+    setL2D(id)
+  }
+
+  /** 舞台 keep-alive 重新激活：角色不在则装配（首帧播开场，返回大厅跳过入场） */
+  const onStageActivated = () => {
+    if (!animation && currentConfig.value?.memorialLobbies) {
+      if (isFirstLoad) {
+        setL2D(id)
+        isFirstLoad = false
+      } else {
+        loadL2DSkipIdle(id)
+      }
+    }
+    talkPlayer.reset()
+  }
+
+  return {
+    getSpine: () => animation,
+    getId: () => id,
+    isReady: () => animationReady,
+    setL2D,
+    skipStartIdle,
+    stopAllVoiceAndCleanup,
+    initLive2DWhenReady,
+    onStageActivated,
+    detachInteractions
+  }
+}
