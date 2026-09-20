@@ -1,0 +1,24 @@
+# 最小 CI：typecheck → lint → 单测 → 构建（构建内置 Zod 配置校验）。
+# 第五轮曾定案「不上 CI」，第八轮经站主确认重新引入（仅门禁，不做部署）。
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn typecheck
+      - run: yarn lint
+      - run: yarn test
+      - run: yarn build
