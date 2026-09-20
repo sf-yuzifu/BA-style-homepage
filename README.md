@@ -100,43 +100,19 @@
 
 ## 🚀 部署方式
 
-### 使用第三方部署平台
+### 第三方平台部署
 
-#### 1. Vercel
+#### Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/sf-yuzifu/homepage)
 
-#### 2. Netlify
+#### Netlify
 
 1. `Fork` [本项目](https://github.com/sf-yuzifu/homepage)
-2. [登录 Netlify 控制台](https://app.netlify.com)，选择 `Add new site` - `Import an exist project` 添加网站
-3. 接着选择 GitHub 认证来读取我们的 GitHub 项目列表。在列表中搜索我们刚才 `Fork` 生成的仓库名，点击该项目开始基于该仓库创建我们的 Netlify 网站
+2. [登录 Netlify 控制台](https://app.netlify.com)，选择 `Add new site` → `Import an existing project`
+3. 用 GitHub 授权后在仓库列表中找到刚 Fork 的项目，点击即可开始建站
 
-### History 路由（刷新 `/bio` 不 404）
-
-本站用 Vue Router 的 `createWebHistory`。构建会写出 **`dist/bio/index.html`**（独立 OG 卡片），GitHub Pages 等按目录索引的托管刷新 `/bio` 即可。
-
-其它主机若只认根目录 `index.html`，刷新 `/bio` 会 404。仓库已带回退规则（有真实文件时仍走文件，不会盖掉 `bio/index.html` 和静态资源）：
-
-| 平台 | 文件 |
-| --- | --- |
-| Vercel | 根目录 `vercel.json`（导入本仓库一般已按 Vite 自动配置；静态上传 `dist` 时靠这份） |
-| Netlify / Cloudflare Pages | `public/_redirects`（构建后进入 `dist`） |
-| Apache | `public/.htaccess`（构建后进入 `dist`） |
-
-其中 `vercel.json` 的全量回退（`/(.*)` → `/index.html`）依赖 Vercel 的**静态优先**语义：应用 rewrite 前会先查文件系统，命中真实文件（静态资源、`bio/index.html`）时不回退。若把这条规则照搬到只按 rewrite 转发、不查文件的主机 / 网关上，静态资源会被回退成 HTML，需自行收窄 `source` 或改用该主机自己的回退配置。
-
-Nginx / 宝塔把站点根指到 `dist` 后，在 server 里加上：
-
-```nginx
-location / {
-  try_files $uri $uri/ /index.html;
-}
-```
-
-子路径部署（如 `https://user.github.io/homepage/`）还需把 Vite `base` 改成对应前缀，本仓库默认站点在域名根路径 `/`。
-
-### 本地构建网页文件
+### 本地构建
 
 > **推荐环境：**
 >
@@ -170,6 +146,30 @@ pnpm preview
 >
 > 其中关于宝塔如何部署的（[https://cloud.tencent.com/developer/article/1977167](https://cloud.tencent.com/developer/article/1977167)）
 
+### History 路由（刷新 `/bio` 不 404）
+
+本站用 Vue Router 的 `createWebHistory`。构建会写出 **`dist/bio/index.html`**（独立 OG 卡片），GitHub Pages 等按目录索引的托管刷新 `/bio` 即可。
+
+其它主机若只认根目录 `index.html`，刷新 `/bio` 会 404。仓库已带回退规则（有真实文件时仍走文件，不会盖掉 `bio/index.html` 和静态资源）：
+
+| 平台 | 文件 |
+| --- | --- |
+| Vercel | 根目录 `vercel.json`（导入本仓库一般已按 Vite 自动配置；静态上传 `dist` 时靠这份） |
+| Netlify / Cloudflare Pages | `public/_redirects`（构建后进入 `dist`） |
+| Apache | `public/.htaccess`（构建后进入 `dist`） |
+
+其中 `vercel.json` 的全量回退（`/(.*)` → `/index.html`）依赖 Vercel 的**静态优先**语义：应用 rewrite 前会先查文件系统，命中真实文件（静态资源、`bio/index.html`）时不回退。若把这条规则照搬到只按 rewrite 转发、不查文件的主机 / 网关上，静态资源会被回退成 HTML，需自行收窄 `source` 或改用该主机自己的回退配置。
+
+Nginx / 宝塔把站点根指到 `dist` 后，在 server 里加上：
+
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+子路径部署（如 `https://user.github.io/homepage/`）还需把 Vite `base` 改成对应前缀，本仓库默认站点在域名根路径 `/`。
+
 ## ⚙️ 个性化
 
 Fork 后主要改两处：
@@ -179,37 +179,50 @@ Fork 后主要改两处：
 | **`_config.example.yaml`** | 字段说明与示例结构；**复制为 `_config.yaml`** 后填写 |
 | **`bio/{语言}.md`** | 个人简介正文（Markdown，支持内嵌 HTML） |
 
-修改后 `pnpm build` 重新部署即可。构建会校验 `_config.yaml` 与 `public/` 资源路径；缺语言包时简介回退 `bio/en-US.md`。
+修改后 `pnpm build` 重新部署即可。构建会校验 `_config.yaml` 与 `public/` 资源路径；缺语言包时简介回退 `bio/en-US.md`。完整字段注释见 **[`_config.example.yaml`](./_config.example.yaml)**。
 
-**Fork 提示：**
+### 环境变量注入
 
-- **环境变量注入**：`_config.yaml` 任意字段的字符串值可写 `${VAR}` 占位符，构建期从环境变量取值——适合 ICP / 公安备案号等不宜提交进公开仓库的值（如 `ICP: '${SITE_ICP}'`、`gongan: '${SITE_GONGAN}'`）。变量来源：本地开发写在 `.env.local`（已 gitignore）；部署时在 Vercel / EdgeOne Pages / Netlify 等平台控制台配置环境变量即可（构建时注入 `process.env`，优先级高于 `.env` 文件）。未设置的变量替换为空串并给出构建警告；整串占位（如 `level: ${SITE_LEVEL}`）替换后保留数字/布尔类型。静态站点的注入发生在构建期，改变量后需重新构建部署生效。
+`_config.yaml` 任意字段的字符串值可写 `${VAR}` 占位符，构建期从环境变量取值——适合 ICP / 公安备案号等不宜提交进公开仓库的值：
+
+```yaml
+ICP: '${SITE_ICP}'
+gongan: '${SITE_GONGAN}'
+```
+
+- **本地开发**：写在 `.env.local`（已 gitignore）
+- **部署平台**：在 Vercel / EdgeOne Pages / Netlify 等平台控制台配置环境变量（构建时注入 `process.env`，优先级高于 `.env` 文件）
+
+未设置的变量替换为空串并给出构建警告；整串占位（如 `level: ${SITE_LEVEL}`）替换后保留数字/布尔类型。静态站点的注入发生在构建期，改变量后需重新部署生效。
+
+### 音乐 Banner 音源
+
+`banner.music` 按源分组配置，全部合并进同一随机池（不配置的源省略即可；旧字段 `banner.musicID` 仍有效，自动并入 `music.netease`）：
+
+| 源 | 配置键 | 取值 | 说明 |
+| --- | --- | --- | --- |
+| 网易云单曲 | `netease` | 数字 ID | 分享链接 `/song?id=xxxx` 末尾数字；经公共 Meting 实例，VIP 曲多数可播 |
+| 网易云歌单 | `neteasePlaylist` | 数字 ID | `/playlist?id=xxxx`，启动时一次展开为单曲 |
+| QQ 音乐 | `tencent` | songmid 字符串 | 浏览器侧 JSONP 直连官方接口；**仅免费曲可播**，VIP 自动跳过换下一首 |
+| 酷狗 | `kugou` | 32 位 hash | 同上；hash 在酷狗网页版歌曲页/分享参数中可找到 |
+| 酷我 | `kuwo` | 数字 rid | 歌名/歌手/封面自动获取；也可写 `{ id, name, artist }` 对象覆盖元数据 |
+| 直链/自托管 | `local` | `{ url, name, artist, cover? }` | 音频放 `public/` 下（如 `public/music/demo.mp3`）；name/artist 必填 |
+| Spotify | `spotify` | 歌曲/歌单链接 | **构建期匹配用**，运行时忽略；见下方说明 |
+
+**Spotify 歌单同步**：Spotify 音频受 DRM + 登录墙限制无法直接播放，但可以把 Spotify 当「歌单源」、网易云/QQ 当「播放器」。在 `banner.music.spotify` 填入公开歌单/单曲链接后运行：
+
+```bash
+pnpm spotify:sync
+```
+
+脚本会抓取曲目列表（歌名/艺人/时长），到网易云和 QQ 音乐搜索匹配（打分：歌名归一化 + 艺人交集 + 时长容差），网易云候选批量探活过滤 VIP，最后输出可直接粘贴进 `_config.yaml` 的 `netease` / `tencent` 片段。已知限制：embed 页歌单曲目上限约 50 首；匹配存在误差（同名歌/翻唱），建议抽查报告；热门 VIP 曲国内源无免费原版时会落到免费翻唱/Live 版或跳过。
+
+### 其他提示
+
 - **图标**：默认 `public/js/iconfont.js`（`iconfont: /js/iconfont.js`）；可在 [iconfont.cn](https://www.iconfont.cn/) 自建 Symbol JS 替换，`dock` / `contact` 也可用 `imgSrc`。
-- **音乐 Banner 音源**：`banner.music` 按源分组配置，全部合并进同一随机池（不配置的源省略即可；旧字段 `banner.musicID` 仍有效，自动并入 `music.netease`）：
-
-  | 源 | 配置键 | 取值 | 说明 |
-  | --- | --- | --- | --- |
-  | 网易云单曲 | `netease` | 数字 ID | 分享链接 `/song?id=xxxx` 末尾数字；经公共 Meting 实例，VIP 曲多数可播 |
-  | 网易云歌单 | `neteasePlaylist` | 数字 ID | `/playlist?id=xxxx`，启动时一次展开为单曲 |
-  | QQ 音乐 | `tencent` | songmid 字符串 | 浏览器侧 JSONP 直连官方接口；**仅免费曲可播**，VIP 自动跳过换下一首 |
-  | 酷狗 | `kugou` | 32 位 hash | 同上；hash 在酷狗网页版歌曲页/分享参数中可找到 |
-  | 酷我 | `kuwo` | 数字 rid | 歌名/歌手/封面自动获取；也可写 `{ id, name, artist }` 对象覆盖元数据 |
-  | 直链/自托管 | `local` | `{ url, name, artist, cover? }` | 音频放 `public/` 下（如 `public/music/demo.mp3`）；name/artist 必填 |
-  | Spotify | `spotify` | 歌曲/歌单链接 | **构建期匹配用**，运行时忽略；见下方说明 |
-
-- **Spotify 歌单同步**：Spotify 音频受 DRM + 登录墙限制无法直接播放，但可以把 Spotify 当「歌单源」、网易云/QQ 当「播放器」。在 `banner.music.spotify` 填入公开歌单/单曲链接后运行：
-
-  ```bash
-  pnpm spotify:sync
-  ```
-
-  脚本会抓取曲目列表（歌名/艺人/时长），到网易云和 QQ 音乐搜索匹配（打分：歌名归一化 + 艺人交集 + 时长容差），网易云候选批量探活过滤 VIP，最后输出可直接粘贴进 `_config.yaml` 的 `netease` / `tencent` 片段。已知限制：embed 页歌单曲目上限约 50 首；匹配存在误差（同名歌/翻唱），建议抽查报告；热门 VIP 曲国内源无免费原版时会落到免费翻唱/Live 版或跳过。
-
-- **History 路由 / 子路径 `base`**：见上方「部署方式」。
 - **OG 分享卡片**：构建时用 sharp 从 `shots/zh/pic1.png` / `pic2.png` 裁切出 `/og-home.jpg`、`/og-bio.jpg`；换自己的截图请改 `_config.yaml` 的 `og.home` / `og.bio` 指向新路径，勿直接删除源图（缺失会构建失败）。
 - **转场视频 `transfrom.mov`**：Safari / iOS 的 HEVC+alpha 转场轨，由 `pnpm transition:mov` 从 `public/transfrom.webm` 转出；脚本依赖 macOS 的 `hevc_videotoolbox` 编码器，**仅 macOS 可执行**。不改转场视频则无需理会；要替换请在 macOS 上重新生成（直接删除 `.mov` 会让 Safari 落到无透明通道的 WebM 轨）。
-
-完整字段注释见 **[`_config.example.yaml`](./_config.example.yaml)**。
+- **History 路由 / 子路径 `base`**：见上方「部署方式」。
 
 ## 🎮 交互说明
 
@@ -280,3 +293,13 @@ bio/           zh-CN.md    zh-TW.md    en-US.md    ja-JP.md
 - 本仓库**不向任何第三方授予**游戏素材的商业许可。公开部署前，建议**替换为你有权使用的素材**，或仅保留代码与配置框架。
 
 其他第三方素材请遵循各自许可（例如 [BlueArchive-Cursors](https://github.com/makipom/BlueArchive-Cursors) 为 MIT、[ba-click-fx](https://www.npmjs.com/package/ba-click-fx) 等见对应仓库）。
+
+## ⭐ Star History
+
+<a href="https://star-history.com/#sf-yuzifu/homepage&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=sf-yuzifu/homepage&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=sf-yuzifu/homepage&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=sf-yuzifu/homepage&type=Date" />
+  </picture>
+</a>

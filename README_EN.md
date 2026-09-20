@@ -100,41 +100,17 @@ All site content (site info, contacts, project showcase, music list, Live2D char
 
 ## 🚀 Deployment
 
-### Using Third-Party Deployment Platforms
+### Third-Party Platforms
 
-#### 1. Vercel
+#### Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/sf-yuzifu/homepage)
 
-#### 2. Netlify
+#### Netlify
 
 1. `Fork` [this project](https://github.com/sf-yuzifu/homepage)
-2. [Log in to Netlify Console](https://app.netlify.com), select `Add new site` - `Import an exist project` to add a website
-3. Then select GitHub authentication to read our GitHub project list. Search for the repository name we just `Fork`ed in the list, click on the project to start creating our Netlify website based on that repository
-
-### History routes (refresh `/bio` without 404)
-
-The app uses Vue Router `createWebHistory`. The build writes **`dist/bio/index.html`** (its own OG tags), so hosts that serve directory indexes (GitHub Pages, etc.) already work on refresh.
-
-Hosts that only know about the root `index.html` will 404 on `/bio`. This repo ships SPA fallbacks (real files still win, so `bio/index.html` and assets are not overwritten):
-
-| Platform | File |
-| --- | --- |
-| Vercel | `vercel.json` at the repo root (the Vite preset usually covers git imports; this file matters when you upload `dist` as static files) |
-| Netlify / Cloudflare Pages | `public/_redirects` (copied into `dist`) |
-| Apache | `public/.htaccess` (copied into `dist`) |
-
-The catch-all fallback in `vercel.json` (`/(.*)` → `/index.html`) relies on Vercel's **static-first** semantics: the filesystem is checked before rewrites apply, so real files (assets, `bio/index.html`) are never rewritten. If you copy this rule to a host or gateway that forwards by rewrite alone without a filesystem check, static assets would be rewritten to HTML — narrow the `source` yourself or use that host's own fallback config instead.
-
-Nginx / BtPanel — point the site root at `dist` and add:
-
-```nginx
-location / {
-  try_files $uri $uri/ /index.html;
-}
-```
-
-Subpath deploys (e.g. `https://user.github.io/homepage/`) also need Vite `base` set to that prefix. This repo assumes the site lives at `/`.
+2. [Log in to the Netlify console](https://app.netlify.com), then `Add new site` → `Import an existing project`
+3. Authorize GitHub, pick your freshly forked repo, and start the deploy
 
 ### Local Build
 
@@ -170,6 +146,30 @@ pnpm preview
 >
 > For how to deploy on BtPanel, see ([https://cloud.tencent.com/developer/article/1977167](https://cloud.tencent.com/developer/article/1977167))
 
+### History routes (refresh `/bio` without 404)
+
+The app uses Vue Router `createWebHistory`. The build writes **`dist/bio/index.html`** (its own OG tags), so hosts that serve directory indexes (GitHub Pages, etc.) already work on refresh.
+
+Hosts that only know about the root `index.html` will 404 on `/bio`. This repo ships SPA fallbacks (real files still win, so `bio/index.html` and assets are not overwritten):
+
+| Platform | File |
+| --- | --- |
+| Vercel | `vercel.json` at the repo root (the Vite preset usually covers git imports; this file matters when you upload `dist` as static files) |
+| Netlify / Cloudflare Pages | `public/_redirects` (copied into `dist`) |
+| Apache | `public/.htaccess` (copied into `dist`) |
+
+The catch-all fallback in `vercel.json` (`/(.*)` → `/index.html`) relies on Vercel's **static-first** semantics: the filesystem is checked before rewrites apply, so real files (assets, `bio/index.html`) are never rewritten. If you copy this rule to a host or gateway that forwards by rewrite alone without a filesystem check, static assets would be rewritten to HTML — narrow the `source` yourself or use that host's own fallback config instead.
+
+Nginx / BtPanel — point the site root at `dist` and add:
+
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+Subpath deploys (e.g. `https://user.github.io/homepage/`) also need Vite `base` set to that prefix. This repo assumes the site lives at `/`.
+
 ## ⚙️ Customization
 
 After forking, edit mainly:
@@ -179,28 +179,50 @@ After forking, edit mainly:
 | **`_config.example.yaml`** | Field reference and sample structure — **copy to `_config.yaml`** and fill in |
 | **`bio/{locale}.md`** | Bio page body (Markdown; inline HTML OK) |
 
-Run `pnpm build` and redeploy. The build validates `_config.yaml` and `public/` asset paths. Missing bio locales fall back to `bio/en-US.md`.
+Run `pnpm build` and redeploy. The build validates `_config.yaml` and `public/` asset paths. Missing bio locales fall back to `bio/en-US.md`. Full field comments: **[`_config.example.yaml`](./_config.example.yaml)**.
 
-**Forking notes:**
+### Env var substitution
 
-- **Env var substitution**: any string value in `_config.yaml` may contain `${VAR}` placeholders, resolved from environment variables at build time — handy for values you don't want in a public repo, such as ICP / PSB filing numbers (e.g. `ICP: '${SITE_ICP}'`, `gongan: '${SITE_GONGAN}'`). Sources: write `.env.local` locally (already gitignored), or configure env vars in the console of Vercel / EdgeOne Pages / Netlify etc. (injected into `process.env` at build time, taking precedence over `.env` files). Unset variables are replaced with an empty string plus a build warning; a whole-value placeholder (e.g. `level: ${SITE_LEVEL}`) keeps number/boolean typing after substitution. Since this is a static site, substitution happens at build time — redeploy after changing variables.
+Any string value in `_config.yaml` may contain `${VAR}` placeholders, resolved from environment variables at build time — handy for values you don't want in a public repo, such as ICP / PSB filing numbers:
+
+```yaml
+ICP: '${SITE_ICP}'
+gongan: '${SITE_GONGAN}'
+```
+
+- **Local dev**: write them in `.env.local` (already gitignored)
+- **Deployment platforms**: configure env vars in the console of Vercel / EdgeOne Pages / Netlify etc. (injected into `process.env` at build time, taking precedence over `.env` files)
+
+Unset variables are replaced with an empty string plus a build warning; a whole-value placeholder (e.g. `level: ${SITE_LEVEL}`) keeps number/boolean typing after substitution. Since this is a static site, substitution happens at build time — redeploy after changing variables.
+
+### Music banner sources
+
+`banner.music` is grouped by source; everything merges into one random pool (omit sources you don't use; the legacy `banner.musicID` field still works and is folded into `music.netease`):
+
+| Source | Key | Value | Notes |
+| --- | --- | --- | --- |
+| NetEase track | `netease` | numeric ID | From share link `/song?id=xxxx`; via public Meting instance, most VIP tracks play |
+| NetEase playlist | `neteasePlaylist` | numeric ID | `/playlist?id=xxxx`, expanded once at startup |
+| QQ Music | `tencent` | songmid string | Browser-side JSONP to official endpoints; **free tracks only** — VIP entries are skipped automatically |
+| Kugou | `kugou` | 32-char hash | Same as above; the hash is in the song page / share parameters on Kugou web |
+| Kuwo | `kuwo` | numeric rid | Title/artist/cover fetched automatically; or use `{ id, name, artist }` to override |
+| Direct / self-hosted | `local` | `{ url, name, artist, cover? }` | Put audio under `public/` (e.g. `public/music/demo.mp3`); name/artist required |
+| Spotify | `spotify` | track/playlist link | **Build-time matching only**, ignored at runtime; see below |
+
+**Spotify playlist sync**: Spotify audio can't be played directly due to DRM + the login wall, but you can use Spotify as the "playlist source" and NetEase/QQ as the "player". After filling public playlist/track links into `banner.music.spotify`, run:
+
+```bash
+pnpm spotify:sync
+```
+
+The script fetches the track list (title/artist/duration), searches NetEase and QQ Music for matches (scoring: normalized title + artist overlap + duration tolerance), batch-probes NetEase candidates to filter out VIP tracks, and outputs ready-to-paste `netease` / `tencent` snippets for `_config.yaml`. Known limits: embed pages cap playlist tracks at about 50; matching can be off (same-title covers), so spot-check the report; popular VIP tracks without a free domestic original fall back to free cover/Live versions or get skipped.
+
+### Other notes
+
 - **Icons**: Default `public/js/iconfont.js` (`iconfont: /js/iconfont.js`). Use your own [iconfont.cn](https://www.iconfont.cn/) Symbol JS export, or `imgSrc` on `dock` / `contact` items.
-- **Music banner sources**: `banner.music` is grouped by source; everything merges into one random pool (omit sources you don't use; the legacy `banner.musicID` field still works and is folded into `music.netease`):
-
-  | Source | Key | Value | Notes |
-  | --- | --- | --- | --- |
-  | NetEase track | `netease` | numeric ID | From share link `/song?id=xxxx`; via public Meting instance, most VIP tracks play |
-  | NetEase playlist | `neteasePlaylist` | numeric ID | `/playlist?id=xxxx`, expanded once at startup |
-  | QQ Music | `tencent` | songmid string | Browser-side JSONP to official endpoints; **free tracks only** — VIP entries are skipped automatically |
-  | Kugou | `kugou` | 32-char hash | Same as above; the hash is in the song page / share parameters on Kugou web |
-  | Kuwo | `kuwo` | numeric rid | Title/artist/cover fetched automatically; or use `{ id, name, artist }` to override |
-  | Direct / self-hosted | `local` | `{ url, name, artist, cover? }` | Put audio under `public/` (e.g. `public/music/demo.mp3`); name/artist required |
-
-- **History routes / subpath `base`**: see **Deployment** above.
 - **OG share cards**: at build time, sharp crops `shots/zh/pic1.png` / `pic2.png` into `/og-home.jpg` and `/og-bio.jpg`. To use your own screenshots, point `og.home` / `og.bio` in `_config.yaml` at the new paths — do not delete the source files (the build fails if they are missing).
 - **Transition video `transfrom.mov`**: the HEVC+alpha transition track for Safari / iOS, regenerated from `public/transfrom.webm` via `pnpm transition:mov`. The script relies on macOS's `hevc_videotoolbox` encoder, so **it only runs on macOS**. Ignore it if you keep the default transition; to replace it, regenerate the `.mov` on a Mac (deleting the `.mov` outright makes Safari fall back to the WebM track without an alpha channel).
-
-Full field comments: **[`_config.example.yaml`](./_config.example.yaml)**.
+- **History routes / subpath `base`**: see **Deployment** above.
 
 ## 🎮 Interaction
 
@@ -271,3 +293,13 @@ The following materials that may appear in this repository or on the demo site a
 - This repo **does not grant** any commercial license for game materials. Before going public, **replace assets you are not entitled to use**, or ship only the code/config scaffold.
 
 Other third-party assets follow their own licenses (e.g. [BlueArchive-Cursors](https://github.com/makipom/BlueArchive-Cursors) is MIT; see each package’s repo for npm deps such as [ba-click-fx](https://www.npmjs.com/package/ba-click-fx)).
+
+## ⭐ Star History
+
+<a href="https://star-history.com/#sf-yuzifu/homepage&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=sf-yuzifu/homepage&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=sf-yuzifu/homepage&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=sf-yuzifu/homepage&type=Date" />
+  </picture>
+</a>
