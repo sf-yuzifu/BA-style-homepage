@@ -289,12 +289,12 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
       minify: 'esbuild',
       // PIXI 8 渲染引擎分包后约 730KB（gzip ~212KB），阈值随之放宽
       chunkSizeWarningLimit: 800,
-      // Vite 8 底层为 rolldown：rollupOptions 已弃用（manualChunks 静默失效），
-      // 分包走 rolldownOptions.output.advancedChunks（groups 按 priority 降序匹配）
-      rolldownOptions: {
-        output: {
-          advancedChunks: {
-            groups: [
+    // Vite 8 底层为 rolldown：rollupOptions 已弃用（manualChunks 静默失效），
+    // 分包走 rolldownOptions.output.codeSplitting（groups 按 priority 降序匹配）
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
               // BA 点击特效（桌面按需动态 import，独立 chunk）
               { name: 'click-fx', test: /[\\/]node_modules[\\/]ba-click-fx[\\/]/, priority: 20 },
               // Vue 框架核心
