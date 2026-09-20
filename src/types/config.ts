@@ -80,7 +80,7 @@ export interface MusicGroupConfig {
   kuwo?: (number | KuwoMusicEntry)[]
   /** 直链/自托管音频 */
   local?: LocalMusicEntry[]
-  /** Spotify 歌曲/歌单链接；仅供构建期 `yarn spotify:sync` 匹配用，运行时忽略 */
+  /** Spotify 歌曲/歌单链接；仅供构建期 `pnpm spotify:sync` 匹配用，运行时忽略 */
   spotify?: string[]
 }
 

@@ -140,14 +140,13 @@ location / {
 
 > **推荐环境：**
 >
-> - node > 18.0.0
-> - npm > 8.15.0
+> - node 26（仓库 `.nvmrc` 已钉；Node 26 起不再内置 corepack）
+> - pnpm（`npm install -g pnpm`；版本由 `package.json` 的 `packageManager` 字段锁定，pnpm 会自动切换对齐）
 
-1. 安装 yarn
+1. 安装 pnpm
 
 ```bash
-# 安装 yarn
-npm install -g yarn
+npm install -g pnpm
 ```
 
 2. 克隆此项目到本地
@@ -155,16 +154,16 @@ npm install -g yarn
 
 ```bash
 # 安装依赖
-yarn install
+pnpm install
 
 # 预览（开发环境）
-yarn dev
+pnpm dev
 
 # 构建
-yarn build
+pnpm build
 
 # 预览（生产环境预览）
-yarn preview
+pnpm preview
 ```
 
 > 构建完成后，静态资源会在 **`dist` 目录** 中生成，你可以将 **`dist` 目录中的文件** 上传至服务器。
@@ -180,7 +179,7 @@ Fork 后主要改两处：
 | **`_config.example.yaml`** | 字段说明与示例结构；**复制为 `_config.yaml`** 后填写 |
 | **`bio/{语言}.md`** | 个人简介正文（Markdown，支持内嵌 HTML） |
 
-修改后 `yarn build` 重新部署即可。构建会校验 `_config.yaml` 与 `public/` 资源路径；缺语言包时简介回退 `bio/en-US.md`。
+修改后 `pnpm build` 重新部署即可。构建会校验 `_config.yaml` 与 `public/` 资源路径；缺语言包时简介回退 `bio/en-US.md`。
 
 **Fork 提示：**
 
@@ -200,14 +199,14 @@ Fork 后主要改两处：
 - **Spotify 歌单同步**：Spotify 音频受 DRM + 登录墙限制无法直接播放，但可以把 Spotify 当「歌单源」、网易云/QQ 当「播放器」。在 `banner.music.spotify` 填入公开歌单/单曲链接后运行：
 
   ```bash
-  yarn spotify:sync
+  pnpm spotify:sync
   ```
 
   脚本会抓取曲目列表（歌名/艺人/时长），到网易云和 QQ 音乐搜索匹配（打分：歌名归一化 + 艺人交集 + 时长容差），网易云候选批量探活过滤 VIP，最后输出可直接粘贴进 `_config.yaml` 的 `netease` / `tencent` 片段。已知限制：embed 页歌单曲目上限约 50 首；匹配存在误差（同名歌/翻唱），建议抽查报告；热门 VIP 曲国内源无免费原版时会落到免费翻唱/Live 版或跳过。
 
 - **History 路由 / 子路径 `base`**：见上方「部署方式」。
 - **OG 分享卡片**：构建时用 sharp 从 `shots/zh/pic1.png` / `pic2.png` 裁切出 `/og-home.jpg`、`/og-bio.jpg`；换自己的截图请改 `_config.yaml` 的 `og.home` / `og.bio` 指向新路径，勿直接删除源图（缺失会构建失败）。
-- **转场视频 `transfrom.mov`**：Safari / iOS 的 HEVC+alpha 转场轨，由 `yarn transition:mov` 从 `public/transfrom.webm` 转出；脚本依赖 macOS 的 `hevc_videotoolbox` 编码器，**仅 macOS 可执行**。不改转场视频则无需理会；要替换请在 macOS 上重新生成（直接删除 `.mov` 会让 Safari 落到无透明通道的 WebM 轨）。
+- **转场视频 `transfrom.mov`**：Safari / iOS 的 HEVC+alpha 转场轨，由 `pnpm transition:mov` 从 `public/transfrom.webm` 转出；脚本依赖 macOS 的 `hevc_videotoolbox` 编码器，**仅 macOS 可执行**。不改转场视频则无需理会；要替换请在 macOS 上重新生成（直接删除 `.mov` 会让 Safari 落到无透明通道的 WebM 轨）。
 
 完整字段注释见 **[`_config.example.yaml`](./_config.example.yaml)**。
 

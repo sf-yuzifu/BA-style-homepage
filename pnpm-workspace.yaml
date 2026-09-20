@@ -1,0 +1,18 @@
+# pnpm 设置（pnpm 12 起不再读 package.json 的 pnpm 字段，统一收在这里）
+# 覆盖语义与原 yarn resolutions 一致：spine 运行时精确锁版，其余为安全线覆盖
+overrides:
+  rollup: ^4.34.9
+  '@rollup/plugin-babel': ^6.0.4
+  '@rollup/plugin-replace': ^6.0.1
+  minimatch: ^10.0.1
+  glob: ^11.0.1
+  koffi: 2.10.0
+  '@esotericsoftware/spine-core': 4.2.120
+  '@esotericsoftware/spine-pixi-v8': 4.2.120
+# 审批依赖的安装脚本（strictDepBuilds 默认开启，未列出即报错）；
+# cn-font-split 的 postinstall 下载字体子集必需的原生 DLL
+allowBuilds:
+  cn-font-split: true
+  esbuild: true
+  koffi: true
+  protobufjs: true

@@ -107,8 +107,7 @@ describe('validateConfig', () => {
     expect(legacy.bio?.btn).toEqual([{ name: 'a', path: '/a.png' }])
     const both = validateConfig({
       bio: { bth: [{ name: 'old', path: '/o.png' }], btn: [{ name: 'new', path: '/n.png' }] }
-    }
-    )
+    })
     expect(both.bio?.btn).toEqual([{ name: 'new', path: '/n.png' }])
   })
 })
@@ -118,7 +117,7 @@ describe('createConfigLoader', () => {
     const loader = createConfigLoader({
       'zh-CN': { title: '静态' } as never,
       'en-US': Promise.resolve({ title: 'promise' } as never),
-      'ja-JP': async () => ({ title: 'dynamic' } as never)
+      'ja-JP': async () => ({ title: 'dynamic' }) as never
     })
     expect((await loader.getConfig('zh-CN')).title).toBe('静态')
     expect((await loader.getConfig('en-US')).title).toBe('promise')

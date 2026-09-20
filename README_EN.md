@@ -140,14 +140,13 @@ Subpath deploys (e.g. `https://user.github.io/homepage/`) also need Vite `base` 
 
 > **Recommended Environment:**
 >
-> - node > 18.0.0
-> - npm > 8.15.0
+> - node 26 (pinned via `.nvmrc`; corepack is no longer bundled with Node 26)
+> - pnpm (`npm install -g pnpm`; the version is locked by the `packageManager` field in `package.json` and pnpm switches to it automatically)
 
-1. Install yarn
+1. Install pnpm
 
 ```bash
-# Install yarn
-npm install -g yarn
+npm install -g pnpm
 ```
 
 2. Clone this project to your local machine
@@ -155,16 +154,16 @@ npm install -g yarn
 
 ```bash
 # Install dependencies
-yarn install
+pnpm install
 
 # Preview (development environment)
-yarn dev
+pnpm dev
 
 # Build
-yarn build
+pnpm build
 
 # Preview (production environment preview)
-yarn preview
+pnpm preview
 ```
 
 > After the build is complete, static resources will be generated in the **`dist` directory**. You can upload the **files in the `dist` directory** to your server.
@@ -180,7 +179,7 @@ After forking, edit mainly:
 | **`_config.example.yaml`** | Field reference and sample structure — **copy to `_config.yaml`** and fill in |
 | **`bio/{locale}.md`** | Bio page body (Markdown; inline HTML OK) |
 
-Run `yarn build` and redeploy. The build validates `_config.yaml` and `public/` asset paths. Missing bio locales fall back to `bio/en-US.md`.
+Run `pnpm build` and redeploy. The build validates `_config.yaml` and `public/` asset paths. Missing bio locales fall back to `bio/en-US.md`.
 
 **Forking notes:**
 
@@ -198,7 +197,7 @@ Run `yarn build` and redeploy. The build validates `_config.yaml` and `public/` 
 
 - **History routes / subpath `base`**: see **Deployment** above.
 - **OG share cards**: at build time, sharp crops `shots/zh/pic1.png` / `pic2.png` into `/og-home.jpg` and `/og-bio.jpg`. To use your own screenshots, point `og.home` / `og.bio` in `_config.yaml` at the new paths — do not delete the source files (the build fails if they are missing).
-- **Transition video `transfrom.mov`**: the HEVC+alpha transition track for Safari / iOS, regenerated from `public/transfrom.webm` via `yarn transition:mov`. The script relies on macOS's `hevc_videotoolbox` encoder, so **it only runs on macOS**. Ignore it if you keep the default transition; to replace it, regenerate the `.mov` on a Mac (deleting the `.mov` outright makes Safari fall back to the WebM track without an alpha channel).
+- **Transition video `transfrom.mov`**: the HEVC+alpha transition track for Safari / iOS, regenerated from `public/transfrom.webm` via `pnpm transition:mov`. The script relies on macOS's `hevc_videotoolbox` encoder, so **it only runs on macOS**. Ignore it if you keep the default transition; to replace it, regenerate the `.mov` on a Mac (deleting the `.mov` outright makes Safari fall back to the WebM track without an alpha channel).
 
 Full field comments: **[`_config.example.yaml`](./_config.example.yaml)**.
 

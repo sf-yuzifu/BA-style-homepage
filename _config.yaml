@@ -167,7 +167,7 @@ banner:
     #     name: Demo
     #     artist: Me
     #     cover: /img/cover.png
-    # Spotify 歌曲/歌单链接（仅供构建期 yarn spotify:sync 匹配用，运行时忽略）
+    # Spotify 歌曲/歌单链接（仅供构建期 pnpm spotify:sync 匹配用，运行时忽略）
     # 脚本会到网易云/QQ 搜索同名曲并输出可粘贴的 netease/tencent 片段
     # spotify:
     #   - 'https://open.spotify.com/playlist/xxxxxxxxxxxxx'

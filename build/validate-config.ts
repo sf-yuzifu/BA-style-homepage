@@ -143,7 +143,7 @@ const localMusicEntrySchema = z.strictObject({
   cover: z.string().optional()
 })
 
-/** Spotify 歌曲/歌单链接；仅供构建期 `yarn spotify:sync` 读取，运行时忽略 */
+/** Spotify 歌曲/歌单链接；仅供构建期 `pnpm spotify:sync` 读取，运行时忽略 */
 const spotifyUrlSchema = z
   .string()
   .regex(

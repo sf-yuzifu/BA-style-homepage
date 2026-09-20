@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "license": "MIT",
+  "packageManager": "pnpm@12.5.1",
   "scripts": {
     "dev": "vite --host",
-    "build": "yarn typecheck && vite build",
-    "build:analyze": "yarn typecheck && vite build --mode analyze",
+    "build": "pnpm typecheck && vite build",
+    "build:analyze": "pnpm typecheck && vite build --mode analyze",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "lint": "eslint .",
@@ -16,16 +17,6 @@
     "format": "prettier --write src/",
     "spotify:sync": "jiti build/spotify-sync.ts",
     "transition:mov": "ffmpeg -y -c:v libvpx-vp9 -i public/transfrom.webm -an -vf format=rgba,premultiply=inplace=1 -c:v hevc_videotoolbox -require_sw 1 -alpha_quality 0.75 -tag:v hvc1 -q:v 30 public/transfrom.mov"
-  },
-  "resolutions": {
-    "rollup": "^4.34.9",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-replace": "^6.0.1",
-    "minimatch": "^10.0.1",
-    "glob": "^11.0.1",
-    "koffi": "2.10.0",
-    "@esotericsoftware/spine-core": "4.2.120",
-    "@esotericsoftware/spine-pixi-v8": "4.2.120"
   },
   "dependencies": {
     "@arco-design/web-vue": "^2.58.0",
@@ -43,7 +34,7 @@
     "@types/node": "^22.20.1",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/tsconfig": "^0.9.1",
-    "esbuild": "^0.25.12",
+    "esbuild": "^0.28.0",
     "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.10.0",
@@ -67,6 +58,7 @@
     "vitest": "^5.0.1",
     "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "~3.3.11",
+    "workbox-window": "^7.4.1",
     "zod": "^4.5.4"
   }
 }

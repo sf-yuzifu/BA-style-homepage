@@ -95,7 +95,7 @@ task:
 #   tencent / kugou           — 浏览器侧 JSONP 直连官方接口，仅免费曲可播，VIP 自动跳过
 #   kuwo                      — 同上；歌名/歌手/封面自动获取
 #   local                     — 直链/自托管（放 public/ 下），name/artist 必填
-#   spotify                   — 构建期匹配用（yarn spotify:sync），运行时忽略
+#   spotify                   — 构建期匹配用（pnpm spotify:sync），运行时忽略
 
 banner:
   music:
@@ -123,7 +123,7 @@ banner:
         name: Demo
         artist: Me
         cover: /img/cover.png
-    # Spotify 歌曲/歌单链接（构建期 yarn spotify:sync 匹配用，运行时忽略）
+    # Spotify 歌曲/歌单链接（构建期 pnpm spotify:sync 匹配用，运行时忽略）
     # 脚本会到网易云/QQ 搜索同名曲并输出可粘贴的 netease/tencent 片段
     # spotify:
     #   - 'https://open.spotify.com/playlist/xxxxxxxxxxxxx'

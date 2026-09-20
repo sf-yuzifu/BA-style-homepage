@@ -54,8 +54,7 @@ describe('buildMusicPool / listPlaylistIds', () => {
 })
 
 describe('resolveTrack：local 格式嗅探', () => {
-  const formatOf = async (url: string) =>
-    (await resolveTrack({ kind: 'local', url })).format
+  const formatOf = async (url: string) => (await resolveTrack({ kind: 'local', url })).format
 
   it('按扩展名映射 howler 格式', async () => {
     await expect(formatOf('/a.mp3')).resolves.toEqual(['mp3'])
@@ -112,7 +111,12 @@ describe('resolveNetease', () => {
         return {
           ok: true,
           json: async () => [
-            { url: 'https://m.x/s.mp3', title: '歌名', author: '艺人', pic: 'https://p.x/c.jpg?param=90y90' }
+            {
+              url: 'https://m.x/s.mp3',
+              title: '歌名',
+              author: '艺人',
+              pic: 'https://p.x/c.jpg?param=90y90'
+            }
           ]
         }
       }

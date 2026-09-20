@@ -2,7 +2,7 @@
  * Spotify 歌单同步：抓 Spotify 公开歌单/单曲的曲目列表，到网易云/QQ 音乐搜索匹配，
  * 输出可直接粘贴进 _config.yaml 的 netease / tencent 片段。
  *
- * 用法：yarn spotify:sync
+ * 用法：pnpm spotify:sync
  *
  * 链路（全部免登录/免 key）：
  * - Spotify：open.spotify.com/embed/{track|playlist}/{id} 页内 __NEXT_DATA__ JSON
