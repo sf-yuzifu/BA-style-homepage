@@ -3,7 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { load } from 'js-yaml'
 import fs from 'fs'
 
-import { defineConfig, type PluginOption, type UserConfig } from 'vite'
+import { defineConfig, loadEnv, type PluginOption, type UserConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { compression } from 'vite-plugin-compression2'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
@@ -15,6 +15,7 @@ import yaml from '@rollup/plugin-yaml'
 import { l2dWebpPlugin } from './build/vite-plugin-l2d-webp.ts'
 import { createPublicWebpPlugins } from './build/vite-plugin-public-webp.ts'
 import { configValidatePlugin } from './build/validate-config.ts'
+import { configEnvSubstitutePlugin, substituteEnv } from './build/env-substitute.ts'
 import { bioMarkdownPlugin } from './build/bio-markdown.ts'
 import {
   ogImagesPlugin,
@@ -53,62 +54,75 @@ interface BuildConfig {
   }
 }
 
-const config = load(fs.readFileSync('_config.yaml', 'utf8')) as BuildConfig
-const siteUrl = (config.url || '').replace(/\/+$/, '')
-
-// iconfont 为远程地址（http(s):// 或协议相对 //）时取其 origin 供 preconnect；
-// 默认本地 /js/iconfont.js 为 ''，index.html 据此跳过无效的第三方预热
-const iconfontOrigin = (() => {
-  const m = (config.iconfont?.trim() || '').match(/^(?:https?:)?\/\/([^/]+)/)
-  return m ? `https://${m[1]}` : ''
-})()
-
-// 按 _config.yaml 实际配置的音源注入对应 API 的 preconnect（local 直链无需预热；
-// 网易含旧字段 musicID——运行时会并入 netease 一起进随机池）
-const musicApiOrigins = (() => {
-  const music = config.banner?.music
-  const hasNetease =
-    (config.banner?.musicID?.length ?? 0) > 0 ||
-    (music?.netease?.length ?? 0) > 0 ||
-    (music?.neteasePlaylist?.length ?? 0) > 0
-  const origins = new Set<string>()
-  if (hasNetease) origins.add('https://api.injahow.cn')
-  if (music?.tencent?.length) {
-    origins.add('https://c.y.qq.com')
-    origins.add('https://u.y.qq.com')
-  }
-  if (music?.kugou?.length) origins.add('https://m.kugou.com')
-  if (music?.kuwo?.length) {
-    origins.add('https://search.kuwo.cn')
-    origins.add('https://antiserver.kuwo.cn')
-  }
-  return [...origins]
-})()
-
-// PWA manifest 缺省补齐：display 默认 standalone（安装后独立窗口而非浏览器标签页）；
-// screenshots 缺省引用构建期由 og-images 同源生成的 1280×720 截图（Chrome 富安装对话框用），
-// fork 在 _config.yaml manifest.screenshots 自定义时覆盖（图片须放 public/，构建会校验存在性）
-const pwaManifest: Partial<ManifestOptions> = {
-  display: 'standalone',
-  ...config.manifest,
-  screenshots: config.manifest?.screenshots ?? [
-    {
-      src: `/${PWA_SHOT_HOME_FILE}`,
-      sizes: `${PWA_SHOT_WIDTH}x${PWA_SHOT_HEIGHT}`,
-      type: 'image/jpeg',
-      form_factor: 'wide'
-    },
-    {
-      src: `/${PWA_SHOT_BIO_FILE}`,
-      sizes: `${PWA_SHOT_WIDTH}x${PWA_SHOT_HEIGHT}`,
-      type: 'image/jpeg',
-      form_factor: 'wide'
-    }
-  ]
-}
-
 // https://vitejs.dev/config/
 export default defineConfig(async ({ mode }): Promise<UserConfig> => {
+  // 环境变量（.env* 文件 + process.env，后者优先——Vercel / EdgeOne Pages 等平台控制台变量同此来源），
+  // 供 _config.yaml 的 ${VAR} 占位符注入
+  const env = loadEnv(mode, process.cwd(), '')
+
+  const { value: config, missing: missingEnvVars } = substituteEnv(
+    load(fs.readFileSync('_config.yaml', 'utf8')) as BuildConfig,
+    env
+  )
+  if (missingEnvVars.length > 0) {
+    console.warn(
+      `\n[_config.yaml] 以下环境变量未设置，对应字段已按空值处理：${[...new Set(missingEnvVars)].join(', ')}\n`
+    )
+  }
+
+  const siteUrl = (config.url || '').replace(/\/+$/, '')
+
+  // iconfont 为远程地址（http(s):// 或协议相对 //）时取其 origin 供 preconnect；
+  // 默认本地 /js/iconfont.js 为 ''，index.html 据此跳过无效的第三方预热
+  const iconfontOrigin = (() => {
+    const m = (config.iconfont?.trim() || '').match(/^(?:https?:)?\/\/([^/]+)/)
+    return m ? `https://${m[1]}` : ''
+  })()
+
+  // 按 _config.yaml 实际配置的音源注入对应 API 的 preconnect（local 直链无需预热；
+  // 网易含旧字段 musicID——运行时会并入 netease 一起进随机池）
+  const musicApiOrigins = (() => {
+    const music = config.banner?.music
+    const hasNetease =
+      (config.banner?.musicID?.length ?? 0) > 0 ||
+      (music?.netease?.length ?? 0) > 0 ||
+      (music?.neteasePlaylist?.length ?? 0) > 0
+    const origins = new Set<string>()
+    if (hasNetease) origins.add('https://api.injahow.cn')
+    if (music?.tencent?.length) {
+      origins.add('https://c.y.qq.com')
+      origins.add('https://u.y.qq.com')
+    }
+    if (music?.kugou?.length) origins.add('https://m.kugou.com')
+    if (music?.kuwo?.length) {
+      origins.add('https://search.kuwo.cn')
+      origins.add('https://antiserver.kuwo.cn')
+    }
+    return [...origins]
+  })()
+
+  // PWA manifest 缺省补齐：display 默认 standalone（安装后独立窗口而非浏览器标签页）；
+  // screenshots 缺省引用构建期由 og-images 同源生成的 1280×720 截图（Chrome 富安装对话框用），
+  // fork 在 _config.yaml manifest.screenshots 自定义时覆盖（图片须放 public/，构建会校验存在性）
+  const pwaManifest: Partial<ManifestOptions> = {
+    display: 'standalone',
+    ...config.manifest,
+    screenshots: config.manifest?.screenshots ?? [
+      {
+        src: `/${PWA_SHOT_HOME_FILE}`,
+        sizes: `${PWA_SHOT_WIDTH}x${PWA_SHOT_HEIGHT}`,
+        type: 'image/jpeg',
+        form_factor: 'wide'
+      },
+      {
+        src: `/${PWA_SHOT_BIO_FILE}`,
+        sizes: `${PWA_SHOT_WIDTH}x${PWA_SHOT_HEIGHT}`,
+        type: 'image/jpeg',
+        form_factor: 'wide'
+      }
+    ]
+  }
+
   // public/ 图片构建期转 WebP：vite 插件（JS/配置字符串改写 + 产物写出）
   // 与 PostCSS 伴侣（CSS url() 改写）共享同一份替换表
   const { vitePlugin: publicWebpVite, postcssPlugin: publicWebpCss } = createPublicWebpPlugins()
@@ -236,6 +250,9 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
     }),
     // 须在 viteCompression 之后注册，closeBundle 时先转 WebP 再 gzip 新产物
     l2dWebpPlugin(),
+    // _config.yaml 的 ${VAR} 占位符替换（enforce 'pre'，先于 yaml() 执行），
+    // 使打进 bundle 的运行时配置与上方构建期读取的值一致
+    configEnvSubstitutePlugin(env),
     yaml(),
     // 在 yaml 之后注册：transform 才能覆盖配置模块里的图片路径（名片/联系图标等）
     publicWebpVite,

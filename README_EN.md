@@ -183,6 +183,7 @@ Run `pnpm build` and redeploy. The build validates `_config.yaml` and `public/` 
 
 **Forking notes:**
 
+- **Env var substitution**: any string value in `_config.yaml` may contain `${VAR}` placeholders, resolved from environment variables at build time — handy for values you don't want in a public repo, such as ICP / PSB filing numbers (e.g. `ICP: '${SITE_ICP}'`, `gongan: '${SITE_GONGAN}'`). Sources: write `.env.local` locally (already gitignored), or configure env vars in the console of Vercel / EdgeOne Pages / Netlify etc. (injected into `process.env` at build time, taking precedence over `.env` files). Unset variables are replaced with an empty string plus a build warning; a whole-value placeholder (e.g. `level: ${SITE_LEVEL}`) keeps number/boolean typing after substitution. Since this is a static site, substitution happens at build time — redeploy after changing variables.
 - **Icons**: Default `public/js/iconfont.js` (`iconfont: /js/iconfont.js`). Use your own [iconfont.cn](https://www.iconfont.cn/) Symbol JS export, or `imgSrc` on `dock` / `contact` items.
 - **Music banner sources**: `banner.music` is grouped by source; everything merges into one random pool (omit sources you don't use; the legacy `banner.musicID` field still works and is folded into `music.netease`):
 

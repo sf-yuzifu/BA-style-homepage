@@ -183,6 +183,7 @@ Fork 后主要改两处：
 
 **Fork 提示：**
 
+- **环境变量注入**：`_config.yaml` 任意字段的字符串值可写 `${VAR}` 占位符，构建期从环境变量取值——适合 ICP / 公安备案号等不宜提交进公开仓库的值（如 `ICP: '${SITE_ICP}'`、`gongan: '${SITE_GONGAN}'`）。变量来源：本地开发写在 `.env.local`（已 gitignore）；部署时在 Vercel / EdgeOne Pages / Netlify 等平台控制台配置环境变量即可（构建时注入 `process.env`，优先级高于 `.env` 文件）。未设置的变量替换为空串并给出构建警告；整串占位（如 `level: ${SITE_LEVEL}`）替换后保留数字/布尔类型。静态站点的注入发生在构建期，改变量后需重新构建部署生效。
 - **图标**：默认 `public/js/iconfont.js`（`iconfont: /js/iconfont.js`）；可在 [iconfont.cn](https://www.iconfont.cn/) 自建 Symbol JS 替换，`dock` / `contact` 也可用 `imgSrc`。
 - **音乐 Banner 音源**：`banner.music` 按源分组配置，全部合并进同一随机池（不配置的源省略即可；旧字段 `banner.musicID` 仍有效，自动并入 `music.netease`）：
 

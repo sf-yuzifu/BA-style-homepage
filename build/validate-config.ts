@@ -3,8 +3,9 @@ import path from 'node:path'
 
 import { load } from 'js-yaml'
 import { z } from 'zod'
-import type { Plugin } from 'vite'
+import { loadEnv, type Plugin } from 'vite'
 import { resolveOgShots } from './og-images.ts'
+import { substituteEnv } from './env-substitute.ts'
 
 const LOCALES = ['zh-CN', 'zh-TW', 'en-US', 'ja-JP'] as const
 const LOBBY_INDEX_KEY = /^memorialLobbies\[(\d+)\]$/
@@ -343,7 +344,10 @@ function checkLobbyAssets(
   return errors
 }
 
-export function validateProjectConfig(root: string): string[] {
+export function validateProjectConfig(
+  root: string,
+  env: Record<string, string | undefined>
+): string[] {
   const errors: string[] = []
   const configPath = path.join(root, '_config.yaml')
 
@@ -385,6 +389,10 @@ export function validateProjectConfig(root: string): string[] {
     )
     return errors
   }
+
+  // ${VAR} 占位符替换（与 vite.config.ts 构建期读取、env-substitute 运行时注入同一来源），
+  // zod 校验与资源存在性检查均针对替换后的值
+  raw = substituteEnv(raw, env).value
 
   // OG 源图：_config.yaml 的 og.home / og.bio 可覆盖默认 shots/zh/（社交分享卡片用 sharp 从此裁切）
   const ogShots = resolveOgShots((raw as { og?: { home?: string; bio?: string } } | null)?.og)
@@ -517,8 +525,8 @@ export function validateProjectConfig(root: string): string[] {
   return errors
 }
 
-export function assertProjectConfig(root: string): void {
-  const errors = validateProjectConfig(root)
+export function assertProjectConfig(root: string, env: Record<string, string | undefined>): void {
+  const errors = validateProjectConfig(root, env)
   if (errors.length === 0) return
 
   throw new Error(
@@ -531,7 +539,8 @@ export function configValidatePlugin(): Plugin {
   return {
     name: 'vite-plugin-config-validate',
     configResolved(config) {
-      assertProjectConfig(config.root)
+      // loadEnv 合并 .env* 与 process.env（后者优先），与 vite.config.ts 的注入来源一致
+      assertProjectConfig(config.root, loadEnv(config.mode, config.root, ''))
     }
   }
 }

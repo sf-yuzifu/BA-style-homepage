@@ -21,9 +21,11 @@ keywords: 'Blue Archive, 小鱼yuzifu, Personal Homepage'
 url: 'https://yzf.moe'
 
 # ICP备案号 - 中国大陆备案信息，留空表示未备案
-ICP: ''
-# 公安备案号 - 中国大陆网站备案信息，留空表示未备案
-gongan: ''
+# 值取自环境变量 SITE_ICP（本地写进 .env.local，部署时在 Vercel / EdgeOne Pages 等平台控制台配置；
+# 未设置则为空——备案号不宜提交进公开仓库，任意字段都可写 ${VAR} 占位符注入，见 README「环境变量注入」）
+ICP: '${SITE_ICP}'
+# 公安备案号 - 中国大陆网站备案信息；值取自环境变量 SITE_GONGAN，未设置则为空
+gongan: '${SITE_GONGAN}'
 
 # PWA配置 - 渐进式Web应用配置
 manifest:

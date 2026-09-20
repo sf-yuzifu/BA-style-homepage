@@ -26,6 +26,11 @@ og:
   home: shots/zh/pic1.png
   bio: shots/zh/pic2.png
 
+# 环境变量注入 / Env substitution：任意字段的字符串值可写 ${VAR} 占位符，
+# 构建期从环境变量取值（本地 .env.local，或 Vercel / EdgeOne Pages 等平台控制台配置；
+# 未设置则为空串并给出构建警告）。适合备案号等不宜提交进公开仓库的值，例如：
+#   ICP: '${SITE_ICP}'
+#   gongan: '${SITE_GONGAN}'
 ICP: ''
 gongan: ''
 
