@@ -10,6 +10,9 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # 兜底超时：cn-font-split FFI 曾导致构建成功后进程不退出（见 build/build.ts），
+    # 若再出现类似挂起，15 分钟快速失败而非跑满默认 6 小时
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 

@@ -7,8 +7,8 @@
   "packageManager": "pnpm@12.5.1",
   "scripts": {
     "dev": "vite --host",
-    "build": "pnpm typecheck && vite build",
-    "build:analyze": "pnpm typecheck && vite build --mode analyze",
+    "build": "pnpm typecheck && jiti build/build.ts",
+    "build:analyze": "pnpm typecheck && jiti build/build.ts analyze",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "lint": "eslint .",
