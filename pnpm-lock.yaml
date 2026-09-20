@@ -243,6 +243,9 @@ importers:
       marked:
         specifier: ^18.0.11
         version: 18.0.13
+      postcss:
+        specifier: ^8.5.28
+        version: 8.5.28
       prettier:
         specifier: ^3.9.6
         version: 3.9.8

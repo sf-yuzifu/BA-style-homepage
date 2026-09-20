@@ -13,6 +13,7 @@ import { createHtmlPlugin } from 'vite-plugin-html'
 import Font from 'vite-plugin-font'
 import yaml from '@rollup/plugin-yaml'
 import { l2dWebpPlugin } from './build/vite-plugin-l2d-webp.ts'
+import { createPublicWebpPlugins } from './build/vite-plugin-public-webp.ts'
 import { configValidatePlugin } from './build/validate-config.ts'
 import { bioMarkdownPlugin } from './build/bio-markdown.ts'
 import {
@@ -108,6 +109,10 @@ const pwaManifest: Partial<ManifestOptions> = {
 
 // https://vitejs.dev/config/
 export default defineConfig(async ({ mode }): Promise<UserConfig> => {
+  // public/ 图片构建期转 WebP：vite 插件（JS/配置字符串改写 + 产物写出）
+  // 与 PostCSS 伴侣（CSS url() 改写）共享同一份替换表
+  const { vitePlugin: publicWebpVite, postcssPlugin: publicWebpCss } = createPublicWebpPlugins()
+
   const plugins: PluginOption[] = [
     configValidatePlugin(),
     bioMarkdownPlugin(),
@@ -232,6 +237,8 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
     // 须在 viteCompression 之后注册，closeBundle 时先转 WebP 再 gzip 新产物
     l2dWebpPlugin(),
     yaml(),
+    // 在 yaml 之后注册：transform 才能覆盖配置模块里的图片路径（名片/联系图标等）
+    publicWebpVite,
     ogImagesPlugin(siteUrl, config.og)
   ]
 
@@ -248,6 +255,13 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
   }
 
   return {
+    // CSS 侧 WebP 引用改写（rolldown-vite 的原生 CSS 管线绕过 JS transform，
+    // 必须走 PostCSS 才能在内容 hash 前改写 url()）
+    css: {
+      postcss: {
+        plugins: [publicWebpCss]
+      }
+    },
     // 生产环境剔除调试输出（保留 console.error 以便线上排障）
     esbuild: {
       drop: ['debugger'],
@@ -258,45 +272,35 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
       minify: 'esbuild',
       // PIXI 8 渲染引擎分包后约 730KB（gzip ~212KB），阈值随之放宽
       chunkSizeWarningLimit: 800,
-      rollupOptions: {
+      // Vite 8 底层为 rolldown：rollupOptions 已弃用（manualChunks 静默失效），
+      // 分包走 rolldownOptions.output.advancedChunks（groups 按 priority 降序匹配）
+      rolldownOptions: {
         output: {
-          manualChunks(id: string) {
-            if (!id.includes('node_modules')) return
-
-            const pkg = id.toString().split('node_modules/')[1].split('/')[0]
-
-            // Vue 框架核心
-            if (['vue', 'vue-router', '@vue'].includes(pkg)) return 'vue-core'
-            // PIXI 渲染引擎与 Spine 骨骼动画
-            if (
-              [
-                'pixi.js',
-                '@pixi',
-                '@esotericsoftware',
-                'eventemitter3',
-                'earcut',
-                'ismobilejs'
-              ].includes(pkg)
-            )
-              return 'pixi'
-            // Arco 组件库及其内部依赖
-            if (
-              [
-                '@arco-design',
-                'dayjs',
-                'number-precision',
-                'b-tween',
-                'b-validate',
-                'compute-scroll-into-view',
-                'scroll-into-view-if-needed',
-                'resize-observer-polyfill'
-              ].includes(pkg)
-            )
-              return 'arco'
-            // BA 点击特效（桌面按需动态 import，独立 chunk）
-            if (pkg === 'ba-click-fx') return 'click-fx'
-            // 其余第三方依赖合并为一个 vendor chunk，避免按包拆出过碎的文件
-            return 'vendor'
+          advancedChunks: {
+            groups: [
+              // BA 点击特效（桌面按需动态 import，独立 chunk）
+              { name: 'click-fx', test: /[\\/]node_modules[\\/]ba-click-fx[\\/]/, priority: 20 },
+              // Vue 框架核心
+              {
+                name: 'vue-core',
+                test: /[\\/]node_modules[\\/](?:vue|vue-router|@vue)[\\/]/,
+                priority: 15
+              },
+              // PIXI 渲染引擎与 Spine 骨骼动画
+              {
+                name: 'pixi',
+                test: /[\\/]node_modules[\\/](?:pixi\.js|@pixi|@esotericsoftware|eventemitter3|earcut|ismobilejs)[\\/]/,
+                priority: 14
+              },
+              // Arco 组件库及其内部依赖
+              {
+                name: 'arco',
+                test: /[\\/]node_modules[\\/](?:@arco-design|dayjs|number-precision|b-tween|b-validate|compute-scroll-into-view|scroll-into-view-if-needed|resize-observer-polyfill)[\\/]/,
+                priority: 13
+              },
+              // 其余第三方依赖合并为一个 vendor chunk，避免按包拆出过碎的文件
+              { name: 'vendor', test: /[\\/]node_modules[\\/]/, priority: 10 }
+            ]
           }
         }
       }
