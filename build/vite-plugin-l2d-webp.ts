@@ -107,6 +107,9 @@ export function l2dWebpPlugin(): Plugin {
 
         if (atlasChanged) {
           await fs.writeFile(atlasPath, atlasContent)
+          // 同步删除旧 gzip 副本：压缩插件可能在改写前已对旧 atlas 生成 .gz，
+          // 开启 gzip_static 的主机（nginx/宝塔）会优先吐出陈旧内容
+          await removeFileIfExists(`${atlasPath}.gz`)
         }
       }
 

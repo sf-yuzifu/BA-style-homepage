@@ -3,5 +3,15 @@
   "installCommand": "npm install -g pnpm@12.5.1 && pnpm install --frozen-lockfile",
   "buildCommand": "pnpm build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/*", "destination": "/index.html" }]
+  "rewrites": [{ "source": "/*", "destination": "/index.html" }],
+  "headers": [
+    {
+      "source": "/l2d/*.atlas",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    },
+    {
+      "source": "/l2d/*.skel",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    }
+  ]
 }

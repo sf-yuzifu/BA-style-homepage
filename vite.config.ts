@@ -223,15 +223,35 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
               }
             }
           },
-          // 静态资源（Live2D 骨骼/图集/贴图/语音、图片、视频、字体）：缓存优先
+          // Live2D 图集索引/骨骼数据（.atlas/.skel）：网络优先
+          // 文件名固定但内容会随部署更新（如贴图页 PNG→WebP 后 atlas 改写引用），
+          // CacheFirst 会让老访客长期吃旧 atlas → 引用已删除的贴图 → 解码失败
+          {
+            urlPattern: /^https?:\/\/[^/]+\/l2d\/[^/?#]+\.(?:atlas|skel)$/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'l2d-meta-cache',
+              networkTimeoutSeconds: 8,
+              expiration: {
+                maxEntries: 64,
+                maxAgeSeconds: 60 * 60 * 24 * 30
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          // 静态资源（Live2D 贴图/语音、图片、视频、字体）：缓存优先
           // 只匹配本站资源目录与根目录文件，避免拦截第三方站点的同名资源
           // 注意：带查询串的请求（如网易云音频流）不匹配此规则，直接走网络
+          // cacheName 带版本号：旧 static-assets-cache 中经 CacheFirst 缓存的
+          // 陈旧 atlas/贴图随改名作废，强制新 SW 首次回源
           {
             urlPattern:
-              /^https?:\/\/[^/]+\/(?:(?:assets|img|l2d|shitim|cursors)\/[^?#]+|[^/?#]+)\.(?:png|jpe?g|webp|gif|svg|skel|atlas|mp3|mp4|webm|mov|woff2?|cur)$/i,
+              /^https?:\/\/[^/]+\/(?:(?:assets|img|l2d|shitim|cursors)\/[^?#]+|[^/?#]+)\.(?:png|jpe?g|webp|gif|svg|mp3|mp4|webm|mov|woff2?|cur)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'static-assets-cache',
+              cacheName: 'static-assets-cache-v2',
               expiration: {
                 maxEntries: 256,
                 maxAgeSeconds: 60 * 60 * 24 * 30
@@ -245,11 +265,13 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
       },
       manifest: pwaManifest
     }),
+    // WebP 转换须在 compression 之前注册：closeBundle 按注册顺序执行，
+    // 先转 WebP/改写 atlas 再 gzip，保证 .gz 与最终产物一致
+    // （否则 gzip_static 类主机会优先吐出改写前的旧 atlas.gz）
+    l2dWebpPlugin(),
     compression({
       threshold: 10240 // the unit is Bytes
     }),
-    // 须在 viteCompression 之后注册，closeBundle 时先转 WebP 再 gzip 新产物
-    l2dWebpPlugin(),
     // _config.yaml 的 ${VAR} 占位符替换（enforce 'pre'，先于 yaml() 执行），
     // 使打进 bundle 的运行时配置与上方构建期读取的值一致
     configEnvSubstitutePlugin(env),
