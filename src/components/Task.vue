@@ -2,7 +2,12 @@
 import { ref, computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
 import { prefersReducedMotionNow } from '@/composables/useReducedMotion'
-import { canPlayTransitionVideo, TRANSITION_MOV, TRANSITION_WEBM } from '@/utils/transitionVideo'
+import {
+  canPlayTransitionVideo,
+  drawTransitionVariant,
+  TRANSITION_SETS,
+  type TransitionVariant
+} from '@/utils/transitionVideo'
 
 const { configs } = useConfig()
 
@@ -17,6 +22,9 @@ const taskInfo = computed(() => {
 
 const curtain = ref(false)
 const bg = ref(false)
+/** 每次转场抽签结果：arona（亮色蓝）/ plana（暗色紫） */
+const variant = ref<TransitionVariant>('arona')
+const activeSet = computed(() => TRANSITION_SETS[variant.value])
 
 const canPlayTransition = canPlayTransitionVideo()
 
@@ -66,6 +74,8 @@ const skip = () => {
   // 在途守卫：转场进行中忽略后续点击，防止旧定时器 / reduced-motion 直跳路径重复 window.open
   if (inFlight) return
   inFlight = true
+  // 抽签：亮色 / PLANA 紫 各 1/2
+  variant.value = drawTransitionVariant()
   if (prefersReducedMotionNow()) {
     openTaskPage()
     // 无幕布可等，延迟复位守卫以允许之后再次打开
@@ -101,13 +111,13 @@ const skip = () => {
   <transition name="curtain">
     <div v-if="bg" class="video-container">
       <video autoplay muted playsinline @error="onFlashError">
-        <source :src="TRANSITION_MOV" type='video/mp4; codecs="hvc1"' />
-        <source :src="TRANSITION_WEBM" type='video/webm; codecs="vp9"' />
+        <source :src="activeSet.mov" type='video/mp4; codecs="hvc1"' />
+        <source :src="activeSet.webm" type='video/webm; codecs="vp9"' />
       </video>
     </div>
   </transition>
   <transition name="curtain">
-    <div v-if="curtain" class="curtain">
+    <div v-if="curtain" class="curtain" :style="{ backgroundImage: `url(${activeSet.curtainBg})` }">
       <img src="/shitim/Tran_Shitim_Icon.png" alt="" />
     </div>
   </transition>
@@ -141,7 +151,8 @@ const skip = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url('/shitim/Event_Main_Stage_Bg.png') center;
+  /* 底图由模板 inline style 按抽签结果注入（蓝/紫舞台） */
+  background-position: center;
   background-size: cover;
   z-index: 10000;
   display: flex;

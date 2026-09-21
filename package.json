@@ -19,7 +19,9 @@
     "test": "vitest run",
     "format": "prettier --write src/",
     "spotify:sync": "jiti build/spotify-sync.ts",
-    "transition:mov": "ffmpeg -y -c:v libvpx-vp9 -i public/transfrom.webm -an -vf format=rgba,premultiply=inplace=1 -c:v hevc_videotoolbox -require_sw 1 -alpha_quality 0.75 -tag:v hvc1 -q:v 30 public/transfrom.mov"
+    "transition:mov": "ffmpeg -y -c:v libvpx-vp9 -i public/transfrom.webm -an -vf format=rgba,premultiply=inplace=1 -c:v hevc_videotoolbox -require_sw 1 -alpha_quality 0.75 -tag:v hvc1 -q:v 30 public/transfrom.mov",
+    "transition:plana:webm": "ffmpeg -y -i public/BAChange_PLANA_glow.mov -frames:v 18 -an -vf fade=t=out:st=0.64:d=0.04:alpha=1 -c:v libvpx-vp9 -pix_fmt yuva420p -auto-alt-ref 0 -crf 30 -b:v 0 public/transfrom_plana.webm",
+    "transition:plana:mov": "ffmpeg -y -c:v libvpx-vp9 -i public/transfrom_plana.webm -an -vf format=rgba,premultiply=inplace=1 -c:v hevc_videotoolbox -require_sw 1 -alpha_quality 0.75 -tag:v hvc1 -q:v 30 public/transfrom_plana.mov"
   },
   "dependencies": {
     "@arco-design/web-vue": "^2.58.0",

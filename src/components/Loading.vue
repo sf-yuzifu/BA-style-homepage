@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onUnmounted } from 'vue'
-import { canPlayTransitionVideo, TRANSITION_MOV, TRANSITION_WEBM } from '@/utils/transitionVideo'
+import { canPlayTransitionVideo, TRANSITION_SETS } from '@/utils/transitionVideo'
 
 const props = defineProps<{ percent: number }>()
 
@@ -37,10 +37,15 @@ onUnmounted(() => {
         <img :src="imgList[2]" alt="" />
         <img :src="imgList[3]" alt="" />
         <video v-if="canPlayTransition" muted preload="auto">
-          <source :src="TRANSITION_MOV" type='video/mp4; codecs="hvc1"' />
-          <source :src="TRANSITION_WEBM" type='video/webm; codecs="vp9"' />
+          <source :src="TRANSITION_SETS.arona.mov" type='video/mp4; codecs="hvc1"' />
+          <source :src="TRANSITION_SETS.arona.webm" type='video/webm; codecs="vp9"' />
+        </video>
+        <video v-if="canPlayTransition" muted preload="auto">
+          <source :src="TRANSITION_SETS.plana.mov" type='video/mp4; codecs="hvc1"' />
+          <source :src="TRANSITION_SETS.plana.webm" type='video/webm; codecs="vp9"' />
         </video>
         <img src="/shitim/Tran_Shitim_Icon.png" alt="" />
+        <img src="/shitim/Event_Main_Stage_Bg_Purple.png" alt="" />
       </div>
     </div>
     <div class="progress_wrapper">
