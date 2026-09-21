@@ -112,11 +112,19 @@ All site content (site info, contacts, project showcase, music list, Live2D char
 2. [Log in to the Netlify console](https://app.netlify.com), then `Add new site` → `Import an existing project`
 3. Authorize GitHub, pick your freshly forked repo, and start the deploy
 
+#### EdgeOne Makers (Tencent)
+
+1. In the [EdgeOne Makers console](https://console.cloud.tencent.com/edgeone/makers), choose "Import a Git repository", connect your Git provider (GitHub / Gitee / etc.) and select this repository
+2. The repo root already ships [`edgeone.json`](./edgeone.json) (preinstalled Node 24.18.0 + global pnpm 12 install at build time + SPA route fallback + output directory `dist`) — no manual build configuration needed after import
+3. Under "Project Settings → Environment Management → Environment Variables", configure `SITE_ICP` / `SITE_GONGAN` per environment (production / preview are independent); they are injected at build time
+
+> **Note:** custom domains on the "Global" region need no filing; the "Chinese Mainland" region requires the domain to hold an ICP filing (which is exactly what this site's filing banner is for). Platform limits: 5 GiB account storage, 20000 files per project, 25 MiB per file — the build log reports errors when exceeded. If you later need a Node version that is not preinstalled, drop a `.nvmrc` in the repo — Makers will download and switch to it automatically, but the downloaded Node ships without package managers, so install pnpm yourself in `edgeone.json`'s `installCommand`.
+
 ### Local Build
 
 > **Recommended Environment:**
 >
-> - node 26 (pinned via `.nvmrc`; corepack is no longer bundled with Node 26)
+> - Node.js ≥ 22.12 (declared in `package.json` engines; Node 24 LTS recommended — CI and EdgeOne Makers both use 24)
 > - pnpm (`npm install -g pnpm`; the version is locked by the `packageManager` field in `package.json` and pnpm switches to it automatically)
 
 1. Install pnpm
@@ -156,6 +164,7 @@ Hosts that only know about the root `index.html` will 404 on `/bio`. This repo s
 | --- | --- |
 | Vercel | `vercel.json` at the repo root (the Vite preset usually covers git imports; this file matters when you upload `dist` as static files) |
 | Netlify / Cloudflare Pages | `public/_redirects` (copied into `dist`) |
+| EdgeOne Makers | `edgeone.json` at the repo root (`rewrites` maps `/*` → `/index.html`; the platform recognizes this as a SPA fallback where real files win) |
 | Apache | `public/.htaccess` (copied into `dist`) |
 
 The catch-all fallback in `vercel.json` (`/(.*)` → `/index.html`) relies on Vercel's **static-first** semantics: the filesystem is checked before rewrites apply, so real files (assets, `bio/index.html`) are never rewritten. If you copy this rule to a host or gateway that forwards by rewrite alone without a filesystem check, static assets would be rewritten to HTML — narrow the `source` yourself or use that host's own fallback config instead.

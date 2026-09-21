@@ -112,11 +112,19 @@
 2. [登录 Netlify 控制台](https://app.netlify.com)，选择 `Add new site` → `Import an existing project`
 3. 用 GitHub 授权后在仓库列表中找到刚 Fork 的项目，点击即可开始建站
 
+#### EdgeOne Makers（腾讯）
+
+1. 在 [EdgeOne Makers 控制台](https://console.cloud.tencent.com/edgeone/makers) 选择「导入 Git 仓库」，关联 Git 提供商（GitHub / Gitee 等）后选择本仓库
+2. 仓库根目录已带 [`edgeone.json`](./edgeone.json)（Node 24.18.0 预装版 + 构建时全局安装 pnpm 12 + SPA 路由回退 + 输出目录 `dist`），导入后构建配置无需手动调整
+3. 在「项目设置 - 环境管理 - 环境变量」中按环境配置 `SITE_ICP` / `SITE_GONGAN`（生产 / 预览环境各自独立），部署构建时注入
+
+> **注意：** 加速区域选择「全球」时自定义域名免备案；选择「中国大陆」需域名已完成 ICP 备案（本站展示备案号即此场景）。平台限制：账户 5 GiB 存储、单项目 20000 文件、单文件 25 MiB，超出时构建日志会报错。若日后需要未预装的 Node 版本，可在仓库放 `.nvmrc`——Makers 会自动下载并切换，但下载的 Node 不含包管理器，需在 `edgeone.json` 的 `installCommand` 里自行安装 pnpm。
+
 ### 本地构建
 
 > **推荐环境：**
 >
-> - node 26（仓库 `.nvmrc` 已钉；Node 26 起不再内置 corepack）
+> - Node.js ≥ 22.12（`package.json` engines 已声明；推荐 24 LTS，CI 与 EdgeOne Makers 均使用 24）
 > - pnpm（`npm install -g pnpm`；版本由 `package.json` 的 `packageManager` 字段锁定，pnpm 会自动切换对齐）
 
 1. 安装 pnpm
@@ -156,6 +164,7 @@ pnpm preview
 | --- | --- |
 | Vercel | 根目录 `vercel.json`（导入本仓库一般已按 Vite 自动配置；静态上传 `dist` 时靠这份） |
 | Netlify / Cloudflare Pages | `public/_redirects`（构建后进入 `dist`） |
+| EdgeOne Makers | 根目录 `edgeone.json`（`rewrites` 的 `/*` → `/index.html`，平台识别为 SPA fallback，真实文件优先） |
 | Apache | `public/.htaccess`（构建后进入 `dist`） |
 
 其中 `vercel.json` 的全量回退（`/(.*)` → `/index.html`）依赖 Vercel 的**静态优先**语义：应用 rewrite 前会先查文件系统，命中真实文件（静态资源、`bio/index.html`）时不回退。若把这条规则照搬到只按 rewrite 转发、不查文件的主机 / 网关上，静态资源会被回退成 HTML，需自行收窄 `source` 或改用该主机自己的回退配置。

@@ -5,6 +5,9 @@
   "type": "module",
   "license": "MIT",
   "packageManager": "pnpm@12.5.1",
+  "engines": {
+    "node": ">=22.12"
+  },
   "scripts": {
     "dev": "vite --host",
     "build": "pnpm typecheck && jiti build/build.ts",
@@ -31,7 +34,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@rollup/plugin-yaml": "^5.0.0",
-    "@types/node": "^26.6.2",
+    "@types/node": "^22.0.0",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/tsconfig": "^0.9.1",
     "eslint": "^10.10.0",
