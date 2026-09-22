@@ -1,5 +1,13 @@
 /// <reference types="vite/client" />
 
+/** 构建期注入的版本信息（见 build/git-info.ts） */
+declare const __BUILD_INFO__: {
+  hash: string
+  shortHash: string
+  buildTime: string
+  commitUrl: string
+}
+
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'
   const component: DefineComponent<object, object, unknown>

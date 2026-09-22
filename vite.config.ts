@@ -17,6 +17,7 @@ import { createPublicWebpPlugins } from './build/vite-plugin-public-webp.ts'
 import { configValidatePlugin } from './build/validate-config.ts'
 import { configEnvSubstitutePlugin, substituteEnv } from './build/env-substitute.ts'
 import { bioMarkdownPlugin } from './build/bio-markdown.ts'
+import { resolveBuildInfo } from './build/git-info.ts'
 import {
   ogImagesPlugin,
   PWA_SHOT_BIO_FILE,
@@ -294,6 +295,10 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
   }
 
   return {
+    // 构建期版本信息注入（「设置 → 关于」面板展示提交 hash / 构建时间）
+    define: {
+      __BUILD_INFO__: JSON.stringify(resolveBuildInfo())
+    },
     // CSS 侧 WebP 引用改写（rolldown-vite 的原生 CSS 管线绕过 JS transform，
     // 必须走 PostCSS 才能在内容 hash 前改写 url()）
     css: {

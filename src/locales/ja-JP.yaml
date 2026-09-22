@@ -96,6 +96,7 @@ memorialLobbies[2]:
 # 共通インターフェース翻訳文字列
 translate:
   about: について
+  buildVersion: ビルド
   info: 情報
   ifSkip: スキップしますか？
   update: 先生！サイトが更新されました。最新の内容を見るにはページを更新してください！

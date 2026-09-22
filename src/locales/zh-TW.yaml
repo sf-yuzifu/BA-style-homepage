@@ -95,6 +95,7 @@ memorialLobbies[2]:
 # 通用介面翻譯字串
 translate:
   about: 關於
+  buildVersion: 建置版本
   info: 通知
   ifSkip: 是否跳過？
   update: 老師！站點已更新，刷新即可訪問最新內容！

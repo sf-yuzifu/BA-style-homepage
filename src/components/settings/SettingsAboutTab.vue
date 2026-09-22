@@ -6,6 +6,9 @@ import { useConfig } from '@/composables/useConfig'
 const { configs } = useConfig()
 const { isOriginalAuthor, copyrightYear, authorName, isReady: aboutReady } = useAboutCopyright()
 
+const t = computed(() => configs.value?.translate ?? {})
+const buildInfo = __BUILD_INFO__
+
 const projectTitle = computed(
   () => configs.value?.manifest?.name || configs.value?.title || 'Fish Archive'
 )
@@ -35,6 +38,19 @@ const repoUrl = 'https://github.com/sf-yuzifu/BA-style-homepage'
     <footer class="about-footer">
       <p class="about-copyright">© {{ copyrightYear }} {{ authorName }}</p>
       <p v-if="!isOriginalAuthor" class="about-made-by">Made by 小鱼yuzifu</p>
+      <p class="about-build">
+        {{ t.buildVersion || 'Build' }}
+        <a
+          v-if="buildInfo.commitUrl"
+          class="about-build-link css-cursor-hover-enabled"
+          :href="buildInfo.commitUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          >{{ buildInfo.shortHash }}</a
+        >
+        <span v-else>{{ buildInfo.shortHash }}</span>
+        <span> · {{ buildInfo.buildTime }}</span>
+      </p>
     </footer>
   </section>
 </template>
@@ -103,7 +119,18 @@ const repoUrl = 'https://github.com/sf-yuzifu/BA-style-homepage'
 }
 
 .about-copyright,
-.about-made-by {
+.about-made-by,
+.about-build {
   margin: 0;
+}
+
+.about-build-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.about-build-link:hover {
+  color: #4ec3f5;
 }
 </style>

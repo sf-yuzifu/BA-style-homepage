@@ -195,6 +195,7 @@ export interface BioConfig {
 /** 翻译文案；已知键为可选 string，另支持任意扩展键。简介正文在 bio/{locale}.md */
 export interface TranslateConfig {
   about?: string
+  buildVersion?: string
   info?: string
   ifSkip?: string
   skip?: string

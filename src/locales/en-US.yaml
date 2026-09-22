@@ -95,6 +95,7 @@ memorialLobbies[2]:
 # Common interface translation strings
 translate:
   about: About
+  buildVersion: Build
   info: Info
   ifSkip: Skip?
   update: Sensei! The site has been updated. Refresh to view the newest content!

@@ -17,7 +17,11 @@ export default tseslint.config(
   {
     files: ['src/**/*.{ts,vue}'],
     languageOptions: {
-      globals: globals.browser
+      globals: {
+        ...globals.browser,
+        // vite define 注入的构建期常量（见 build/git-info.ts）
+        __BUILD_INFO__: 'readonly'
+      }
     }
   },
   {
