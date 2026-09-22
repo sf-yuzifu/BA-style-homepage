@@ -13,7 +13,7 @@ const projectDescription = computed(
   () => configs.value?.manifest?.description || configs.value?.description || ''
 )
 const projectIcon = computed(() => configs.value?.favicon || '/favicon144.png')
-const repoUrl = 'https://github.com/sf-yuzifu/homepage'
+const repoUrl = 'https://github.com/sf-yuzifu/BA-style-homepage'
 </script>
 
 <template>
