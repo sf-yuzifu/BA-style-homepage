@@ -10,7 +10,7 @@ const icpTitle = computed(() => configs.value?.icp?.title || '备案信息')
 </script>
 
 <template>
-  <div id="icp-container">
+  <div id="icp-container" data-tour="icp">
     <img class="icp-bg" src="/img/bannerBG.png" alt="" />
     <img class="banner" src="/img/banner.png" alt="" />
     <div v-if="ifICP || ifGongan" class="icp-content">

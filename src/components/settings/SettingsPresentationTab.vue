@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
+import { useGuide } from '@/composables/useGuide'
 import { useReducedMotion } from '@/composables/useReducedMotion'
 import { useSettings } from '@/composables/useSettings'
 import SettingRadio from '@/components/SettingRadio.vue'
@@ -8,6 +9,7 @@ import SettingRadio from '@/components/SettingRadio.vue'
 const { configs } = useConfig()
 const { prefersReducedMotion } = useReducedMotion()
 const { introMode, clickEffect, lobbyArrowKeys } = useSettings()
+const { requestStart } = useGuide()
 
 const t = computed(() => configs.value?.translate ?? {})
 
@@ -81,6 +83,14 @@ const introSwitch = computed({
       :label="t.settingsLobbyArrowKeys"
     />
   </section>
+
+  <section class="row">
+    <h3 class="row-title">{{ t.guideReplay || 'Site guide' }}</h3>
+    <p class="row-desc">{{ t.guideReplayDesc }}</p>
+    <button type="button" class="guide-replay css-cursor-hover-enabled" @click="requestStart()">
+      {{ t.guideReplayAction || 'Replay guide' }}
+    </button>
+  </section>
 </template>
 
 <style scoped>
@@ -93,5 +103,22 @@ const introSwitch = computed({
   border-radius: clamp(4px, 0.25vw, 100vw);
   text-align: left;
   line-height: 1.6;
+}
+
+.guide-replay {
+  appearance: none;
+  border: none;
+  padding: clamp(6px, 0.375vw, 100vw) clamp(16px, 1vw, 100vw);
+  font: inherit;
+  font-size: clamp(14px, 0.875vw, 100vw);
+  font-weight: bold;
+  color: #003153;
+  background: #e8f6fd;
+  border-radius: clamp(4px, 0.25vw, 100vw);
+  cursor: pointer;
+}
+
+.guide-replay:hover {
+  background: #d3effc;
 }
 </style>

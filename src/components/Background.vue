@@ -252,10 +252,12 @@ if (import.meta.env.DEV) {
 
 <template>
   <div id="change" v-if="!props.l2dOnly && !webglFailed">
-    <!-- 原生 button：Enter/Space 由浏览器接管；←/→ 方向键切换角色保留（非原生行为） -->
+    <!-- 原生 button：Enter/Space 由浏览器接管；←/→ 方向键切换角色保留（非原生行为）。
+         引导点位挂在箭头 button 而非全屏容器 #change——后者 rect 是整屏，框选失真 -->
     <button
       type="button"
       class="css-cursor-hover-enabled"
+      data-tour="switch"
       :aria-label="currentConfig?.translate?.prevPage"
       @click="setL2D('-')"
       @keydown.left.prevent="setL2D('-')"
@@ -266,6 +268,7 @@ if (import.meta.env.DEV) {
     <button
       type="button"
       class="css-cursor-hover-enabled"
+      data-tour="switch"
       :aria-label="currentConfig?.translate?.nextPage"
       @click="setL2D('+')"
       @keydown.left.prevent="setL2D('-')"

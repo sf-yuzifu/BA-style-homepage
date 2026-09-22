@@ -10,6 +10,8 @@ interface SettingsPersistedState {
   bgmVolume?: number
   introMode?: IntroMode
   introSeen?: boolean
+  /** 首访功能引导已读（非 UI 标志；设置→演出可重看，不重置本标记） */
+  guideSeen?: boolean
   clickEffect?: boolean
   /** 大厅 HUD 展开时 ← / → 切换回忆大厅角色 */
   lobbyArrowKeys?: boolean
@@ -32,6 +34,8 @@ const lobbyArrowKeys = ref(true)
 
 // 「已看过开场」不是用户可调项，不进 UI，只用于 introMode === 'once' 的判断
 let introSeen = false
+// 「已看过首访引导」同上：只控制自动触发；设置→演出的「重新查看引导」不读写它
+let guideSeen = false
 let initialized = false
 let storageSyncRegistered = false
 /** 跨 tab 同步写入内存时跳过 watch 落盘，避免多余 localStorage 写 */
@@ -63,6 +67,7 @@ const applyPersistedState = (state: SettingsPersistedState) => {
     clickEffect.value = state.clickEffect ?? true
     lobbyArrowKeys.value = state.lobbyArrowKeys ?? true
     if (state.introSeen !== undefined) introSeen = state.introSeen
+    if (state.guideSeen !== undefined) guideSeen = state.guideSeen
   } finally {
     applyingRemote = false
   }
@@ -80,6 +85,7 @@ const saveState = () => {
         bgmVolume: bgmVolume.value,
         introMode: introMode.value,
         introSeen,
+        guideSeen,
         clickEffect: clickEffect.value,
         lobbyArrowKeys: lobbyArrowKeys.value
       })
@@ -145,6 +151,20 @@ const markIntroSeen = () => {
   saveState()
 }
 
+/** 首访引导是否应自动播放（未看过时为 true） */
+const shouldShowGuide = (): boolean => {
+  ensureInit()
+  return !guideSeen
+}
+
+/** 首访引导结束（完成/跳过）后记账，之后不再自动播放 */
+const markGuideSeen = () => {
+  ensureInit()
+  if (guideSeen) return
+  guideSeen = true
+  saveState()
+}
+
 export function useSettings() {
   ensureInit()
 
@@ -159,6 +179,8 @@ export function useSettings() {
     effectiveVoiceVolume,
     effectiveBgmVolume,
     shouldPlayIntro,
-    markIntroSeen
+    markIntroSeen,
+    shouldShowGuide,
+    markGuideSeen
   }
 }

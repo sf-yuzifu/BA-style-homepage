@@ -15,7 +15,7 @@ const contacts = computed(() => {
 </script>
 
 <template>
-  <div class="contact-box">
+  <div class="contact-box" data-tour="contact">
     <a
       v-for="contact in contacts"
       :key="contact.name"

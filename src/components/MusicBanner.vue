@@ -144,6 +144,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="music-banner"
+    data-tour="music"
     :class="{
       'is-mini': isMini,
       'is-playing': playing,

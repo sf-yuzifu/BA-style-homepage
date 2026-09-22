@@ -57,6 +57,7 @@ const goToBio = () => {
     :type="isLobby ? 'button' : undefined"
     class="level-box"
     :class="`level-box--${props.variant}`"
+    :data-tour="isLobby ? 'level' : undefined"
     :aria-label="isLobby ? currentConfig?.translate?.bio : undefined"
     @click="goToBio"
   >

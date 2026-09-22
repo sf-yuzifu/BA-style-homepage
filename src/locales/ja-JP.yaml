@@ -143,6 +143,35 @@ translate:
   settingsLobbyArrowKeys: 方向キーでキャラ切替
   settingsLobbyArrowKeysDesc: ロビー HUD 表示中、キーボード ← / → でメモリアルロビーのキャラを切り替えます（画面下の矢印と同じ。全画面鑑賞中や入力中は無効）。
   settingsReducedMotion: システムで「視差効果を減らす」が有効なため、演出の設定は適用されません。
+  guidePrev: 前へ
+  guideNext: 次へ
+  guideSkip: スキップ
+  guideDone: 完了
+  guideReplay: サイトガイド
+  guideReplayDesc: ロビー機能ツアーをもう一度見られます。初回訪問時に自動再生され、一度見ると以後は自動再生されません。
+  guideReplayAction: ガイドを再表示
+  guideStep1Title: レベルカード
+  guideStep1Desc: レベルと経験値の表示です。タップでプロフィールページへ移動します。
+  guideStep2Title: ウォレット
+  guideStep2Desc: AP は6分ごとに1回復、クレジットは滞在時間に応じて加算、青輝石は毎日初回アクセス時にログインボーナスとして受け取れます。ホバーまたはタップで詳細が見られます。
+  guideStep3Title: 設定
+  guideStep3Desc: 音量・演出・言語・このサイトについて、すべてここにあります。ガイドの再表示も「設定 → 演出」から。
+  guideStep4Title: ミッション札
+  guideStep4Desc: タップで演出を再生し、タスクのリンク（サイト主のブログなど）を新しいタブで開きます。
+  guideStep5Title: ミュージックバナー
+  guideStep5Desc: 再生・曲送りができます。シークバーをドラッグして移動、キーボードならフォーカス後に ← / → や Home / End でも操作できます。
+  guideStep6Title: 全画面鑑賞
+  guideStep6Desc: HUD を隠してメモリアルロビーの Live2D を鑑賞します。もう一度このボタンを押すか、画面をタップすると終了します。
+  guideStep7Title: 連絡先
+  guideStep7Desc: サイト主の SNS・連絡先です。タップで演出を再生し、新しいタブで開きます。
+  guideStep8Title: 届出情報
+  guideStep8Desc: ICP・公安ネットセキュリティ届出の情報です。タップで公式照会サイトへ直接移動します（演出なし）。
+  guideStep9Title: プロジェクト欄
+  guideStep9Desc: 画面下はおすすめプロジェクトのリンク、右下には現在時刻があります。
+  guideStep10Title: キャラ切り替え
+  guideStep10Desc: 両端の矢印をタップでメモリアルロビーのキャラを切り替えられます。キーボードの ← / → でも同じ（「設定 → 演出」でオフに可能）。
+  guideStep11Title: 隠し要素
+  guideStep11Desc: キャラをタップするとセリフとボイスが再生されます。頭を撫でてみてください——指やカーソルを動かすと視線が追いかけてきますよ。
 
 bio:
   btn:

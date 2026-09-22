@@ -240,6 +240,7 @@ The script fetches the track list (title/artist/duration), searches NetEase and 
 When the lobby HUD is visible (not in full-screen Live2D-only mode):
 
 - **← / →**: switch memorial lobby character (same as the on-screen arrows; disable under **Settings → Presentation → Arrow keys**; ignored while typing or when the settings modal is open)
+- **First-visit guide**: plays once automatically after the opening cutscene on your first visit (level card / wallet / settings / task sign / music / full-screen view / contact / filing info / dock / character switch / hidden interactions); step with the card buttons or ← / →, or press Esc / Skip to end early. It never auto-plays again after that — replay anytime under **Settings → Presentation → Replay guide**.
 
 Head-pat, gaze follow, tap-to-talk, etc. are listed under **Features → Memorial lobby Live2D**.
 
@@ -249,7 +250,7 @@ The site persists data in browser `localStorage`. Forkers and users can clear en
 
 | Key | Format | Purpose |
 | --- | --- | --- |
-| `fa-settings` | JSON | Volume / mute, `introMode` (`always` \| `once`), `introSeen`, `clickEffect`, `lobbyArrowKeys` (← / → character switch) |
+| `fa-settings` | JSON | Volume / mute, `introMode` (`always` \| `once`), `introSeen`, `guideSeen` (first-visit guide seen), `clickEffect`, `lobbyArrowKeys` (← / → character switch) |
 | `fa-locale` | string | Language: `auto` or `zh-CN` / `zh-TW` / `en-US` / `ja-JP` |
 | `fa-wallet` | JSON | Wallet: `ap`, `apSettleAt`, `gold`, `dwellSeconds`, `pyroxene`, `signInDays`, `lastSignIn` |
 

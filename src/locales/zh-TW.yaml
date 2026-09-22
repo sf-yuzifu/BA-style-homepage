@@ -142,6 +142,35 @@ translate:
   settingsLobbyArrowKeys: 方向鍵切換角色
   settingsLobbyArrowKeysDesc: 大廳介面展開時，按鍵盤 ← / → 切換回憶大廳角色（與底部箭頭相同；全螢幕觀賞或輸入框聚焦時不響應）。
   settingsReducedMotion: 系統已開啟「減少動態效果」，演出相關選項暫不生效。
+  guidePrev: 上一步
+  guideNext: 下一步
+  guideSkip: 跳過
+  guideDone: 完成
+  guideReplay: 站點引導
+  guideReplayDesc: 重新查看大廳功能導覽。首次進入大廳會自動播放一次，看過後不再自動播放。
+  guideReplayAction: 重新查看引導
+  guideStep1Title: 等級卡
+  guideStep1Desc: 這裡顯示你的等級與經驗。點按卡片可以進入個人簡介頁。
+  guideStep2Title: 錢包
+  guideStep2Desc: 體力每 6 分鐘自動回復 1 點，信用點隨陪伴時長累計，青輝石每日首次造訪簽到領取。懸停或點按卡片可看詳細說明。
+  guideStep3Title: 設定
+  guideStep3Desc: 音量、演出、語言與關於都在這裡。想再看一遍本引導，也在「設定 → 演出」裡。
+  guideStep4Title: 任務牌
+  guideStep4Desc: 點按後播放轉場動畫，並在新分頁打開任務連結（比如站主的部落格）。
+  guideStep5Title: 音樂橫幅
+  guideStep5Desc: 可以播放 / 切歌。拖曳進度條即可跳轉；用鍵盤時，聚焦進度條後 ← / → 快退快進、Home / End 跳到首尾。
+  guideStep6Title: 全螢幕觀賞
+  guideStep6Desc: 收起介面，靜靜欣賞回憶大廳的 Live2D。再點一下這個按鈕、或點按畫面即可退出。
+  guideStep7Title: 聯絡方式
+  guideStep7Desc: 站主的社交與聯絡方式。點按同樣會走轉場，並在新分頁打開。
+  guideStep8Title: 備案資訊
+  guideStep8Desc: 備案與公安網安備案資訊。點按可到對應官網查詢，這組連結不走轉場。
+  guideStep9Title: 專案欄
+  guideStep9Desc: 底部是站主推薦的專案連結，右下角是目前時間。
+  guideStep10Title: 切換角色
+  guideStep10Desc: 點兩側箭頭可以切換回憶大廳角色；用鍵盤時 ← / → 也一樣（可在「設定 → 演出」關閉）。
+  guideStep11Title: 隱藏互動
+  guideStep11Desc: 點按角色會觸發對話台詞與語音；摸摸頭試試，移動手指（或游標）時她還會一直看著你哦。
 
 bio:
   btn:

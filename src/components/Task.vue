@@ -104,6 +104,7 @@ const skip = () => {
       type="button"
       :name="taskInfo.name"
       class="task css-cursor-hover-enabled"
+      data-tour="task"
       :aria-label="taskInfo.name"
       @click="skip"
     ></button>

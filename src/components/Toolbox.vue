@@ -72,23 +72,27 @@ onUnmounted(() => {
       kind="ap"
       variant="card"
       class="toolbox"
+      data-tour="wallet"
       :class="{ 'toolbox-l2d': props.l2dOnly }"
     />
     <WalletItem
       kind="gold"
       variant="card"
       class="toolbox"
+      data-tour="wallet"
       :class="{ 'toolbox-l2d': props.l2dOnly }"
     />
     <WalletItem
       kind="pyroxene"
       variant="card"
       class="toolbox"
+      data-tour="wallet"
       :class="{ 'toolbox-l2d': props.l2dOnly }"
     />
     <button
       type="button"
       class="settings toolbox"
+      data-tour="settings"
       :class="{ 'toolbox-l2d': props.l2dOnly }"
       :aria-label="currentConfig?.translate?.settings"
       @click="openSettings"
@@ -100,6 +104,7 @@ onUnmounted(() => {
       id="change"
       type="button"
       class="l2d toolbox"
+      data-tour="l2d-toggle"
       :class="{ 'toolbox-l2d': props.l2dOnly, canHover: !hover && !props.canskip }"
       :aria-label="
         props.l2dOnly ? currentConfig?.translate?.l2dCollapse : currentConfig?.translate?.l2dExpand

@@ -30,7 +30,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="footer" :class="{ 'icp-mode': ifICP }">
+  <div class="footer" :class="{ 'icp-mode': ifICP }" data-tour="footer">
     <div class="project-box">
       <a
         v-for="site in dockSites"

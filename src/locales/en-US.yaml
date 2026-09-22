@@ -142,6 +142,35 @@ translate:
   settingsLobbyArrowKeys: Arrow keys
   settingsLobbyArrowKeysDesc: When the lobby HUD is visible, press ← / → to switch memorial lobby characters (same as the on-screen arrows; ignored in full-screen mode or while typing).
   settingsReducedMotion: Reduced motion is enabled in your system, so presentation options are inactive.
+  guidePrev: Previous
+  guideNext: Next
+  guideSkip: Skip
+  guideDone: Done
+  guideReplay: Site guide
+  guideReplayDesc: Replay the lobby feature tour. It plays automatically on your first visit and never repeats after that.
+  guideReplayAction: Replay guide
+  guideStep1Title: Level card
+  guideStep1Desc: Your level and EXP live here. Tap the card to open the profile page.
+  guideStep2Title: Wallet
+  guideStep2Desc: AP recovers 1 every 6 minutes, credits accumulate with time spent here, and pyroxene is claimed on your first visit each day. Hover or tap a card for details.
+  guideStep3Title: Settings
+  guideStep3Desc: Volume, presentation, language and about are all here. Want to see this guide again? It is under Settings → Presentation.
+  guideStep4Title: Task sign
+  guideStep4Desc: Tapping plays a transition and opens the task link (such as the site owner's blog) in a new tab.
+  guideStep5Title: Music banner
+  guideStep5Desc: Play or skip tracks. Drag the progress bar to seek — or focus it and use ← / → and Home / End on a keyboard.
+  guideStep6Title: Full-screen view
+  guideStep6Desc: Hide the HUD and enjoy the memorial lobby Live2D. Tap this button again — or tap anywhere — to exit.
+  guideStep7Title: Contact
+  guideStep7Desc: The site owner's social and contact links. Tapping also plays a transition and opens a new tab.
+  guideStep8Title: Filing info
+  guideStep8Desc: ICP and public security filing info. Tapping opens the official lookup site directly, without the transition.
+  guideStep9Title: Dock
+  guideStep9Desc: Recommended project links along the bottom, plus a clock in the corner.
+  guideStep10Title: Switch character
+  guideStep10Desc: Tap the side arrows to switch memorial lobby characters — or press ← / → on a keyboard (toggle in Settings → Presentation).
+  guideStep11Title: Hidden interactions
+  guideStep11Desc: Tap the character for dialogue and voice lines. Try patting her head — and her gaze follows your finger or cursor.
 
 bio:
   btn:

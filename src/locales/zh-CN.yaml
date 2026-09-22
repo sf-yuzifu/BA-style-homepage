@@ -140,6 +140,35 @@ translate:
   settingsLobbyArrowKeys: 方向键切换角色
   settingsLobbyArrowKeysDesc: 大厅界面展开时，按键盘 ← / → 切换回忆大厅角色（与底部箭头相同；全屏观赏或输入框聚焦时不响应）。
   settingsReducedMotion: 系统已开启「减少动效」，演出相关选项暂不生效。
+  guidePrev: 上一步
+  guideNext: 下一步
+  guideSkip: 跳过
+  guideDone: 完成
+  guideReplay: 站点引导
+  guideReplayDesc: 重新查看大厅功能导览。首次进入大厅会自动播放一次，看过后不再自动播放。
+  guideReplayAction: 重新查看引导
+  guideStep1Title: 等级卡
+  guideStep1Desc: 这里显示你的等级与经验。点按卡片可以进入个人简介页。
+  guideStep2Title: 钱包
+  guideStep2Desc: 体力每 6 分钟自动回复 1 点，信用点随陪伴时长累计，青辉石每日首次访问签到领取。悬停或点按卡片可看详细说明。
+  guideStep3Title: 设置
+  guideStep3Desc: 音量、演出、语言与关于都在这里。想再看一遍本引导，也在「设置 → 演出」里。
+  guideStep4Title: 任务牌
+  guideStep4Desc: 点按后播放转场动画，并在新标签页打开任务链接（比如站主的博客）。
+  guideStep5Title: 音乐横幅
+  guideStep5Desc: 可以播放 / 切歌。拖动进度条即可跳转；用键盘时，聚焦进度条后 ← / → 快退快进、Home / End 跳到首尾。
+  guideStep6Title: 全屏观赏
+  guideStep6Desc: 收起界面，静静欣赏回忆大厅的 Live2D。再点一下这个按钮、或点按画面即可退出。
+  guideStep7Title: 联系方式
+  guideStep7Desc: 站主的社交与联系方式。点按同样会走转场，并在新标签页打开。
+  guideStep8Title: 备案信息
+  guideStep8Desc: 备案与公安网安备案信息。点按可到对应官网查询，这组链接不走转场。
+  guideStep9Title: 项目栏
+  guideStep9Desc: 底部是站主推荐的项目链接，右下角是当前时间。
+  guideStep10Title: 切换角色
+  guideStep10Desc: 点两侧箭头可以切换回忆大厅角色；用键盘时 ← / → 也一样（可在「设置 → 演出」关闭）。
+  guideStep11Title: 隐藏互动
+  guideStep11Desc: 点按角色会触发对话台词与语音；摸摸头试试，移动手指（或光标）时她还会一直看着你哦。
 
 bio:
   btn:

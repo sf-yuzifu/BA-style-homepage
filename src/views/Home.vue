@@ -6,8 +6,11 @@ import Toolbox from '@/components/Toolbox.vue'
 import Contact from '@/components/Contact.vue'
 import Task from '@/components/Task.vue'
 import Background from '@/components/Background.vue'
+import Guide from '@/components/Guide.vue'
 import { useResponsive } from '@/composables/useResponsive'
 import { useConfig } from '@/composables/useConfig'
+import { useGuide } from '@/composables/useGuide'
+import { useSettings } from '@/composables/useSettings'
 import ICPBanner from '@/components/ICPBanner.vue'
 
 // 退出 L2D 全屏观赏后再加载（异步组件按需加载）
@@ -19,8 +22,17 @@ const canSkipit = ref(true)
 const l2dUnavailable = ref(false)
 /** 首次离开全屏后再挂载；之后用 v-show 隐藏，避免卸载打断播放 */
 const musicReady = ref(false)
+/** 首访引导自动触发一次；重看走设置→演出，不走这里 */
+const guideAutoStarted = ref(false)
+const { requestStart } = useGuide()
+const { shouldShowGuide } = useSettings()
 watch(l2dOnly, (only) => {
   if (!only) musicReady.value = true
+  // HUD 揭示即开场演出结束（含 SKIP 确认 / WebGL 降级路径），是引导唯一安全起点
+  if (!only && !guideAutoStarted.value && shouldShowGuide()) {
+    guideAutoStarted.value = true
+    void requestStart()
+  }
 })
 
 // 使用composables
@@ -103,6 +115,9 @@ const onWebglFailed = () => {
     <transition name="down">
       <Footer v-if="!l2dOnly" />
     </transition>
+
+    <!-- 首访引导：挖孔遮罩 + 步进卡片，常驻低开销 -->
+    <Guide />
   </main>
 </template>
 

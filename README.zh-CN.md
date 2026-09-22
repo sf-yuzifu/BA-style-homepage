@@ -240,6 +240,7 @@ pnpm spotify:sync
 大厅 HUD 展开时（非全屏 Live2D 观赏模式）：
 
 - **← / →**：切换回忆大厅角色（与底部箭头同效；可在 **设置 → 演出 → 方向键切换角色** 关闭；输入框聚焦或设置弹窗打开时不响应）
+- **首访引导**：首次进入大厅（开场演出结束后）自动播放一次功能导览（等级卡 / 钱包 / 设置 / 任务牌 / 音乐 / 全屏观赏 / 联系方式 / 备案 / 项目栏 / 切换角色 / 隐藏互动）；← / → 或卡片按钮步进、Esc 或「跳过」提前结束。看过后不再自动播放，可在 **设置 → 演出 → 重新查看引导** 重播。
 
 摸头、视线跟随、点击台词等见上方「功能特点 → 回忆大厅 Live2D 互动」。
 
@@ -249,7 +250,7 @@ pnpm spotify:sync
 
 | 键 | 格式 | 说明 |
 | --- | --- | --- |
-| `fa-settings` | JSON | 音量 / 静音、`introMode`（`always` \| `once`）、`introSeen`（是否已看过开场）、`clickEffect`（点击特效）、`lobbyArrowKeys`（← / → 切角色） |
+| `fa-settings` | JSON | 音量 / 静音、`introMode`（`always` \| `once`）、`introSeen`（是否已看过开场）、`guideSeen`（是否已看过首访引导）、`clickEffect`（点击特效）、`lobbyArrowKeys`（← / → 切角色） |
 | `fa-locale` | 字符串 | 语言偏好：`auto`（跟随浏览器）或 `zh-CN` / `zh-TW` / `en-US` / `ja-JP` |
 | `fa-wallet` | JSON | 钱包：体力 `ap`、恢复时间 `apSettleAt`、信用点 `gold`、陪伴秒数 `dwellSeconds`、青辉石 `pyroxene`、签到 `signInDays` / `lastSignIn` |
 

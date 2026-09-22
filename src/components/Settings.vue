@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useConfig } from '@/composables/useConfig'
+import { useGuide } from '@/composables/useGuide'
 import SettingsAboutTab from '@/components/settings/SettingsAboutTab.vue'
 import SettingsAudioTab from '@/components/settings/SettingsAudioTab.vue'
 import SettingsLanguageTab from '@/components/settings/SettingsLanguageTab.vue'
@@ -31,6 +32,12 @@ const tabs = computed<Array<{ key: TabKey; label: string }>>(() => [
 const close = () => {
   emit('update:visible', false)
 }
+
+// 演出页「重新查看引导」会激活引导：先收起本弹窗让出遮罩与焦点
+const guide = useGuide()
+watch(guide.active, (isActive) => {
+  if (isActive) close()
+})
 
 const selectTab = (key: TabKey) => {
   activeTab.value = key

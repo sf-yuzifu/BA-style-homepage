@@ -240,6 +240,35 @@ export interface TranslateConfig {
   settingsLobbyArrowKeys?: string
   settingsLobbyArrowKeysDesc?: string
   settingsReducedMotion?: string
+  guidePrev?: string
+  guideNext?: string
+  guideSkip?: string
+  guideDone?: string
+  guideReplay?: string
+  guideReplayDesc?: string
+  guideReplayAction?: string
+  guideStep1Title?: string
+  guideStep1Desc?: string
+  guideStep2Title?: string
+  guideStep2Desc?: string
+  guideStep3Title?: string
+  guideStep3Desc?: string
+  guideStep4Title?: string
+  guideStep4Desc?: string
+  guideStep5Title?: string
+  guideStep5Desc?: string
+  guideStep6Title?: string
+  guideStep6Desc?: string
+  guideStep7Title?: string
+  guideStep7Desc?: string
+  guideStep8Title?: string
+  guideStep8Desc?: string
+  guideStep9Title?: string
+  guideStep9Desc?: string
+  guideStep10Title?: string
+  guideStep10Desc?: string
+  guideStep11Title?: string
+  guideStep11Desc?: string
   [key: string]: string | undefined
 }
 
