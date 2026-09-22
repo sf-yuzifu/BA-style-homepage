@@ -335,6 +335,13 @@ export function useMusicPlayer() {
     currentHowl?.seek(position)
   }
 
+  /** 键盘步进 seek：不经拖动态，直接跳转到目标位置（越界收拢到 [0, duration]） */
+  const seekTo = (position: number) => {
+    if (duration.value <= 0) return
+    progress.value = Math.min(Math.max(position, 0), duration.value)
+    currentHowl?.seek(progress.value)
+  }
+
   // 配置热更新（如语言切换重新合并配置）时重建随机池
   const musicConfig = computed(() => configs.value?.banner?.music)
   watch(musicConfig, (music) => {
@@ -380,6 +387,7 @@ export function useMusicPlayer() {
     nextSong,
     beginSeek,
     updateSeek,
-    endSeek
+    endSeek,
+    seekTo
   }
 }

@@ -16,9 +16,11 @@ const {
   percent,
   togglePlay,
   nextSong,
+  progress,
   beginSeek,
   updateSeek,
-  endSeek
+  endSeek,
+  seekTo
 } = useMusicPlayer()
 
 // 使用i18n配置系统
@@ -64,6 +66,24 @@ const onBarPointerMove = (e: PointerEvent) => {
 const onBarPointerUp = (e: PointerEvent) => {
   if (!seeking.value) return
   endSeek(ratioFromEvent(e) * duration.value)
+}
+
+// ---- 进度条键盘 seek（WAI-ARIA slider 键盘模式）：←/→ 步进 5s，Home/End 到首尾 ----
+
+const SEEK_STEP_SECONDS = 5
+
+const onBarKeydown = (e: KeyboardEvent) => {
+  if (duration.value <= 0) return
+  let target: number
+  if (e.key === 'ArrowLeft') target = progress.value - SEEK_STEP_SECONDS
+  else if (e.key === 'ArrowRight') target = progress.value + SEEK_STEP_SECONDS
+  else if (e.key === 'Home') target = 0
+  else if (e.key === 'End') target = duration.value
+  else return
+  e.preventDefault()
+  // 吞掉 ←/→ 不冒泡到 window：大厅「方向键切换角色」是 window 级监听
+  e.stopPropagation()
+  seekTo(target)
 }
 
 /** 播放/暂停在 mini 圆盘模式下由覆盖盘面的真实 button 承担（键盘可达），根容器不再挂点击 */
@@ -212,19 +232,21 @@ onBeforeUnmount(() => {
       @click="togglePlay"
     ></button>
 
-    <!-- 进度条贴卡片底边通栏：点击跳转 + 按住拖动 -->
+    <!-- 进度条贴卡片底边通栏：点击跳转 + 按住拖动 + 键盘 seek（tabindex 走全局 [tabindex='0']:focus-visible 焦点环） -->
     <div
       ref="barRef"
       class="music-banner__bar css-cursor-hover-enabled"
       role="slider"
+      tabindex="0"
       :aria-label="translate?.musicProgress"
       aria-valuemin="0"
-      aria-valuemax="100"
-      :aria-valuenow="Math.round(percent)"
+      :aria-valuemax="Math.round(duration)"
+      :aria-valuenow="Math.round(progress)"
       @pointerdown="onBarPointerDown"
       @pointermove="onBarPointerMove"
       @pointerup="onBarPointerUp"
       @pointercancel="onBarPointerUp"
+      @keydown="onBarKeydown"
     >
       <div class="music-banner__bar-fill" :style="{ width: percent + '%' }"></div>
     </div>
