@@ -45,10 +45,7 @@ function resolveShot(root: string, rel: string): string {
 const JPEG = { quality: 82, mozjpeg: true } as const
 
 function escapeHtmlAttr(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
+  return text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 }
 
 function renderCroppedJpeg(absSrc: string, width: number, height: number): Promise<Buffer> {
@@ -78,14 +75,8 @@ function patchBioHtml(html: string, bioTitle: string, siteUrl: string): string {
   let out = html.replaceAll(OG_HOME_FILE, OG_BIO_FILE)
   const safeTitle = escapeHtmlAttr(bioTitle)
   out = out.replace(/<title>[^<]*<\/title>/, `<title>${safeTitle}</title>`)
-  out = out.replace(
-    /(property="og:title" content=")[^"]*"/,
-    `$1${safeTitle}"`
-  )
-  out = out.replace(
-    /(name="twitter:title" content=")[^"]*"/,
-    `$1${safeTitle}"`
-  )
+  out = out.replace(/(property="og:title" content=")[^"]*"/, `$1${safeTitle}"`)
+  out = out.replace(/(name="twitter:title" content=")[^"]*"/, `$1${safeTitle}"`)
   if (siteUrl) {
     const homeUrl = `${siteUrl}/`
     const bioUrl = `${siteUrl}/bio`
@@ -93,10 +84,7 @@ function patchBioHtml(html: string, bioTitle: string, siteUrl: string): string {
       `property="og:url" content="${homeUrl}"`,
       `property="og:url" content="${bioUrl}"`
     )
-    out = out.replace(
-      `rel="canonical" href="${homeUrl}"`,
-      `rel="canonical" href="${bioUrl}"`
-    )
+    out = out.replace(`rel="canonical" href="${homeUrl}"`, `rel="canonical" href="${bioUrl}"`)
   }
   return out
 }

@@ -31,7 +31,11 @@ function parseScalar(raw: string): unknown {
   return raw
 }
 
-function substituteString(str: string, env: Record<string, string | undefined>, missing: string[]): unknown {
+function substituteString(
+  str: string,
+  env: Record<string, string | undefined>,
+  missing: string[]
+): unknown {
   const full = str.match(FULL_PLACEHOLDER)
   if (full) {
     const raw = env[full[1]]
@@ -65,7 +69,10 @@ function walk(value: unknown, env: Record<string, string | undefined>, missing: 
 }
 
 /** 递归替换配置对象中所有字符串值的 ${VAR} 占位符（不修改入参） */
-export function substituteEnv<T>(value: T, env: Record<string, string | undefined>): SubstituteEnvResult<T> {
+export function substituteEnv<T>(
+  value: T,
+  env: Record<string, string | undefined>
+): SubstituteEnvResult<T> {
   const missing: string[] = []
   return { value: walk(value, env, missing) as T, missing }
 }

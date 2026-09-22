@@ -85,7 +85,10 @@ function splitArtists(raw: string): string[] {
 }
 
 /** 匹配打分：歌名 0~50 + 艺人 0~30 + 时长 0~±20 + 非变体 0~10 */
-function scoreMatch(target: SpotifyTrack, cand: { name: string; artist: string; durationMs: number }): number {
+function scoreMatch(
+  target: SpotifyTrack,
+  cand: { name: string; artist: string; durationMs: number }
+): number {
   let score = 0
   const t = normalizeTitle(target.name)
   const c = normalizeTitle(cand.name)
@@ -142,7 +145,9 @@ async function fetchSpotifyTracks(type: 'track' | 'playlist', id: string): Promi
     ]
   }
 
-  const list = Array.isArray(entity.trackList) ? (entity.trackList as Record<string, unknown>[]) : []
+  const list = Array.isArray(entity.trackList)
+    ? (entity.trackList as Record<string, unknown>[])
+    : []
   return list.map((item) => ({
     name: String(item.title ?? ''),
     artist: String(item.subtitle ?? ''),
@@ -262,7 +267,10 @@ function collectSpotifyUrls(music: Record<string, unknown> | undefined): string[
   return music.spotify.filter((u): u is string => typeof u === 'string' && u.length > 0)
 }
 
-function collectExistingIds(music: Record<string, unknown> | undefined, musicID: number[] | undefined): {
+function collectExistingIds(
+  music: Record<string, unknown> | undefined,
+  musicID: number[] | undefined
+): {
   netease: Set<string>
   tencent: Set<string>
 } {
@@ -436,7 +444,9 @@ async function main() {
           `        → ${m.source} ${m.id}（${m.score} 分，时长差 ${diff}s）${m.name}${m.artist ? ' — ' + m.artist : ''}`
       )
     } else {
-      console.log(`  ✗ ${String(i + 1).padStart(3)}. ${t.name} — ${t.artist} [${dur}s]\n        ${r.reason}`)
+      console.log(
+        `  ✗ ${String(i + 1).padStart(3)}. ${t.name} — ${t.artist} [${dur}s]\n        ${r.reason}`
+      )
     }
   }
 

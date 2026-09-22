@@ -1,4 +1,4 @@
-# 最小 CI：typecheck → lint → 单测 → 构建（构建内置 Zod 配置校验）。
+# 最小 CI：format → typecheck → lint → 单测 → 构建（构建内置 Zod 配置校验）。
 # 第五轮曾定案「不上 CI」，第八轮经站主确认重新引入（仅门禁，不做部署）。
 # 包管理器 pnpm：pnpm/action-setup 读取 package.json 的 packageManager 字段定版本
 name: CI
@@ -24,6 +24,7 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test

@@ -329,9 +329,7 @@ function checkLobbyAssets(
   const errors: string[] = []
   const { path: lobbyPath, skel, atlas } = lobby
   if (lobbyPath && !lobbyPath.endsWith('/')) {
-    errors.push(
-      `  ${file} → ${field}.path: 应以 '/' 结尾（当前会与 skel/atlas 文件名直接拼接）`
-    )
+    errors.push(`  ${file} → ${field}.path: 应以 '/' 结尾（当前会与 skel/atlas 文件名直接拼接）`)
   }
   if (lobbyPath && skel) {
     const miss = checkPublicFile(root, lobbyPath + skel, `${file} → ${field}.skel`)
@@ -529,9 +527,7 @@ export function assertProjectConfig(root: string, env: Record<string, string | u
   const errors = validateProjectConfig(root, env)
   if (errors.length === 0) return
 
-  throw new Error(
-    `\n配置校验失败，构建已中止。请修正以下问题后重试：\n\n${errors.join('\n')}\n`
-  )
+  throw new Error(`\n配置校验失败，构建已中止。请修正以下问题后重试：\n\n${errors.join('\n')}\n`)
 }
 
 /** 启动 / 构建时校验 _config.yaml、语言包与 bio/ 简介，字段拼写错误直接失败 */
