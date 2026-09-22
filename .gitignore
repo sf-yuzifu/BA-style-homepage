@@ -132,5 +132,4 @@ dist
 
 .DS_Store
 
-# AssetStudio / 角色包解包产物（含游戏资源，勿提交）
-_spine_payloads/
+todo.md
