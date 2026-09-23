@@ -14,29 +14,32 @@ const icpTitle = computed(() => configs.value?.icp?.title || '备案信息')
   <div id="icp-container" class="icp-banner" data-tour="icp">
     <img class="icp-banner__bg" src="/img/bannerBG.png" alt="" draggable="false" />
     <img class="icp-banner__ribbon" src="/img/banner.png" alt="" draggable="false" />
-    <div v-if="ifICP || ifGongan" class="icp-banner__content">
+    <template v-if="ifICP || ifGongan">
+      <!-- 顶部描边立体字角标（仿游戏 EVENT! 标签）：一半探出卡片上边缘 -->
       <span class="icp-banner__title">{{ icpTitle }}</span>
-      <div class="icp-banner__links">
-        <a
-          v-if="ifICP"
-          href="https://beian.miit.gov.cn/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="icp-banner__link"
-        >
-          {{ ifICP }}
-        </a>
-        <a
-          v-if="ifGongan"
-          href="https://beian.mps.gov.cn/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="icp-banner__link"
-        >
-          {{ ifGongan }}
-        </a>
+      <div class="icp-banner__content">
+        <div class="icp-banner__links">
+          <a
+            v-if="ifICP"
+            href="https://beian.miit.gov.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="icp-banner__link"
+          >
+            {{ ifICP }}
+          </a>
+          <a
+            v-if="ifGongan"
+            href="https://beian.mps.gov.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="icp-banner__link"
+          >
+            {{ ifGongan }}
+          </a>
+        </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -82,7 +85,8 @@ const icpTitle = computed(() => configs.value?.icp?.title || '备案信息')
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
+  /* 标题移出为顶部角标后，链接在余下空间垂直居中 */
+  justify-content: flex-end;
   padding: clamp(4px, 0.25vw, 100vw) clamp(8px, 0.5vw, 100vw);
   height: calc(100% - clamp(8px, 0.5vw, 100vw));
   z-index: 2;
@@ -117,9 +121,19 @@ const icpTitle = computed(() => configs.value?.icp?.title || '备案信息')
   gap: clamp(4px, 0.25vw, 100vw);
 }
 
-/* 标题立体字（对齐 MusicBanner 的 EVENT! 角标）：底部一层深色实体偏移 = 立体厚度，再加一层柔和投影 */
+/* 顶部描边立体字角标（仿游戏 EVENT! 标签，对齐 music-banner__tag）：
+   translateY(-50%) 一半探出卡片上边缘，skew(-10deg) 斜体张力；
+   底部一层深色实体偏移 = 立体厚度，再加一层柔和投影 */
 .icp-banner__title {
-  font-size: clamp(22px, 1.375vw, 100vw);
+  position: absolute;
+  top: 0;
+  left: clamp(16px, 1vw, 100vw);
+  transform: translateY(-50%) skew(-10deg);
+  display: block;
+  font-size: clamp(20px, 1.25vw, 100vw);
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  -webkit-text-stroke: clamp(2px, 0.15vw, 100vw) #00aeec;
   filter: drop-shadow(0 clamp(1.5px, 0.1vw, 100vw) 0 #008bbd)
     drop-shadow(0 clamp(2px, 0.125vw, 100vw) clamp(3px, 0.1875vw, 100vw) rgba(0, 0, 0, 0.35));
 }
@@ -133,9 +147,10 @@ const icpTitle = computed(() => configs.value?.icp?.title || '备案信息')
   color: #0066cc;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 660px) {
   .icp-banner {
-    width: 40vw;
+    width: 35vw;
+    height: 106px;
     aspect-ratio: unset;
   }
 
