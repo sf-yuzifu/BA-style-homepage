@@ -32,11 +32,11 @@ const contacts = computed(() => {
 <style scoped>
 .contact-box {
   position: absolute;
-  left: calc(clamp(20px, 1.25vw, 100vw) + var(--safe-left));
-  top: calc(clamp(186px, 11.625vw, 100vw) + var(--safe-top));
+  left: calc(clamp(20px, calc(1.25 * var(--u)), 100vw) + var(--safe-left));
+  top: calc(clamp(186px, calc(11.625 * var(--u)), 100vw) + var(--safe-top));
   display: grid;
-  grid-template-columns: repeat(2, clamp(130px, 8.125vw, 100vw));
-  grid-gap: clamp(20px, 1.25vw, 100vw);
+  grid-template-columns: repeat(2, clamp(130px, calc(8.125 * var(--u)), 100vw));
+  grid-gap: clamp(20px, calc(1.25 * var(--u)), 100vw);
   height: auto;
   z-index: 2;
   justify-items: center;
@@ -50,14 +50,14 @@ const contacts = computed(() => {
   align-items: center;
   justify-content: flex-end;
   position: relative;
-  bottom: clamp(15px, 0.9375vw, 100vw);
-  margin: 0 clamp(20px, 1.25vw, 100vw);
+  bottom: clamp(15px, calc(0.9375 * var(--u)), 100vw);
+  margin: 0 clamp(20px, calc(1.25 * var(--u)), 100vw);
   transition: transform 0.05s;
 }
 
 .contact span {
-  margin: clamp(5px, 0.3125vw, 100vw) 0 0;
-  font-size: clamp(20px, 1.25vw, 100vw);
+  margin: clamp(5px, calc(0.3125 * var(--u)), 100vw) 0 0;
+  font-size: clamp(20px, calc(1.25 * var(--u)), 100vw);
   color: #003153;
   font-weight: bold;
   position: relative;
@@ -72,35 +72,64 @@ const contacts = computed(() => {
   position: absolute;
   left: 0;
   color: transparent;
-  -webkit-text-stroke: clamp(2px, 0.125vw, 100vw) #fff;
+  -webkit-text-stroke: clamp(2px, calc(0.125 * var(--u)), 100vw) #fff;
   z-index: -1;
 }
 
 .arco-icon {
-  font-size: clamp(48px, 3vw, 100vw);
-  filter: drop-shadow(0px 0px clamp(4px, 0.25vw, 100vw) #fff6);
+  font-size: clamp(48px, calc(3 * var(--u)), 100vw);
+  filter: drop-shadow(0px 0px clamp(4px, calc(0.25 * var(--u)), 100vw) #fff6);
 }
 
 .contact img {
-  height: clamp(48px, 3vw, 100vw);
-  filter: drop-shadow(0px 0px clamp(4px, 0.25vw, 100vw) #fff6);
+  height: clamp(48px, calc(3 * var(--u)), 100vw);
+  filter: drop-shadow(0px 0px clamp(4px, calc(0.25 * var(--u)), 100vw) #fff6);
 }
 
 .contact:active {
   transform: scale(0.9);
 }
 
-@media screen and (max-width: 495px) {
+/* ---- 极小/短窗紧凑档（≤495px 移动档 ∪ max-height:768px 矮窗档）----
+   响应式原则：优先保留可读尺寸（图标仅 48→42），靠降 top/间距下限与藏序（P5-P8）腾空间，
+   而非把元素等比缩没。top 下限 148px = LevelCard 底缘（≈136px）+ 间隙 */
+@media screen and (max-width: 495px), screen and (max-height: 768px) {
   .contact-box {
-    grid-template-columns: repeat(2, 100px);
-    grid-gap: 20px;
+    top: calc(clamp(148px, calc(11.625 * var(--u)), 100vw) + var(--safe-top));
+    grid-template-columns: repeat(2, clamp(80px, calc(8.125 * var(--u)), 100vw));
+    grid-gap: clamp(6px, calc(1.25 * var(--u)), 100vw);
+  }
+
+  .contact {
+    bottom: clamp(8px, calc(0.9375 * var(--u)), 100vw);
+    margin: 0 clamp(4px, calc(1.25 * var(--u)), 100vw);
+  }
+
+  .contact span {
+    margin: clamp(3px, calc(0.3125 * var(--u)), 100vw) 0 0;
+    font-size: clamp(16px, calc(1.25 * var(--u)), 100vw);
+  }
+
+  .arco-icon {
+    font-size: clamp(42px, calc(3 * var(--u)), 100vw);
+  }
+
+  .contact img {
+    height: clamp(42px, calc(3 * var(--u)), 100vw);
   }
 }
 
-@media screen and (max-width: 375px) {
+/* P6 藏序第二：极窄/极矮先弃文字标签（图标本体可辨识） */
+@media screen and (max-width: 330px), screen and (max-height: 540px) {
+  .contact span {
+    display: none;
+  }
+}
+
+/* P8 整块藏序第二：Music（≤300px/440px）之后轮到联系，Task（≤260px/370px）最后弃 */
+@media screen and (max-width: 280px), screen and (max-height: 380px) {
   .contact-box {
-    grid-template-columns: repeat(2, 75px);
-    grid-gap: 15px;
+    display: none;
   }
 }
 </style>

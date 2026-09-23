@@ -67,12 +67,14 @@ const goBack = () => {
 
 <style scoped>
 .header {
-  width: calc(100% - 2 * clamp(32px, 2vw, 100vw) - var(--safe-left) - var(--safe-right));
-  height: clamp(58px, 3.625vw, 100vw);
-  box-shadow: 0px clamp(2px, 0.125vw, 100vw) clamp(8px, 0.5vw, 100vw) clamp(2px, 0.125vw, 100vw)
-    rgba(0, 0, 0, 0.3);
-  padding: var(--safe-top) calc(clamp(32px, 2vw, 100vw) + var(--safe-right)) 0
-    calc(clamp(32px, 2vw, 100vw) + var(--safe-left));
+  width: calc(
+    100% - 2 * clamp(32px, calc(2 * var(--u)), 100vw) - var(--safe-left) - var(--safe-right)
+  );
+  height: clamp(58px, calc(3.625 * var(--u)), 100vw);
+  box-shadow: 0px clamp(2px, calc(0.125 * var(--u)), 100vw) clamp(8px, calc(0.5 * var(--u)), 100vw)
+    clamp(2px, calc(0.125 * var(--u)), 100vw) rgba(0, 0, 0, 0.3);
+  padding: var(--safe-top) calc(clamp(32px, calc(2 * var(--u)), 100vw) + var(--safe-right)) 0
+    calc(clamp(32px, calc(2 * var(--u)), 100vw) + var(--safe-left));
   background-color: white;
   background-image: var(--deco2);
   background-repeat: no-repeat;
@@ -88,9 +90,9 @@ const goBack = () => {
   padding: 0;
   font: inherit;
   height: calc(78 / 56 * 100%);
-  margin-top: clamp(8px, 0.5vw, 100vw);
-  box-shadow: 0px clamp(2px, 0.125vw, 100vw) clamp(4px, 0.25vw, 100vw) clamp(2px, 0.125vw, 100vw)
-    rgba(0, 0, 0, 0.3);
+  margin-top: clamp(8px, calc(0.5 * var(--u)), 100vw);
+  box-shadow: 0px clamp(2px, calc(0.125 * var(--u)), 100vw) clamp(4px, calc(0.25 * var(--u)), 100vw)
+    clamp(2px, calc(0.125 * var(--u)), 100vw) rgba(0, 0, 0, 0.3);
   aspect-ratio: 1;
   background-color: #003153;
   border-radius: 50%;
@@ -109,11 +111,11 @@ const goBack = () => {
   display: flex;
   justify-content: center;
   align-items: end;
-  padding: 0 clamp(2px, 0.125vw, 100vw) 0 clamp(16px, 1vw, 100vw);
-  font-size: clamp(36px, 2.25vw, 100vw);
+  padding: 0 clamp(2px, calc(0.125 * var(--u)), 100vw) 0 clamp(16px, calc(1 * var(--u)), 100vw);
+  font-size: clamp(36px, calc(2.25 * var(--u)), 100vw);
   font-weight: bold;
   line-height: 133%;
-  border-bottom: clamp(6px, 0.375vw, 100vw) solid #ffe433;
+  border-bottom: clamp(6px, calc(0.375 * var(--u)), 100vw) solid #ffe433;
   color: #003153;
   user-select: none;
   -webkit-user-select: none;
@@ -122,7 +124,7 @@ const goBack = () => {
 }
 
 .back-icon {
-  font-size: clamp(58px, 3.625vw, 100vw);
+  font-size: clamp(58px, calc(3.625 * var(--u)), 100vw);
   stroke-linecap: round;
   stroke-linejoin: round;
   color: #fff;
@@ -144,7 +146,7 @@ const goBack = () => {
   height: 100%;
   justify-content: center;
   font-weight: bold;
-  margin: 0 clamp(8px, 0.5vw, 100vw);
+  margin: 0 clamp(8px, calc(0.5 * var(--u)), 100vw);
 }
 
 .home {
@@ -154,9 +156,9 @@ const goBack = () => {
   border: none;
   padding: 0;
   font: inherit;
-  margin: 0 0 0 clamp(8px, 0.5vw, 100vw);
+  margin: 0 0 0 clamp(8px, calc(0.5 * var(--u)), 100vw);
   color: #003153;
-  font-size: clamp(42px, 2.625vw, 100vw);
+  font-size: clamp(42px, calc(2.625 * var(--u)), 100vw);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -170,8 +172,8 @@ const goBack = () => {
 .divider {
   transform: skew(-10deg);
   height: 50%;
-  margin: 0 clamp(4px, 0.75vw, 100vw);
-  border-left-width: clamp(2px, 0.125vw, 100vw);
+  margin: 0 clamp(4px, calc(0.75 * var(--u)), 100vw);
+  border-left-width: clamp(2px, calc(0.125 * var(--u)), 100vw);
 }
 
 @media screen and (max-width: 1088px) {

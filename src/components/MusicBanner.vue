@@ -257,18 +257,20 @@ onBeforeUnmount(() => {
 <style scoped>
 .music-banner {
   position: absolute;
-  left: calc(clamp(50px, 3.125vw, 100vw) + var(--safe-left));
-  bottom: calc(clamp(180px, 11.25vw, 100vw) + var(--safe-bottom));
-  width: clamp(300px, 18.75vw, 100vw);
+  left: calc(clamp(50px, calc(3.125 * var(--u)), 100vw) + var(--safe-left));
+  bottom: calc(clamp(180px, calc(11.25 * var(--u)), 100vw) + var(--safe-bottom));
+  width: clamp(300px, calc(18.75 * var(--u)), 100vw);
   aspect-ratio: 446 / 158;
-  border-radius: clamp(8px, 0.5vw, 100vw);
+  border-radius: clamp(8px, calc(0.5 * var(--u)), 100vw);
   /* 不用 overflow:hidden（角标要探出上边缘）；圆角裁剪由封面图 border-radius: inherit 承担 */
   /* 无封面（或封面加载失败）时的兜底：与弹窗同一底纹语言 */
   background: #f0f0f0 var(--deco1) no-repeat right;
   background-size: contain;
   opacity: 0.9;
   z-index: 2;
-  filter: drop-shadow(0 clamp(3px, 0.1875vw, 100vw) clamp(3px, 0.1875vw, 100vw) #0003);
+  filter: drop-shadow(
+    0 clamp(3px, calc(0.1875 * var(--u)), 100vw) clamp(3px, calc(0.1875 * var(--u)), 100vw) #0003
+  );
   transition: transform 0.3s;
   user-select: none;
   -webkit-user-select: none;
@@ -315,37 +317,40 @@ onBeforeUnmount(() => {
 .music-banner__tag {
   position: absolute;
   top: 0;
-  left: clamp(16px, 1vw, 100vw);
+  left: clamp(16px, calc(1 * var(--u)), 100vw);
   transform: translateY(-50%) skew(-10deg);
   color: #fff;
   /* 描边画在文字填充下层，保持白色字芯完整 */
-  -webkit-text-stroke: clamp(2px, 0.15vw, 100vw) #e72264;
+  -webkit-text-stroke: clamp(2px, calc(0.15 * var(--u)), 100vw) #e72264;
   paint-order: stroke fill;
   font-weight: bold;
-  font-size: clamp(20px, 1.25vw, 100vw);
+  font-size: clamp(20px, calc(1.25 * var(--u)), 100vw);
   letter-spacing: 0.5px;
   line-height: 1.2;
   /* 底部一层深色实体偏移 = 立体厚度，再加一层柔和投影 */
-  filter: drop-shadow(0 clamp(1.5px, 0.1vw, 100vw) 0 #b81a4e)
-    drop-shadow(0 clamp(2px, 0.125vw, 100vw) clamp(3px, 0.1875vw, 100vw) rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 clamp(1.5px, calc(0.1 * var(--u)), 100vw) 0 #b81a4e)
+    drop-shadow(
+      0 clamp(2px, calc(0.125 * var(--u)), 100vw) clamp(3px, calc(0.1875 * var(--u)), 100vw)
+        rgba(0, 0, 0, 0.35)
+    );
 }
 
 .music-banner__info {
   position: absolute;
-  left: clamp(12px, 0.75vw, 100vw);
-  right: clamp(12px, 0.75vw, 100vw);
+  left: clamp(12px, calc(0.75 * var(--u)), 100vw);
+  right: clamp(12px, calc(0.75 * var(--u)), 100vw);
   /* 给底边通栏进度条留位 */
-  bottom: clamp(16px, 1vw, 100vw);
+  bottom: clamp(16px, calc(1 * var(--u)), 100vw);
   display: flex;
   flex-direction: column;
-  gap: clamp(2px, 0.125vw, 100vw);
+  gap: clamp(2px, calc(0.125 * var(--u)), 100vw);
 }
 
 .music-banner__name {
   color: #fff;
   font-weight: bold;
-  font-size: clamp(20px, 1.25vw, 100vw);
-  text-shadow: 0 1px clamp(3px, 0.1875vw, 100vw) rgba(0, 0, 0, 0.55);
+  font-size: clamp(20px, calc(1.25 * var(--u)), 100vw);
+  text-shadow: 0 1px clamp(3px, calc(0.1875 * var(--u)), 100vw) rgba(0, 0, 0, 0.55);
   width: 100%;
   /* 行高给足字形空间（overflow:hidden 裁纵向边缘的修复），截断由跑马灯接管 */
   line-height: 1.3;
@@ -354,8 +359,8 @@ onBeforeUnmount(() => {
 
 .music-banner__artist {
   color: rgba(255, 255, 255, 0.85);
-  font-size: clamp(15px, 0.9375vw, 100vw);
-  text-shadow: 0 1px clamp(2px, 0.125vw, 100vw) rgba(0, 0, 0, 0.5);
+  font-size: clamp(15px, calc(0.9375 * var(--u)), 100vw);
+  text-shadow: 0 1px clamp(2px, calc(0.125 * var(--u)), 100vw) rgba(0, 0, 0, 0.5);
   width: 100%;
   line-height: 1.2;
   overflow: hidden;
@@ -408,10 +413,10 @@ onBeforeUnmount(() => {
 /* 播放/暂停与下一首：半透黑底白图标圆钮（压在海报上） */
 .music-banner__actions {
   position: absolute;
-  top: clamp(10px, 0.625vw, 100vw);
-  right: clamp(10px, 0.625vw, 100vw);
+  top: clamp(10px, calc(0.625 * var(--u)), 100vw);
+  right: clamp(10px, calc(0.625 * var(--u)), 100vw);
   display: flex;
-  gap: clamp(8px, 0.5vw, 100vw);
+  gap: clamp(8px, calc(0.5 * var(--u)), 100vw);
 }
 
 .music-banner__btn {
@@ -419,8 +424,8 @@ onBeforeUnmount(() => {
   border: none;
   padding: 0;
   font: inherit;
-  width: clamp(30px, 1.875vw, 100vw);
-  height: clamp(30px, 1.875vw, 100vw);
+  width: clamp(30px, calc(1.875 * var(--u)), 100vw);
+  height: clamp(30px, calc(1.875 * var(--u)), 100vw);
   border-radius: 50%;
   background: rgba(0, 30, 60, 0.45);
   color: #fff;
@@ -469,10 +474,10 @@ onBeforeUnmount(() => {
    touch-action:none 让拖动不被浏览器滚动抢走 */
 .music-banner__bar {
   position: absolute;
-  left: clamp(6px, 0.375vw, 100vw);
-  right: clamp(6px, 0.375vw, 100vw);
+  left: clamp(6px, calc(0.375 * var(--u)), 100vw);
+  right: clamp(6px, calc(0.375 * var(--u)), 100vw);
   bottom: 0;
-  padding: clamp(6px, 0.375vw, 100vw) 0;
+  padding: clamp(6px, calc(0.375 * var(--u)), 100vw) 0;
   touch-action: none;
 }
 
@@ -483,7 +488,7 @@ onBeforeUnmount(() => {
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  height: clamp(4px, 0.25vw, 100vw);
+  height: clamp(4px, calc(0.25 * var(--u)), 100vw);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.35);
 }
@@ -493,7 +498,7 @@ onBeforeUnmount(() => {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  height: clamp(4px, 0.25vw, 100vw);
+  height: clamp(4px, calc(0.25 * var(--u)), 100vw);
   border-radius: 999px;
   background: #89d5fd;
 }
@@ -516,9 +521,9 @@ onBeforeUnmount(() => {
 .music-banner.is-mini {
   left: unset;
   bottom: unset;
-  right: calc(clamp(20px, 1.25vw, 100vw) + var(--safe-right));
-  top: calc(clamp(192px, 12vw, 100vw) + var(--safe-top));
-  width: clamp(120px, 7.5vw, 100vw);
+  right: calc(clamp(20px, calc(1.25 * var(--u)), 100vw) + var(--safe-right));
+  top: calc(clamp(192px, calc(12 * var(--u)), 100vw) + var(--safe-top));
+  width: clamp(120px, calc(7.5 * var(--u)), 100vw);
   aspect-ratio: 1;
   border-radius: 50%;
   border: 2px solid #fff;
@@ -531,31 +536,34 @@ onBeforeUnmount(() => {
   display: none;
 }
 
-/* 圆盘下方的丝带标题条（仿游戏活动挂件：比圆盘略宽、底部与圆盘少量重叠） */
+/* 圆盘下方的丝带标题条（仿游戏活动挂件：与圆盘同宽、底部与圆盘少量重叠） */
 .music-banner.is-mini .music-banner__info {
-  top: calc(100% - clamp(12px, 0.75vw, 100vw));
+  top: calc(100% - clamp(12px, calc(0.75 * var(--u)), 100vw));
   left: 50%;
   right: auto;
   bottom: auto;
   transform: translateX(-50%);
-  width: clamp(120px, 7.5vw, 100vw);
-  padding: clamp(4px, 0.25vw, 100vw) clamp(10px, 0.625vw, 100vw);
+  /* 100% = 跟随圆盘直径，任意断点（含 ≤375px 的 96px 盘）同宽不错位 */
+  width: 100%;
+  padding: clamp(4px, calc(0.25 * var(--u)), 100vw) clamp(10px, calc(0.625 * var(--u)), 100vw);
   background: rgba(0, 30, 60, 0.75);
   backdrop-filter: blur(4px);
-  border-radius: clamp(6px, 0.375vw, 100vw);
+  border-radius: clamp(6px, calc(0.375 * var(--u)), 100vw);
   text-align: center;
   gap: 0;
-  filter: drop-shadow(0 clamp(2px, 0.125vw, 100vw) clamp(3px, 0.1875vw, 100vw) #0004);
+  filter: drop-shadow(
+    0 clamp(2px, calc(0.125 * var(--u)), 100vw) clamp(3px, calc(0.1875 * var(--u)), 100vw) #0004
+  );
 }
 
 .music-banner.is-mini .music-banner__name {
-  font-size: clamp(16px, 1vw, 100vw);
+  font-size: clamp(16px, calc(1 * var(--u)), 100vw);
   text-align: center;
 }
 
 /* mini 丝带只显示歌名（艺术家隐藏，把空间留给歌名跑马灯） */
 .music-banner.is-mini .music-banner__artist {
-  font-size: clamp(12px, 0.75vw, 100vw);
+  font-size: clamp(12px, calc(0.75 * var(--u)), 100vw);
   text-align: center;
 }
 
@@ -583,9 +591,38 @@ onBeforeUnmount(() => {
   }
 }
 
-@media screen and (max-width: 375px) {
+/* ---- 极小/短窗紧凑档（≤495px 移动档 ∪ max-height:768px 矮窗档）----
+   槽位：顶带 LevelCard/设置不动；中带右列上 = 音乐圆盘（P4 余位保）、
+   右列下 = Task（P2 优先保，见 Task.vue）；下带 Footer/ICP 契约不动。
+   响应式原则：圆盘仅 120→96px，空间不足走 P5/P8 藏序而非继续缩圆盘。
+   圆盘 top 下限 186px = 顶带 l2d 开关底缘（≈172px）+ 间隙 */
+@media screen and (max-width: 495px), screen and (max-height: 768px) {
+  /* 海报模式（无 ICP 且宽屏）：下移锚点收紧，给 Contact 让出中带 */
+  .music-banner:not(.is-mini) {
+    bottom: calc(clamp(100px, calc(11.25 * var(--u)), 100vw) + var(--safe-bottom));
+    width: clamp(240px, calc(18.75 * var(--u)), 100vw);
+  }
+
+  /* mini 圆盘缩至 96px 量级 */
   .music-banner.is-mini {
-    width: 96px;
+    top: calc(clamp(186px, calc(12 * var(--u)), 100vw) + var(--safe-top));
+    width: clamp(96px, calc(7.5 * var(--u)), 100vw);
+  }
+}
+
+/* P5 藏序第一：极窄/极矮先弃圆盘丝带标题（盘体本体已表意）。
+   阈值 ≥ P6（标签 ≤330px/540px）保证丝带先于标签弃 */
+@media screen and (max-width: 340px), screen and (max-height: 560px) {
+  .music-banner.is-mini .music-banner__info {
+    display: none;
+  }
+}
+
+/* P8 整块藏序第一：再窄/再矮连音乐一起弃（备案底栏/等级卡/设置为必留不在此列）。
+   继任顺序 Contact ≤280px/380px、Task ≤260px/370px（见各组件） */
+@media screen and (max-width: 300px), screen and (max-height: 440px) {
+  .music-banner {
+    display: none !important;
   }
 }
 </style>

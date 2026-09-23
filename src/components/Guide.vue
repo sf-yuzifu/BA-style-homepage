@@ -358,8 +358,8 @@ onUnmounted(() => {
 
 .guide-frame {
   position: fixed;
-  border: clamp(2px, 0.125vw, 100vw) solid #4ec3f5;
-  border-radius: clamp(6px, 0.375vw, 100vw);
+  border: clamp(2px, calc(0.125 * var(--u)), 100vw) solid #4ec3f5;
+  border-radius: clamp(6px, calc(0.375 * var(--u)), 100vw);
   box-sizing: border-box;
   pointer-events: none;
 }
@@ -368,30 +368,31 @@ onUnmounted(() => {
   position: fixed;
   z-index: 61;
   pointer-events: auto;
-  width: min(clamp(300px, 24vw, 420px), calc(100vw - 2 * var(--safe-left) - 24px));
-  padding: clamp(14px, 0.875vw, 100vw) clamp(18px, 1.125vw, 100vw);
+  width: min(clamp(300px, calc(24 * var(--u)), 420px), calc(100vw - 2 * var(--safe-left) - 24px));
+  padding: clamp(14px, calc(0.875 * var(--u)), 100vw) clamp(18px, calc(1.125 * var(--u)), 100vw);
   box-sizing: border-box;
   background: #fff;
   color: #003153;
   border: 1px solid #e8f0f5;
-  border-radius: clamp(8px, 0.5vw, 100vw);
-  box-shadow: 0 clamp(4px, 0.25vw, 100vw) clamp(16px, 1vw, 100vw) rgba(0, 0, 0, 0.18);
+  border-radius: clamp(8px, calc(0.5 * var(--u)), 100vw);
+  box-shadow: 0 clamp(4px, calc(0.25 * var(--u)), 100vw) clamp(16px, calc(1 * var(--u)), 100vw)
+    rgba(0, 0, 0, 0.18);
   outline: none;
 }
 
 .guide-card:focus-visible {
-  outline: clamp(2px, 0.125vw, 100vw) solid #3987ff;
+  outline: clamp(2px, calc(0.125 * var(--u)), 100vw) solid #3987ff;
 }
 
 .guide-card-title {
-  margin: 0 0 clamp(6px, 0.375vw, 100vw);
+  margin: 0 0 clamp(6px, calc(0.375 * var(--u)), 100vw);
   font-weight: bold;
-  font-size: clamp(16px, 1vw, 100vw);
+  font-size: clamp(16px, calc(1 * var(--u)), 100vw);
 }
 
 .guide-card-desc {
-  margin: 0 0 clamp(10px, 0.625vw, 100vw);
-  font-size: clamp(14px, 0.875vw, 100vw);
+  margin: 0 0 clamp(10px, calc(0.625 * var(--u)), 100vw);
+  font-size: clamp(14px, calc(0.875 * var(--u)), 100vw);
   line-height: 1.6;
 }
 
@@ -399,30 +400,30 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(8px, 0.5vw, 100vw);
+  gap: clamp(8px, calc(0.5 * var(--u)), 100vw);
 }
 
 .guide-card-count {
-  font-size: clamp(13px, 0.8125vw, 100vw);
+  font-size: clamp(13px, calc(0.8125 * var(--u)), 100vw);
   white-space: nowrap;
   opacity: 0.75;
 }
 
 .guide-card-actions {
   display: flex;
-  gap: clamp(6px, 0.375vw, 100vw);
+  gap: clamp(6px, calc(0.375 * var(--u)), 100vw);
 }
 
 .guide-btn {
   appearance: none;
   border: none;
-  padding: clamp(4px, 0.25vw, 100vw) clamp(12px, 0.75vw, 100vw);
+  padding: clamp(4px, calc(0.25 * var(--u)), 100vw) clamp(12px, calc(0.75 * var(--u)), 100vw);
   font: inherit;
-  font-size: clamp(13px, 0.8125vw, 100vw);
+  font-size: clamp(13px, calc(0.8125 * var(--u)), 100vw);
   font-weight: bold;
   color: #003153;
   background: #e8f6fd;
-  border-radius: clamp(4px, 0.25vw, 100vw);
+  border-radius: clamp(4px, calc(0.25 * var(--u)), 100vw);
   cursor: pointer;
 }
 

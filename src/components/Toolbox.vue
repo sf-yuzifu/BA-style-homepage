@@ -131,8 +131,8 @@ onUnmounted(() => {
 <style scoped>
 .toolbox-box {
   position: absolute;
-  right: calc(clamp(20px, 1.25vw, 100vw) + var(--safe-right));
-  top: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-top));
+  right: calc(clamp(20px, calc(1.25 * var(--u)), 100vw) + var(--safe-right));
+  top: calc(clamp(40px, calc(2.5 * var(--u)), 100vw) + var(--safe-top));
   display: inline-flex;
   z-index: 2;
 }
@@ -146,14 +146,14 @@ onUnmounted(() => {
   position: relative;
   min-width: 220px;
   min-height: 56px;
-  width: 13.75vw;
+  width: calc(13.75 * var(--u));
   aspect-ratio: 220 / 56;
   background: #fffd;
   color: #003153;
-  margin: 0 clamp(10px, 0.625vw, 100vw);
+  margin: 0 clamp(10px, calc(0.625 * var(--u)), 100vw);
   transform: translateY(0) skew(-10deg);
-  border-radius: clamp(6px, 0.375vw, 100vw);
-  filter: drop-shadow(0px 0px clamp(3px, 0.1875vw, 100vw) #0003);
+  border-radius: clamp(6px, calc(0.375 * var(--u)), 100vw);
+  filter: drop-shadow(0px 0px clamp(3px, calc(0.1875 * var(--u)), 100vw) #0003);
   transition:
     background-color 0.3s,
     transform 0.3s;
@@ -167,7 +167,7 @@ onUnmounted(() => {
 .toolbox-box .toolbox.l2d {
   min-width: 80px;
   min-height: 56px;
-  width: 5vw;
+  width: calc(5 * var(--u));
   aspect-ratio: 80 / 56;
   display: inline-flex;
   align-items: center;
@@ -177,7 +177,7 @@ onUnmounted(() => {
 .toolbox-box .toolbox.l2d {
   position: absolute;
   right: 0;
-  top: clamp(76px, 4.75vw, 100vw);
+  top: clamp(76px, calc(4.75 * var(--u)), 100vw);
   overflow: hidden;
   transform: translateY(0) skew(-10deg);
 }
@@ -185,7 +185,7 @@ onUnmounted(() => {
 .toolbox.l2d img {
   filter: drop-shadow(-100vw 0px 0px #003153);
   transform: translateX(100vw);
-  height: 2vw;
+  height: calc(2 * var(--u));
   min-height: 32px;
 }
 
@@ -201,7 +201,7 @@ onUnmounted(() => {
 }
 
 .arco-icon {
-  font-size: clamp(32px, 2vw, 100vw);
+  font-size: clamp(32px, calc(2 * var(--u)), 100vw);
   transform: skew(10deg);
 }
 
@@ -225,13 +225,13 @@ onUnmounted(() => {
 
 @media screen and (min-width: 1601px) {
   .toolbox.toolbox-l2d {
-    transform: translateY(-18.75vw) skew(-10deg);
+    transform: translateY(calc(-18.75 * var(--u))) skew(-10deg);
   }
   .toolbox.l2d.toolbox-l2d {
-    transform: translateY(-4.75vw) skew(-10deg);
+    transform: translateY(calc(-4.75 * var(--u))) skew(-10deg);
   }
   .toolbox-box .toolbox.l2d.toolbox-l2d:active {
-    transform: translateY(-4.75vw) skew(-10deg) scale(0.9);
+    transform: translateY(calc(-4.75 * var(--u))) skew(-10deg) scale(0.9);
   }
 }
 

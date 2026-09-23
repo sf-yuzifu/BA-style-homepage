@@ -95,12 +95,12 @@ const introSwitch = computed({
 
 <style scoped>
 .notice {
-  margin-bottom: clamp(16px, 1vw, 100vw);
-  padding: clamp(10px, 0.625vw, 100vw) clamp(12px, 0.75vw, 100vw);
-  font-size: clamp(14px, 0.875vw, 100vw);
+  margin-bottom: clamp(16px, calc(1 * var(--u)), 100vw);
+  padding: clamp(10px, calc(0.625 * var(--u)), 100vw) clamp(12px, calc(0.75 * var(--u)), 100vw);
+  font-size: clamp(14px, calc(0.875 * var(--u)), 100vw);
   color: #003153;
   background: #e8f6fd;
-  border-radius: clamp(4px, 0.25vw, 100vw);
+  border-radius: clamp(4px, calc(0.25 * var(--u)), 100vw);
   text-align: left;
   line-height: 1.6;
 }
@@ -108,13 +108,13 @@ const introSwitch = computed({
 .guide-replay {
   appearance: none;
   border: none;
-  padding: clamp(6px, 0.375vw, 100vw) clamp(16px, 1vw, 100vw);
+  padding: clamp(6px, calc(0.375 * var(--u)), 100vw) clamp(16px, calc(1 * var(--u)), 100vw);
   font: inherit;
-  font-size: clamp(14px, 0.875vw, 100vw);
+  font-size: clamp(14px, calc(0.875 * var(--u)), 100vw);
   font-weight: bold;
   color: #003153;
   background: #e8f6fd;
-  border-radius: clamp(4px, 0.25vw, 100vw);
+  border-radius: clamp(4px, calc(0.25 * var(--u)), 100vw);
   cursor: pointer;
 }
 

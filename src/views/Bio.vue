@@ -218,9 +218,11 @@ onUnmounted(() => {
 
 .bio-container {
   width: 100vw;
-  height: calc(100dvh - clamp(120px, 7.5vw, 100vw) - var(--safe-top) - var(--safe-bottom));
+  height: calc(
+    100dvh - clamp(120px, calc(7.5 * var(--u)), 100vw) - var(--safe-top) - var(--safe-bottom)
+  );
   display: flex;
-  padding-top: clamp(60px, 3.75vw, 100vw);
+  padding-top: clamp(60px, calc(3.75 * var(--u)), 100vw);
 }
 
 /* Carousel 结构 */
@@ -290,7 +292,7 @@ onUnmounted(() => {
   background: none;
   border: none;
   padding: 0;
-  width: clamp(32px, 2vw, 100vw);
+  width: clamp(32px, calc(2 * var(--u)), 100vw);
   height: auto;
   pointer-events: auto;
   transition: opacity 0.3s;
@@ -316,36 +318,36 @@ onUnmounted(() => {
 
 @keyframes move {
   0% {
-    transform: translateX(clamp(-10px, -0.625vw, 100vw));
+    transform: translateX(clamp(-10px, calc(-0.625 * var(--u)), 100vw));
   }
   50% {
-    transform: translateX(clamp(10px, 0.625vw, 100vw));
+    transform: translateX(clamp(10px, calc(0.625 * var(--u)), 100vw));
   }
   100% {
-    transform: translateX(clamp(-10px, -0.625vw, 100vw));
+    transform: translateX(clamp(-10px, calc(-0.625 * var(--u)), 100vw));
   }
 }
 
 @keyframes moveReverse {
   0% {
-    transform: rotate(180deg) translateX(clamp(-10px, -0.625vw, 100vw));
+    transform: rotate(180deg) translateX(clamp(-10px, calc(-0.625 * var(--u)), 100vw));
   }
   50% {
-    transform: rotate(180deg) translateX(clamp(10px, 0.625vw, 100vw));
+    transform: rotate(180deg) translateX(clamp(10px, calc(0.625 * var(--u)), 100vw));
   }
   100% {
-    transform: rotate(180deg) translateX(clamp(-10px, -0.625vw, 100vw));
+    transform: rotate(180deg) translateX(clamp(-10px, calc(-0.625 * var(--u)), 100vw));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .carousel-arrows .arrow {
     animation: none;
-    transform: rotate(180deg) translateX(clamp(10px, 0.625vw, 100vw));
+    transform: rotate(180deg) translateX(clamp(10px, calc(0.625 * var(--u)), 100vw));
   }
 
   .carousel-arrows .arrow-left {
-    transform: translateX(clamp(10px, 0.625vw, 100vw));
+    transform: translateX(clamp(10px, calc(0.625 * var(--u)), 100vw));
   }
 }
 
@@ -374,11 +376,11 @@ onUnmounted(() => {
   color: #fff;
   background-color: #003153;
   transform: skewX(-10deg);
-  padding: clamp(10px, 0.625vw, 100vw) clamp(20px, 1.25vw, 100vw);
+  padding: clamp(10px, calc(0.625 * var(--u)), 100vw) clamp(20px, calc(1.25 * var(--u)), 100vw);
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: clamp(8px, 0.5vw, 100vw);
+  border-radius: clamp(8px, calc(0.5 * var(--u)), 100vw);
 }
 
 .intro-title::after {
@@ -388,13 +390,13 @@ onUnmounted(() => {
   background: #0003;
   position: absolute;
   transform: skew(50deg);
-  border-radius: clamp(8px, 0.5vw, 100vw);
+  border-radius: clamp(8px, calc(0.5 * var(--u)), 100vw);
   z-index: -1;
   transition: all 0.3s;
 }
 
 .intro-title .title {
-  font-size: clamp(32px, 2.0625vw, 100vw);
+  font-size: clamp(32px, calc(2.0625 * var(--u)), 100vw);
   transform: skewX(10deg);
   user-select: none;
   -webkit-user-select: none;
@@ -404,20 +406,20 @@ onUnmounted(() => {
 
 #right .intro-content {
   width: 80%;
-  margin-top: clamp(20px, 1.25vw, 100vw);
-  margin-bottom: clamp(20px, 1.25vw, 100vw);
+  margin-top: clamp(20px, calc(1.25 * var(--u)), 100vw);
+  margin-bottom: clamp(20px, calc(1.25 * var(--u)), 100vw);
   flex: 0 1 auto;
   min-height: 0;
-  padding: clamp(20px, 1.25vw, 100vw);
+  padding: clamp(20px, calc(1.25 * var(--u)), 100vw);
   background-color: #fff;
-  border-radius: clamp(8px, 0.5vw, 100vw);
-  font-size: clamp(20px, 1.25vw, 100vw);
+  border-radius: clamp(8px, calc(0.5 * var(--u)), 100vw);
+  font-size: clamp(20px, calc(1.25 * var(--u)), 100vw);
 }
 
 #right .intro-content .content {
   height: 101%;
   overflow-y: auto;
-  font-size: clamp(24px, 1.5vw, 100vw);
+  font-size: clamp(24px, calc(1.5 * var(--u)), 100vw);
   color: #003153;
 }
 
@@ -452,16 +454,18 @@ onUnmounted(() => {
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   direction: rtl;
   margin-top: auto;
-  gap: clamp(10px, 0.625vw, 100vw);
-  margin-bottom: clamp(40px, 2.5vw, 100vw);
+  gap: clamp(10px, calc(0.625 * var(--u)), 100vw);
+  margin-bottom: clamp(40px, calc(2.5 * var(--u)), 100vw);
 }
 
 #right .btn {
   width: 100%;
-  filter: drop-shadow(0px clamp(1px, 0.0625vw, 100vw) clamp(2px, 0.125vw, 100vw) #0004);
-  padding: clamp(30px, 1.875vw, 100vw) 0 !important;
-  font-size: clamp(24px, 1.5vw, 100vw) !important;
-  border-radius: clamp(8px, 0.5vw, 100vw) !important;
+  filter: drop-shadow(
+    0px clamp(1px, calc(0.0625 * var(--u)), 100vw) clamp(2px, calc(0.125 * var(--u)), 100vw) #0004
+  );
+  padding: clamp(30px, calc(1.875 * var(--u)), 100vw) 0 !important;
+  font-size: clamp(24px, calc(1.5 * var(--u)), 100vw) !important;
+  border-radius: clamp(8px, calc(0.5 * var(--u)), 100vw) !important;
 }
 
 @media screen and (max-width: 768px) {
@@ -525,7 +529,7 @@ onUnmounted(() => {
 
 .card.arco-modal .arco-modal-body {
   max-width: none !important;
-  max-height: calc(90vh - clamp(48px, 3vw, 100vw)) !important;
+  max-height: calc(90vh - clamp(48px, calc(3 * var(--u)), 100vw)) !important;
   padding: 0 !important;
   overflow: hidden;
 }
@@ -560,8 +564,8 @@ onUnmounted(() => {
 /* 加载中转圈 */
 .card.arco-modal .card-image-loading {
   position: absolute;
-  width: clamp(32px, 4vw, 48px);
-  height: clamp(32px, 4vw, 48px);
+  width: clamp(32px, calc(4 * var(--u)), 48px);
+  height: clamp(32px, calc(4 * var(--u)), 48px);
   border: 3px solid #89d5fd33;
   border-top-color: #89d5fd;
   border-radius: 50%;

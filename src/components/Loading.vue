@@ -73,7 +73,7 @@ onUnmounted(() => {
 @media screen and (min-width: 1600px) {
   @keyframes move {
     50% {
-      transform: translateY(-1.6666666667vw);
+      transform: translateY(calc(-1.6666666667 * var(--u)));
     }
   }
 }
@@ -116,18 +116,18 @@ img {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  margin-top: clamp(32px, 2vw, 100vw);
+  margin-top: clamp(32px, calc(2 * var(--u)), 100vw);
 }
 
 .progress_wrapper .title {
   font-family: TVPS-Vain-Capital-2, system-ui;
   color: #1289f9;
-  font-size: clamp(28.8px, 1.8vw, 100vw);
+  font-size: clamp(28.8px, calc(1.8 * var(--u)), 100vw);
 }
 
 .progress_wrapper .percent {
-  margin-top: clamp(5.8666666672px, 0.3666666667vw, 100vw);
-  font-size: clamp(22.4px, 1.4vw, 100vw);
+  margin-top: clamp(5.8666666672px, calc(0.3666666667 * var(--u)), 100vw);
+  font-size: clamp(22.4px, calc(1.4 * var(--u)), 100vw);
   font-family: TVPS-Vain-Capital-2, system-ui;
   color: #1289f9;
 }
@@ -141,7 +141,7 @@ img {
 }
 
 .avatar_img {
-  height: clamp(340px, 21.25vw, 100vw);
-  width: clamp(250px, 15.625vw, 100vw);
+  height: clamp(340px, calc(21.25 * var(--u)), 100vw);
+  width: clamp(250px, calc(15.625 * var(--u)), 100vw);
 }
 </style>

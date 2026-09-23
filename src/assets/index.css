@@ -17,6 +17,10 @@ canvas,
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
+  /* HUD 设计单位：1 设计像素 @1600×900（此前全部几何写作 Nvw，即 N/100 设计宽）。
+     宽高比 ≤16:9 时 --u ≡ 1vw，与旧值逐像素一致；
+     >16:9（21:9/32:9 带鱼屏）时改跟高度走（1.78vh），防止 HUD 随宽度无限放大撑爆纵向空间 */
+  --u: min(1vw, 1.78vh);
   --focus-ring: #77deff;
   --focus-ring-shadow: rgba(119, 222, 255, 0.45);
   --deco1: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iX+WbvuWxgl8xIiBkYXRhLW5hbWU9IuWbvuWxgiAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMzU5IDI3MyI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogIzQxODRhYjsKICAgICAgfQoKICAgICAgLmNscy0xLCAuY2xzLTIsIC5jbHMtMywgLmNscy00LCAuY2xzLTUsIC5jbHMtNiwgLmNscy03LCAuY2xzLTgsIC5jbHMtOSwgLmNscy0xMCwgLmNscy0xMSwgLmNscy0xMiwgLmNscy0xMywgLmNscy0xNCwgLmNscy0xNSwgLmNscy0xNiB7CiAgICAgICAgc3Ryb2tlLXdpZHRoOiAwcHg7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogIzkxZDRmYjsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiAjODNjNGViOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6ICM3OWJjZTM7CiAgICAgIH0KCiAgICAgIC5jbHMtNSB7CiAgICAgICAgZmlsbDogIzZkYjBkNzsKICAgICAgfQoKICAgICAgLmNscy02IHsKICAgICAgICBmaWxsOiAjZWNmOWZmOwogICAgICB9CgogICAgICAuY2xzLTcgewogICAgICAgIGZpbGwtcnVsZTogZXZlbm9kZDsKICAgICAgfQoKICAgICAgLmNscy03LCAuY2xzLTEwIHsKICAgICAgICBmaWxsOiAjYjdlNGZmOwogICAgICB9CgogICAgICAuY2xzLTggewogICAgICAgIGZpbGw6ICM4MGMzZWE7CiAgICAgIH0KCiAgICAgIC5jbHMtOSB7CiAgICAgICAgZmlsbDogI2FhZGVmZTsKICAgICAgfQoKICAgICAgLmNscy0xMSB7CiAgICAgICAgZmlsbDogI2RkZjJmZjsKICAgICAgfQoKICAgICAgLmNscy0xNyB7CiAgICAgICAgZmlsbDogdXJsKCNf5pyq5ZG95ZCN55qE5riQ5Y+YXzgpOwogICAgICAgIHN0cm9rZTogIzAwMDsKICAgICAgICBzdHJva2UtbWl0ZXJsaW1pdDogMTA7CiAgICAgIH0KCiAgICAgIC5jbHMtMTIgewogICAgICAgIGZpbGw6ICNjNWVjZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtMTMgewogICAgICAgIGZpbGw6ICNlZGY4ZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtMTQgewogICAgICAgIGZpbGw6ICNiMGRlZmU7CiAgICAgIH0KCiAgICAgIC5jbHMtMTggewogICAgICAgIG9wYWNpdHk6IC42OwogICAgICB9CgogICAgICAuY2xzLTE5IHsKICAgICAgICBtYXNrOiB1cmwoI21hc2spOwogICAgICB9CgogICAgICAuY2xzLTE1IHsKICAgICAgICBmaWxsOiAjOTZkN2ZlOwogICAgICB9CgogICAgICAuY2xzLTE2IHsKICAgICAgICBmaWxsOiAjZDhmMmZmOwogICAgICB9CiAgICA8L3N0eWxlPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJf5pyq5ZG95ZCN55qE5riQ5Y+YXzgiIGRhdGEtbmFtZT0i5pyq5ZG95ZCN55qE5riQ5Y+YIDgiIHgxPSIyMTIuMTUiIHkxPSIzMzAuMDMiIHgyPSIxOS41MSIgeTI9IjM2LjgyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2ZmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9Ii4wNyIgc3RvcC1jb2xvcj0iI2NjYzljOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9Ii4xNiIgc3RvcC1jb2xvcj0iIzk5OTQ5MiIvPgogICAgICA8c3RvcCBvZmZzZXQ9Ii4yNCIgc3RvcC1jb2xvcj0iIzZlNjc2NSIvPgogICAgICA8c3RvcCBvZmZzZXQ9Ii4zMiIgc3RvcC1jb2xvcj0iIzRkNDU0MiIvPgogICAgICA8c3RvcCBvZmZzZXQ9Ii40IiBzdG9wLWNvbG9yPSIjMzYyYzI5Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iLjQ2IiBzdG9wLWNvbG9yPSIjMjcxZDFhIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iLjUyIiBzdG9wLWNvbG9yPSIjMjMxODE1Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPG1hc2sgaWQ9Im1hc2siIHg9Ii0xODkuNSIgeT0iLS41IiB3aWR0aD0iNTQ5IiBoZWlnaHQ9IjI3NCIgbWFza1VuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtMTciIHg9Ii0xODkiIHdpZHRoPSI1NDgiIGhlaWdodD0iMjczIi8+CiAgICA8L21hc2s+CiAgPC9kZWZzPgogIDxnIGNsYXNzPSJjbHMtMTkiPgogICAgPGcgY2xhc3M9ImNscy0xOCI+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMTAiIGQ9Ik0yOTguNzIsMTAxaDI4Ljc2bDExLjM2LTE3LjY3LTMxLjA5LTQ4LjgzaC01MS4yNWw0Mi4yMiw2Ni41WiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEwIiBkPSJNMzU5LDI3M3YtNTkuNWwtMzksNTkuNWgzOVoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy00IiBkPSJNMjgzLDI3M2gzN2wzOS01OS41aC00Mi42bC0zNS45Miw1NS42NiwyLjUyLDMuODRaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMTAiIGQ9Ik0yODAuNDgsMjY5LjE2bDM1LjkyLTU1LjY2aC03Mi4zOWwzNi40Nyw1NS42NloiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy04IiBkPSJNMjA2LDI3M2g3MmwyLjQ4LTMuODQtMzYuNDctNTUuNjYtMzguMDEsNTkuNVoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMzE2LjQsMjEzLjVoNDIuNmwtMjEuMTktMzMuMTctMjEuNDEsMzMuMTdaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTI3OCwyNzNoNWwtMi41Mi0zLjg0LTIuNDgsMy44NFoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xMiIgZD0iTTMwMS41LDEyMy41bC01Ny40OSw5MGg3Mi4zOWwyMS40MS0zMy4xNy0zNi4zMS01Ni44M1oiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xMSIgZD0iTTM1OSwyMTMuNXYtNjZsLTIxLjE5LDMyLjgzLDIxLjE5LDMzLjE3WiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTYiIGQ9Ik0zNTksMTQ3LjV2LTI0aC01Ny41bDM2LjMxLDU2LjgzLDIxLjE5LTMyLjgzWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTE2IiBkPSJNMzU5LDEyMy41di04LjVsLTguOTEtMTRoLTIyLjYxbC0xNC40OCwyMi41aDQ2WiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTE2IiBkPSJNMzM4Ljg0LDgzLjMzbC0xMS4zNiwxNy42N2gyMi42MWwtMTEuMjUtMTcuNjdaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTM1OSwxMDF2LTQ5bC0yMC4xNiwzMS4zMywxMS4yNSwxNy42N2g4LjkxWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTE0IiBkPSJNMzU5LDExNXYtMTRoLTguOTFsOC45MSwxNFoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xNSIgZD0iTTM1OSw1MnYtMTcuNWgtNTEuMjVsMzEuMDksNDguODMsMjAuMTYtMzEuMzNaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtNSIgZD0iTTM1OSwzNC41VjBsLTUxLjI1LDM0LjVoNTEuMjVaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMTEiIGQ9Ik0xNDEsMjczaDI5bC0xNC40NS0yMS43MS0xNC41NSwyMS43MVoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xMyIgZD0iTTE3MCwyNzNoMzZsMzguMDEtNTkuNWgtNjMuMTFsLTI1LjM1LDM3Ljc5LDE0LjQ1LDIxLjcxWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xODEsMTIzLjVsLTU0LjQsODQuMjgsMy44LDUuNzJoNTAuNWwyOS4yMy00My42LTI5LjEzLTQ2LjRaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtNyIgZD0iTTE0MSwyNzNoLTU2LjVsNi05LjMtMzIuNDEtNTAuMkwwLDEyMy41aDE4MWwtNTQuNCw4NC4yOCwzLjgsNS43Mmg1MC41bC0yNS4zNSwzNy43OS0xNC41NSwyMS43MVpNMjEwLjEzLDE2OS45bC0yOS4xMy00Ni40aDEyMC41bC01Ny40OSw5MGgtNi41MWwtMjcuMzctNDMuNlpNMzI3LjQ4LDEwMWwtMTQuNDgsMjIuNS0xNC4yOC0yMi41LTQyLjIyLTY2LjVoNTEuMjVsMzEuMDksNDguODMtMTEuMzYsMTcuNjdaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE4MC45LDIxMy41aDU2LjZsLTI3LjM3LTQzLjYtMjkuMjMsNDMuNloiLz4KICAgIDwvZz4KICA8L2c+Cjwvc3ZnPg==);
@@ -49,7 +53,7 @@ body {
     'Nunito Sans', 'Noto Sans JP', 'Resource Han Rounded CN', Inter, '-apple-system',
     BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'noto sans', 'Microsoft YaHei',
     'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-  --border-radius-large: clamp(8px, 0.5vw, 100vw) !important;
+  --border-radius-large: clamp(8px, calc(0.5 * var(--u)), 100vw) !important;
 }
 
 a {
@@ -100,7 +104,7 @@ a {
   width: auto;
   position: relative;
   flex: unset !important;
-  font-size: clamp(20px, 1.25vw, 100vw);
+  font-size: clamp(20px, calc(1.25 * var(--u)), 100vw);
   color: #003153;
   user-select: none;
   -webkit-user-select: none;
@@ -112,7 +116,7 @@ a {
   content: '';
   position: absolute;
   width: 100%;
-  height: clamp(5px, 0.3125vw, 100vw);
+  height: clamp(5px, calc(0.3125 * var(--u)), 100vw);
   background: #ffe433;
   bottom: 0;
 }
@@ -122,24 +126,25 @@ a {
 }
 
 .arco-modal-close-btn {
-  right: clamp(15px, 0.9375vw, 100vw);
+  right: clamp(15px, calc(0.9375 * var(--u)), 100vw);
   position: absolute;
 }
 
 .arco-btn {
   transform: skewX(-10deg);
-  border-radius: clamp(4px, 0.25vw, 100vw) !important;
+  border-radius: clamp(4px, calc(0.25 * var(--u)), 100vw) !important;
 }
 
 .arco-modal-body {
-  padding: clamp(75px, 4.6875vw, 100vw) clamp(100px, 6.25vw, 100vw) clamp(50px, 3.125vw, 100vw) !important;
-  font-size: clamp(16px, 1vw, 100vw) !important;
-  max-width: clamp(240px, 15vw, 100vw);
+  padding: clamp(75px, calc(4.6875 * var(--u)), 100vw) clamp(100px, calc(6.25 * var(--u)), 100vw)
+    clamp(50px, calc(3.125 * var(--u)), 100vw) !important;
+  font-size: clamp(16px, calc(1 * var(--u)), 100vw) !important;
+  max-width: clamp(240px, calc(15 * var(--u)), 100vw);
   background: #f0f0f0;
 }
 
 .arco-modal > :last-child.arco-modal-body {
-  padding: clamp(75px, 4.6875vw, 100vw) clamp(100px, 6.25vw, 100vw) !important;
+  padding: clamp(75px, calc(4.6875 * var(--u)), 100vw) clamp(100px, calc(6.25 * var(--u)), 100vw) !important;
   background-size: contain;
   background: #f0f0f0 var(--deco1) no-repeat right !important;
   border-radius: 0 0 var(--border-radius-large) var(--border-radius-large) !important;
@@ -164,21 +169,21 @@ a {
   background: #f0f0f0;
   border-radius: 0 0 var(--border-radius-large) var(--border-radius-large);
   border-top: unset !important;
-  padding: clamp(24px, 1.5vw, 100vw) clamp(32px, 2vw, 100vw) !important;
+  padding: clamp(24px, calc(1.5 * var(--u)), 100vw) clamp(32px, calc(2 * var(--u)), 100vw) !important;
 }
 
 .arco-btn-secondary {
   background: #daeef5 !important;
   color: #003153 !important;
   padding: 20px 40px !important;
-  font-size: clamp(18px, 1.125vw, 100vw) !important;
+  font-size: clamp(18px, calc(1.125 * var(--u)), 100vw) !important;
   transition: transform 0.1s !important;
 }
 
 @media screen and (min-width: 1600px) {
   .arco-btn-secondary {
     filter: drop-shadow(0px 1px 2px #0004);
-    padding: clamp(20px, 1.25vw, 100vw) clamp(40px, 2.5vw, 100vw) !important;
+    padding: clamp(20px, calc(1.25 * var(--u)), 100vw) clamp(40px, calc(2.5 * var(--u)), 100vw) !important;
   }
 }
 
@@ -186,14 +191,14 @@ a {
   background: #77deff !important;
   color: #003153 !important;
   padding: 20px 40px !important;
-  font-size: clamp(18px, 1.125vw, 100vw) !important;
+  font-size: clamp(18px, calc(1.125 * var(--u)), 100vw) !important;
   transition: transform 0.1s !important;
 }
 
 @media screen and (min-width: 1600px) {
   .arco-btn-primary {
     filter: drop-shadow(0px 1px 2px #0004);
-    padding: clamp(20px, 1.25vw, 100vw) clamp(40px, 2.5vw, 100vw) !important;
+    padding: clamp(20px, calc(1.25 * var(--u)), 100vw) clamp(40px, calc(2.5 * var(--u)), 100vw) !important;
   }
 }
 
@@ -207,7 +212,7 @@ a {
 }
 
 .arco-modal-header .arco-icon {
-  font-size: clamp(30px, 1.875vw, 100vw);
+  font-size: clamp(30px, calc(1.875 * var(--u)), 100vw);
   vertical-align: -8px !important;
   transition: transform 0.1s !important;
 }
@@ -271,7 +276,7 @@ a {
 }
 
 .arco-modal .arco-modal-header {
-  height: clamp(48px, 3vw, 100vw);
+  height: clamp(48px, calc(3 * var(--u)), 100vw);
 }
 
 @media (prefers-reduced-motion: reduce) {

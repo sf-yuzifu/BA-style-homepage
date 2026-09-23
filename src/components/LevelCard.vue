@@ -90,9 +90,9 @@ const goToBio = () => {
 /* ===== 共用骨架与内容 ===== */
 
 .level-box {
-  height: clamp(96px, 6vw, 100vw);
+  height: clamp(96px, calc(6 * var(--u)), 100vw);
   position: absolute;
-  border-radius: clamp(8px, 0.5vw, 100vw);
+  border-radius: clamp(8px, calc(0.5 * var(--u)), 100vw);
   display: flex;
   z-index: 2;
 }
@@ -101,9 +101,9 @@ const goToBio = () => {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin: auto 0 auto clamp(26px, 1.625vw, 100vw);
+  margin: auto 0 auto clamp(26px, calc(1.625 * var(--u)), 100vw);
   width: 100%;
-  height: calc(100% - clamp(26px, 1.625vw, 100vw));
+  height: calc(100% - clamp(26px, calc(1.625 * var(--u)), 100vw));
 }
 
 .level {
@@ -119,14 +119,14 @@ const goToBio = () => {
 
 .container .level p {
   color: #fff;
-  font-size: clamp(42px, 2.625vw, 100vw);
+  font-size: clamp(42px, calc(2.625 * var(--u)), 100vw);
   font-weight: medium;
   transform: skewX(-10deg);
 }
 
 .container .name {
   color: #fff;
-  font-size: clamp(24px, 1.5vw, 100vw);
+  font-size: clamp(24px, calc(1.5 * var(--u)), 100vw);
   font-weight: medium;
   user-select: none;
   -webkit-user-select: none;
@@ -136,14 +136,14 @@ const goToBio = () => {
 
 .container .level span {
   color: #ffe433;
-  font-size: clamp(24px, 1.5vw, 100vw);
+  font-size: clamp(24px, calc(1.5 * var(--u)), 100vw);
   font-weight: medium;
   transform: skewX(-10deg);
 }
 
 .right {
   align-self: flex-start;
-  margin: 0 clamp(20px, 1.25vw, 100vw);
+  margin: 0 clamp(20px, calc(1.25 * var(--u)), 100vw);
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -152,7 +152,7 @@ const goToBio = () => {
 }
 
 .right p {
-  font-size: clamp(20px, 1.25vw, 100vw);
+  font-size: clamp(20px, calc(1.25 * var(--u)), 100vw);
   font-weight: medium;
 }
 
@@ -166,11 +166,13 @@ const goToBio = () => {
   font: inherit;
   color: inherit;
   text-align: left;
-  width: clamp(300px, 18.75vw, 100vw);
+  width: clamp(300px, calc(18.75 * var(--u)), 100vw);
   background: linear-gradient(120deg, #003153, #2265bb 15%, #003153 70%, #003153);
   left: var(--safe-left);
-  top: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-top));
-  filter: drop-shadow(0 clamp(3px, 0.1875vw, 100vw) clamp(3px, 0.1875vw, 100vw) black);
+  top: calc(clamp(40px, calc(2.5 * var(--u)), 100vw) + var(--safe-top));
+  filter: drop-shadow(
+    0 clamp(3px, calc(0.1875 * var(--u)), 100vw) clamp(3px, calc(0.1875 * var(--u)), 100vw) black
+  );
 }
 
 /* 右侧探出的斜切尾巴 */
@@ -178,10 +180,10 @@ const goToBio = () => {
   content: '';
   position: absolute;
   top: 0;
-  right: clamp(-20px, -1.25vw, 100vw);
+  right: clamp(-20px, calc(-1.25 * var(--u)), 100vw);
   bottom: 0;
-  width: clamp(60px, 3.75vw, 100vw);
-  border-radius: clamp(8px, 0.5vw, 100vw);
+  width: clamp(60px, calc(3.75 * var(--u)), 100vw);
+  border-radius: clamp(8px, calc(0.5 * var(--u)), 100vw);
   background: #003153;
   transform: skewX(-10deg);
   z-index: -1;
@@ -228,7 +230,7 @@ const goToBio = () => {
 .level-box--bio {
   width: 40%;
   background: #003153dd;
-  bottom: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-bottom));
+  bottom: calc(clamp(40px, calc(2.5 * var(--u)), 100vw) + var(--safe-bottom));
   transform: skewX(-10deg);
 }
 
@@ -242,7 +244,7 @@ const goToBio = () => {
     width: 80%;
     position: relative;
     /* relative 时 bottom 会把元素顶上去；安全区已从容器高度扣除，勿再叠一层 */
-    bottom: clamp(40px, 2.5vw, 100vw);
+    bottom: clamp(40px, calc(2.5 * var(--u)), 100vw);
   }
 }
 </style>

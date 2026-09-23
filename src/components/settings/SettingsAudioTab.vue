@@ -87,8 +87,8 @@ const toggleMute = (target: VolumeKey) => {
 .volume-row {
   display: flex;
   align-items: center;
-  gap: clamp(10px, 0.625vw, 100vw);
-  padding: clamp(14px, 0.875vw, 100vw) 0;
+  gap: clamp(10px, calc(0.625 * var(--u)), 100vw);
+  padding: clamp(14px, calc(0.875 * var(--u)), 100vw) 0;
 }
 
 .volume-row:first-child {
@@ -96,16 +96,16 @@ const toggleMute = (target: VolumeKey) => {
 }
 
 .volume-row:not(:last-child) {
-  border-bottom: clamp(1px, 0.0625vw, 100vw) dashed #c9d8e2;
+  border-bottom: clamp(1px, calc(0.0625 * var(--u)), 100vw) dashed #c9d8e2;
 }
 
 .volume-name {
   flex: none;
   display: flex;
   align-items: center;
-  gap: clamp(8px, 0.5vw, 100vw);
-  width: clamp(104px, 6.5vw, 100vw);
-  font-size: clamp(18px, 1.125vw, 100vw);
+  gap: clamp(8px, calc(0.5 * var(--u)), 100vw);
+  width: clamp(104px, calc(6.5 * var(--u)), 100vw);
+  font-size: clamp(18px, calc(1.125 * var(--u)), 100vw);
   color: #003153;
   font-weight: bold;
   line-height: 1;
@@ -120,16 +120,16 @@ const toggleMute = (target: VolumeKey) => {
   content: '';
   flex: none;
   position: relative;
-  width: clamp(3px, 0.1875vw, 100vw);
-  height: clamp(18px, 1.125vw, 100vw);
-  top: clamp(1px, 0.0625vw, 100vw);
+  width: clamp(3px, calc(0.1875 * var(--u)), 100vw);
+  height: clamp(18px, calc(1.125 * var(--u)), 100vw);
+  top: clamp(1px, calc(0.0625 * var(--u)), 100vw);
   background: #4ec3f5;
-  border-radius: clamp(2px, 0.125vw, 100vw);
+  border-radius: clamp(2px, calc(0.125 * var(--u)), 100vw);
 }
 
 .volume-icon {
   flex: none;
-  font-size: clamp(22px, 1.375vw, 100vw);
+  font-size: clamp(22px, calc(1.375 * var(--u)), 100vw);
   color: #4ec3f5;
 }
 
@@ -139,10 +139,10 @@ const toggleMute = (target: VolumeKey) => {
   appearance: none;
   flex: 1;
   min-width: 0;
-  height: clamp(8px, 0.5vw, 100vw);
-  border-radius: clamp(4px, 0.25vw, 100vw);
+  height: clamp(8px, calc(0.5 * var(--u)), 100vw);
+  border-radius: clamp(4px, calc(0.25 * var(--u)), 100vw);
   background: linear-gradient(to right, #4ec3f5 var(--fill, 0%), #dfe6ea var(--fill, 0%));
-  outline-offset: clamp(4px, 0.25vw, 100vw);
+  outline-offset: clamp(4px, calc(0.25 * var(--u)), 100vw);
 }
 
 .volume-slider::-moz-range-track {
@@ -153,20 +153,20 @@ const toggleMute = (target: VolumeKey) => {
   -webkit-appearance: none;
   appearance: none;
   box-sizing: border-box;
-  width: clamp(18px, 1.125vw, 100vw);
-  height: clamp(18px, 1.125vw, 100vw);
+  width: clamp(18px, calc(1.125 * var(--u)), 100vw);
+  height: clamp(18px, calc(1.125 * var(--u)), 100vw);
   border-radius: 50%;
   background: #fff;
-  border: clamp(3px, 0.1875vw, 100vw) solid #4ec3f5;
+  border: clamp(3px, calc(0.1875 * var(--u)), 100vw) solid #4ec3f5;
 }
 
 .volume-slider::-moz-range-thumb {
   box-sizing: border-box;
-  width: clamp(18px, 1.125vw, 100vw);
-  height: clamp(18px, 1.125vw, 100vw);
+  width: clamp(18px, calc(1.125 * var(--u)), 100vw);
+  height: clamp(18px, calc(1.125 * var(--u)), 100vw);
   border-radius: 50%;
   background: #fff;
-  border: clamp(3px, 0.1875vw, 100vw) solid #4ec3f5;
+  border: clamp(3px, calc(0.1875 * var(--u)), 100vw) solid #4ec3f5;
 }
 
 .volume-slider:disabled {
@@ -185,11 +185,11 @@ const toggleMute = (target: VolumeKey) => {
   flex: none;
   display: flex;
   align-items: center;
-  gap: clamp(8px, 0.5vw, 100vw);
+  gap: clamp(8px, calc(0.5 * var(--u)), 100vw);
 }
 
 .mute-text {
-  font-size: clamp(16px, 1vw, 100vw);
+  font-size: clamp(16px, calc(1 * var(--u)), 100vw);
   color: #003153;
   user-select: none;
   -webkit-user-select: none;
@@ -201,11 +201,11 @@ const toggleMute = (target: VolumeKey) => {
   position: relative;
   flex: none;
   box-sizing: border-box;
-  width: clamp(24px, 1.5vw, 100vw);
-  height: clamp(24px, 1.5vw, 100vw);
+  width: clamp(24px, calc(1.5 * var(--u)), 100vw);
+  height: clamp(24px, calc(1.5 * var(--u)), 100vw);
   background: #fff;
-  border: clamp(2px, 0.125vw, 100vw) solid #b6c7d2;
-  border-radius: clamp(3px, 0.1875vw, 100vw);
+  border: clamp(2px, calc(0.125 * var(--u)), 100vw) solid #b6c7d2;
+  border-radius: clamp(3px, calc(0.1875 * var(--u)), 100vw);
   transition:
     border-color 0.2s,
     transform 0.1s;
@@ -228,7 +228,8 @@ const toggleMute = (target: VolumeKey) => {
   width: 32%;
   height: 58%;
   border: solid #4ec3f5;
-  border-width: 0 clamp(2px, 0.125vw, 100vw) clamp(2px, 0.125vw, 100vw) 0;
+  border-width: 0 clamp(2px, calc(0.125 * var(--u)), 100vw)
+    clamp(2px, calc(0.125 * var(--u)), 100vw) 0;
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
@@ -240,8 +241,8 @@ const toggleMute = (target: VolumeKey) => {
   }
 
   .volume-name {
-    width: clamp(72px, 4.5vw, 100vw);
-    font-size: clamp(16px, 1vw, 100vw);
+    width: clamp(72px, calc(4.5 * var(--u)), 100vw);
+    font-size: clamp(16px, calc(1 * var(--u)), 100vw);
   }
 }
 </style>

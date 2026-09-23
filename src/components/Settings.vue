@@ -122,17 +122,19 @@ const moveTab = (step: number) => {
 .settings {
   display: flex;
   align-items: stretch;
-  height: calc(100% - clamp(4px, 0.25vw, 100vw));
+  height: calc(100% - clamp(4px, calc(0.25 * var(--u)), 100vw));
   background-color: #fff;
-  border-radius: clamp(4px, 0.25vw, 100vw);
-  border: clamp(2px, 0.125vw, 100vw) solid #6b7f8d66;
-  filter: drop-shadow(0px clamp(2px, 0.125vw, 100vw) clamp(2px, 0.125vw, 100vw) #6b7f8d);
+  border-radius: clamp(4px, calc(0.25 * var(--u)), 100vw);
+  border: clamp(2px, calc(0.125 * var(--u)), 100vw) solid #6b7f8d66;
+  filter: drop-shadow(
+    0px clamp(2px, calc(0.125 * var(--u)), 100vw) clamp(2px, calc(0.125 * var(--u)), 100vw) #6b7f8d
+  );
 }
 
 .deco {
   position: absolute;
-  bottom: clamp(8px, 0.5vw, 100vw);
-  left: clamp(8px, 0.5vw, 100vw);
+  bottom: clamp(8px, calc(0.5 * var(--u)), 100vw);
+  left: clamp(8px, calc(0.5 * var(--u)), 100vw);
   width: 40%;
   aspect-ratio: 98 / 19;
   background-color: #4ec3f5;
@@ -162,8 +164,8 @@ const moveTab = (step: number) => {
   appearance: none;
   background: none;
   font-family: inherit;
-  padding: clamp(12px, 0.75vw, 100vw) clamp(10px, 0.625vw, 100vw);
-  font-size: clamp(20px, 1.25vw, 100vw);
+  padding: clamp(12px, calc(0.75 * var(--u)), 100vw) clamp(10px, calc(0.625 * var(--u)), 100vw);
+  font-size: clamp(20px, calc(1.25 * var(--u)), 100vw);
   color: #003153;
   display: flex;
   align-items: center;
@@ -174,7 +176,7 @@ const moveTab = (step: number) => {
     background-color 0.2s,
     transform 0.1s;
   font-weight: bold;
-  border: clamp(2px, 0.125vw, 100vw) solid rgb(205, 232, 253);
+  border: clamp(2px, calc(0.125 * var(--u)), 100vw) solid rgb(205, 232, 253);
   border-top: unset;
   border-bottom: unset;
   user-select: none;
@@ -187,7 +189,7 @@ const moveTab = (step: number) => {
   flex: none;
   align-self: center;
   width: 90%;
-  height: clamp(2px, 0.125vw, 100vw);
+  height: clamp(2px, calc(0.125 * var(--u)), 100vw);
   background-color: #6b7f8d66;
 }
 
@@ -208,8 +210,8 @@ const moveTab = (step: number) => {
   flex: 1;
   min-width: 0;
   overflow-y: auto;
-  margin: clamp(6px, 0.375vw, 100vw);
-  border: clamp(6px, 0.375vw, 100vw) solid rgb(238, 238, 238);
+  margin: clamp(6px, calc(0.375 * var(--u)), 100vw);
+  border: clamp(6px, calc(0.375 * var(--u)), 100vw) solid rgb(238, 238, 238);
 }
 
 /* about 页是子组件根节点（带父组件 scope 标识），:has 仍命中 */
@@ -245,7 +247,7 @@ const moveTab = (step: number) => {
   }
 
   .tab-divider {
-    width: clamp(2px, 0.125vw, 100vw);
+    width: clamp(2px, calc(0.125 * var(--u)), 100vw);
     height: 80%;
   }
 
@@ -258,23 +260,25 @@ const moveTab = (step: number) => {
 <style>
 /* 设置面板需要比 index.css 里通用弹窗更宽、更紧凑的内边距 */
 .settings-modal.arco-modal {
-  width: min(92vw, clamp(800px, 50vw, 100vw)) !important;
-  height: min(92vh, clamp(432px, 27vw, 100vw)) !important;
+  width: min(92vw, clamp(800px, calc(50 * var(--u)), 100vw)) !important;
+  height: min(92vh, clamp(432px, calc(27 * var(--u)), 100vw)) !important;
 }
 
 .settings-modal .arco-modal-body,
 .settings-modal > :last-child.arco-modal-body {
-  padding: clamp(16px, 1vw, 100vw) !important;
+  padding: clamp(16px, calc(1 * var(--u)), 100vw) !important;
   max-width: none;
-  font-size: clamp(16px, 1vw, 100vw) !important;
+  font-size: clamp(16px, calc(1 * var(--u)), 100vw) !important;
   text-align: left !important;
-  height: calc(100% - clamp(48px, 3vw, 100vw) - clamp(32px, 2vw, 100vw));
+  height: calc(
+    100% - clamp(48px, calc(3 * var(--u)), 100vw) - clamp(32px, calc(2 * var(--u)), 100vw)
+  );
 }
 
 /* 各 Tab 子组件共享的面板排版语言（.row/.row-title/.row-desc），命名空间隔离不外泄 */
 .settings .row {
-  border-bottom: clamp(6px, 0.375vw, 100vw) solid rgb(238, 238, 238);
-  padding: clamp(12px, 0.75vw, 100vw);
+  border-bottom: clamp(6px, calc(0.375 * var(--u)), 100vw) solid rgb(238, 238, 238);
+  padding: clamp(12px, calc(0.75 * var(--u)), 100vw);
   text-align: left;
 }
 
@@ -286,14 +290,14 @@ const moveTab = (step: number) => {
 .settings .row-title {
   display: flex;
   align-items: center;
-  gap: clamp(8px, 0.5vw, 100vw);
-  font-size: clamp(18px, 1.125vw, 100vw);
+  gap: clamp(8px, calc(0.5 * var(--u)), 100vw);
+  font-size: clamp(18px, calc(1.125 * var(--u)), 100vw);
   color: #003153;
   font-weight: bold;
-  border-bottom: clamp(1px, 0.0625vw, 100vw) dashed #c9d8e2;
+  border-bottom: clamp(1px, calc(0.0625 * var(--u)), 100vw) dashed #c9d8e2;
   line-height: 1;
   padding-top: 0;
-  padding-bottom: clamp(12px, 0.75vw, 100vw);
+  padding-bottom: clamp(12px, calc(0.75 * var(--u)), 100vw);
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -304,16 +308,16 @@ const moveTab = (step: number) => {
   content: '';
   flex: none;
   position: relative;
-  top: clamp(1px, 0.0625vw, 100vw);
-  width: clamp(3px, 0.1875vw, 100vw);
-  height: clamp(18px, 1.125vw, 100vw);
+  top: clamp(1px, calc(0.0625 * var(--u)), 100vw);
+  width: clamp(3px, calc(0.1875 * var(--u)), 100vw);
+  height: clamp(18px, calc(1.125 * var(--u)), 100vw);
   background: #4ec3f5;
-  border-radius: clamp(2px, 0.125vw, 100vw);
+  border-radius: clamp(2px, calc(0.125 * var(--u)), 100vw);
 }
 
 .settings .row-desc {
-  margin: clamp(8px, 0.5vw, 100vw) 0;
-  font-size: clamp(14px, 0.875vw, 100vw);
+  margin: clamp(8px, calc(0.5 * var(--u)), 100vw) 0;
+  font-size: clamp(14px, calc(0.875 * var(--u)), 100vw);
   color: #6b7f8d;
   line-height: 1.6;
   user-select: none;

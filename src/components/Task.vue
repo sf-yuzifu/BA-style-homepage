@@ -162,7 +162,7 @@ const skip = () => {
 }
 
 .curtain img {
-  width: clamp(500px, 31.25vw, 100vw);
+  width: clamp(500px, calc(31.25 * var(--u)), 100vw);
   height: auto;
 }
 
@@ -173,9 +173,9 @@ const skip = () => {
   padding: 0;
   font: inherit;
   position: absolute;
-  bottom: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-bottom));
-  right: calc(clamp(30px, 1.875vw, 100vw) + var(--safe-right));
-  width: clamp(220px, 13.75vw, 100vw);
+  bottom: calc(clamp(40px, calc(2.5 * var(--u)), 100vw) + var(--safe-bottom));
+  right: calc(clamp(30px, calc(1.875 * var(--u)), 100vw) + var(--safe-right));
+  width: clamp(220px, calc(13.75 * var(--u)), 100vw);
   aspect-ratio: 329 / 232;
   background: url('/task.png') center;
   background-size: cover;
@@ -186,11 +186,11 @@ const skip = () => {
 .task:before {
   content: '';
   position: absolute;
-  left: clamp(30px, 1.875vw, 100vw);
+  left: clamp(30px, calc(1.875 * var(--u)), 100vw);
   bottom: 0;
-  height: clamp(50px, 3.125vw, 100vw);
-  width: calc(100% - clamp(30px, 1.875vw, 100vw));
-  border-radius: clamp(8px, 0.5vw, 100vw);
+  height: clamp(50px, calc(3.125 * var(--u)), 100vw);
+  width: calc(100% - clamp(30px, calc(1.875 * var(--u)), 100vw));
+  border-radius: clamp(8px, calc(0.5 * var(--u)), 100vw);
   background: #003153;
   transform: skewX(-10deg);
 }
@@ -198,15 +198,15 @@ const skip = () => {
 .task:after {
   content: attr(name);
   position: absolute;
-  left: clamp(30px, 1.875vw, 100vw);
+  left: clamp(30px, calc(1.875 * var(--u)), 100vw);
   bottom: 0;
-  height: clamp(50px, 3.125vw, 100vw);
-  width: calc(100% - clamp(30px, 1.875vw, 100vw));
+  height: clamp(50px, calc(3.125 * var(--u)), 100vw);
+  width: calc(100% - clamp(30px, calc(1.875 * var(--u)), 100vw));
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: clamp(26px, 1.625vw, 100vw);
+  font-size: clamp(26px, calc(1.625 * var(--u)), 100vw);
   font-weight: bold;
 }
 
@@ -258,6 +258,52 @@ const skip = () => {
   .task {
     right: calc(40px + var(--safe-right));
     bottom: calc(140px + var(--safe-bottom));
+  }
+}
+
+/* ---- 极小/短窗紧凑档（≤495px 移动档 ∪ max-height:768px 矮窗档）----
+   任务牌 220→150px（对齐 max-h:630px 档的 160px 量级），板面装饰同步微缩，
+   空间再紧走 P7/P8 藏序而不是继续缩牌 */
+@media screen and (max-width: 495px), screen and (max-height: 768px) {
+  .task {
+    width: clamp(150px, calc(13.75 * var(--u)), 100vw);
+  }
+
+  /* 板面装饰同步缩（覆盖 max-height:630px 档的定高 40px） */
+  .task:before,
+  .task:after {
+    height: clamp(36px, calc(3.125 * var(--u)), 100vw);
+  }
+
+  .task:after {
+    font-size: clamp(18px, calc(1.625 * var(--u)), 100vw);
+  }
+}
+
+/* 下带联动档（仅 ≤495px 移动档）：bottom 与 Footer/ICP 实高对齐（弃用固定 140px）。
+   短宽窗保持 base bottom 让公告板照旧立在 Dock 上（设计重叠），故不并入本档 */
+@media screen and (max-width: 495px) {
+  .task {
+    right: calc(clamp(16px, calc(1.875 * var(--u)), 100vw) + var(--safe-right));
+    /* ICP 底栏 50px + icp-mode Footer 60px + 8px 间隙；无 ICP 时 Footer(80+25=105px) 同被 118px 覆盖 */
+    bottom: calc(50px + 60px + 8px + var(--safe-bottom));
+  }
+}
+
+/* P7 藏序第三：极窄/极矮弃板面装饰（:before 底板 + :after 名称条）。
+   阈值 ≤ P6（标签 ≤330px/540px）保证板面后于标签弃 */
+@media screen and (max-width: 310px), screen and (max-height: 500px) {
+  .task:before,
+  .task:after {
+    display: none;
+  }
+}
+
+/* P8 整块藏序第三：Music（≤300px/440px）→Contact（≤280px/380px）之后最后弃任务（备案/等级卡/设置必留）。
+   高度阈值 370px = 下带 118px + 牌高 78px + l2d 开关底缘 172px，再矮牌顶就会撞上工具箱第二行 */
+@media screen and (max-width: 260px), screen and (max-height: 370px) {
+  .task {
+    display: none;
   }
 }
 

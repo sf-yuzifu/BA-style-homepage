@@ -60,14 +60,14 @@ const move = (step: number) => {
 .radio-group {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  row-gap: clamp(12px, 0.75vw, 100vw);
+  row-gap: clamp(12px, calc(0.75 * var(--u)), 100vw);
 }
 
 .radio {
   display: inline-flex;
   align-items: center;
-  gap: clamp(8px, 0.5vw, 100vw);
-  font-size: clamp(16px, 1vw, 100vw);
+  gap: clamp(8px, calc(0.5 * var(--u)), 100vw);
+  font-size: clamp(16px, calc(1 * var(--u)), 100vw);
   color: #6b7f8d;
   transition: color 0.2s;
   user-select: none;
@@ -88,9 +88,9 @@ const move = (step: number) => {
 .dot {
   position: relative;
   flex: none;
-  width: clamp(18px, 1.125vw, 100vw);
-  height: clamp(18px, 1.125vw, 100vw);
-  border: clamp(2px, 0.125vw, 100vw) solid #b6c7d2;
+  width: clamp(18px, calc(1.125 * var(--u)), 100vw);
+  height: clamp(18px, calc(1.125 * var(--u)), 100vw);
+  border: clamp(2px, calc(0.125 * var(--u)), 100vw) solid #b6c7d2;
   border-radius: 50%;
   box-sizing: border-box;
   transition:
@@ -106,7 +106,7 @@ const move = (step: number) => {
 .dot::after {
   content: '';
   position: absolute;
-  inset: clamp(3px, 0.1875vw, 100vw);
+  inset: clamp(3px, calc(0.1875 * var(--u)), 100vw);
   border-radius: 50%;
   background: #4ec3f5;
   transform: scale(0);

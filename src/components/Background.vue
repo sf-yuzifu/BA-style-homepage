@@ -326,20 +326,21 @@ if (import.meta.env.DEV) {
 
 .dialogue {
   /* 气泡与锚点一侧的间距（margin 与压缩时 max-width 的扣除量共用） */
-  --bubble-side-gap: clamp(8px, 0.5vw, 100vw);
+  --bubble-side-gap: clamp(8px, calc(0.5 * var(--u)), 100vw);
   position: relative;
-  padding: clamp(30px, 1.875vw, 100vw) clamp(20px, 1.25vw, 100vw);
+  padding: clamp(30px, calc(1.875 * var(--u)), 100vw) clamp(20px, calc(1.25 * var(--u)), 100vw);
   width: max-content;
   /* --dialogue-max-w 由 useDialogueAnchor 视口收边后内联到气泡层：
      贴边时气泡压缩换行；未收边时回退 100vw，等同只看原 clamp 上限 */
   max-width: min(
-    clamp(280px, 17.5vw, 100vw),
+    clamp(280px, calc(17.5 * var(--u)), 100vw),
     calc(var(--dialogue-max-w, 100vw) - var(--bubble-side-gap))
   );
-  font-size: clamp(24px, 1.5vw, 100vw);
+  font-size: clamp(24px, calc(1.5 * var(--u)), 100vw);
   background-color: #f0f0f0dd;
-  border-radius: clamp(10px, 0.625vw, 100vw);
-  box-shadow: 0 clamp(2px, 0.125vw, 100vw) clamp(8px, 0.5vw, 100vw) 0 rgba(0, 0, 0, 0.15);
+  border-radius: clamp(10px, calc(0.625 * var(--u)), 100vw);
+  box-shadow: 0 clamp(2px, calc(0.125 * var(--u)), 100vw) clamp(8px, calc(0.5 * var(--u)), 100vw) 0
+    rgba(0, 0, 0, 0.15);
 }
 
 /* 三角箭头（只画向外的一半） */
@@ -362,21 +363,21 @@ if (import.meta.env.DEV) {
   box-shadow: none;
   transform: translateY(-50%);
   pointer-events: none;
-  border-top: clamp(9px, 0.5625vw, 100vw) solid transparent;
-  border-bottom: clamp(9px, 0.5625vw, 100vw) solid transparent;
+  border-top: clamp(9px, calc(0.5625 * var(--u)), 100vw) solid transparent;
+  border-bottom: clamp(9px, calc(0.5625 * var(--u)), 100vw) solid transparent;
 }
 
 .dialogue--right::before {
   left: 0;
   transform: translate(calc(-100% + 1px), -50%);
-  border-right: clamp(10px, 0.625vw, 100vw) solid #f0f0f0dd;
+  border-right: clamp(10px, calc(0.625 * var(--u)), 100vw) solid #f0f0f0dd;
   border-left: none;
 }
 
 .dialogue--left::before {
   right: 0;
   transform: translate(calc(100% - 1px), -50%);
-  border-left: clamp(10px, 0.625vw, 100vw) solid #f0f0f0dd;
+  border-left: clamp(10px, calc(0.625 * var(--u)), 100vw) solid #f0f0f0dd;
   border-right: none;
 }
 
@@ -400,7 +401,7 @@ if (import.meta.env.DEV) {
   background: none;
   border: none;
   padding: 0;
-  width: clamp(32px, 2vw, 100vw);
+  width: clamp(32px, calc(2 * var(--u)), 100vw);
   height: auto;
   animation: move 2s ease-in-out infinite;
   z-index: 1000;
@@ -419,25 +420,25 @@ if (import.meta.env.DEV) {
 
 @keyframes move {
   0% {
-    transform: translateX(clamp(10px, 0.625vw, 100vw));
+    transform: translateX(clamp(10px, calc(0.625 * var(--u)), 100vw));
   }
   50% {
-    transform: translateX(clamp(30px, 1.875vw, 100vw));
+    transform: translateX(clamp(30px, calc(1.875 * var(--u)), 100vw));
   }
   100% {
-    transform: translateX(clamp(10px, 0.625vw, 100vw));
+    transform: translateX(clamp(10px, calc(0.625 * var(--u)), 100vw));
   }
 }
 
 @keyframes moveReverse {
   0% {
-    transform: rotate(180deg) translateX(clamp(10px, 0.625vw, 100vw));
+    transform: rotate(180deg) translateX(clamp(10px, calc(0.625 * var(--u)), 100vw));
   }
   50% {
-    transform: rotate(180deg) translateX(clamp(30px, 1.875vw, 100vw));
+    transform: rotate(180deg) translateX(clamp(30px, calc(1.875 * var(--u)), 100vw));
   }
   100% {
-    transform: rotate(180deg) translateX(clamp(10px, 0.625vw, 100vw));
+    transform: rotate(180deg) translateX(clamp(10px, calc(0.625 * var(--u)), 100vw));
   }
 }
 
@@ -446,19 +447,19 @@ if (import.meta.env.DEV) {
 .skip-intro {
   appearance: none;
   border: none;
-  padding: 0 clamp(28px, 1.75vw, 100vw);
+  padding: 0 clamp(28px, calc(1.75 * var(--u)), 100vw);
   font: inherit;
   font-weight: bold;
   position: fixed;
-  right: calc(clamp(20px, 1.25vw, 100vw) + var(--safe-right));
-  top: calc(clamp(40px, 2.5vw, 100vw) + var(--safe-top));
+  right: calc(clamp(20px, calc(1.25 * var(--u)), 100vw) + var(--safe-right));
+  top: calc(clamp(40px, calc(2.5 * var(--u)), 100vw) + var(--safe-top));
   z-index: 3;
-  min-height: clamp(56px, 3.5vw, 100vw);
+  min-height: clamp(56px, calc(3.5 * var(--u)), 100vw);
   background: #fffd;
   color: #003153;
   transform: translateY(0) skew(-10deg);
-  border-radius: clamp(6px, 0.375vw, 100vw);
-  filter: drop-shadow(0px 0px clamp(3px, 0.1875vw, 100vw) #0003);
+  border-radius: clamp(6px, calc(0.375 * var(--u)), 100vw);
+  filter: drop-shadow(0px 0px clamp(3px, calc(0.1875 * var(--u)), 100vw) #0003);
   transition:
     background-color 0.3s,
     transform 0.3s,
@@ -466,7 +467,7 @@ if (import.meta.env.DEV) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(26px, 1.625vw, 100vw);
+  font-size: clamp(26px, calc(1.625 * var(--u)), 100vw);
   white-space: nowrap;
   opacity: 1;
 }
@@ -501,11 +502,11 @@ if (import.meta.env.DEV) {
 @media (prefers-reduced-motion: reduce) {
   #change button {
     animation: none;
-    transform: translateX(clamp(30px, 1.875vw, 100vw));
+    transform: translateX(clamp(30px, calc(1.875 * var(--u)), 100vw));
   }
 
   #change button:last-child {
-    transform: rotate(180deg) translateX(clamp(30px, 1.875vw, 100vw));
+    transform: rotate(180deg) translateX(clamp(30px, calc(1.875 * var(--u)), 100vw));
   }
 }
 </style>

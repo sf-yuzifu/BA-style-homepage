@@ -76,7 +76,7 @@ const item = computed(() => ({
 /* font-size 挂在文本节点而非根节点：大厅卡片壳的 `font: inherit` 优先级更高，
    放根节点会被压回继承值（原实现就挂在 .toolbox span 上） */
 .wallet-item-text {
-  font-size: clamp(26px, 1.625vw, 100vw);
+  font-size: clamp(26px, calc(1.625 * var(--u)), 100vw);
   white-space: nowrap;
   user-select: none;
   -webkit-user-select: none;
@@ -87,11 +87,11 @@ const item = computed(() => ({
 .wallet-tip {
   position: absolute;
   left: 50%;
-  padding: clamp(6px, 0.375vw, 100vw) clamp(12px, 0.75vw, 100vw);
+  padding: clamp(6px, calc(0.375 * var(--u)), 100vw) clamp(12px, calc(0.75 * var(--u)), 100vw);
   background: #fff;
   color: #003153;
-  font-size: clamp(18px, 1.125vw, 100vw);
-  border-radius: clamp(6px, 0.375vw, 100vw);
+  font-size: clamp(18px, calc(1.125 * var(--u)), 100vw);
+  border-radius: clamp(6px, calc(0.375 * var(--u)), 100vw);
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -105,23 +105,26 @@ const item = computed(() => ({
 
 /* 向上展开（大厅卡片：上方有空间），阴影用 filter（原 Toolbox 写法） */
 .wallet-tip--up {
-  bottom: calc(100% + clamp(8px, 0.5vw, 100vw));
+  bottom: calc(100% + clamp(8px, calc(0.5 * var(--u)), 100vw));
   transform: translateX(-50%);
-  filter: drop-shadow(0px clamp(2px, 0.125vw, 100vw) clamp(4px, 0.25vw, 100vw) #0003);
+  filter: drop-shadow(
+    0px clamp(2px, calc(0.125 * var(--u)), 100vw) clamp(4px, calc(0.25 * var(--u)), 100vw) #0003
+  );
 }
 
 /* 向下展开（Bio 头栏贴页顶），阴影用 box-shadow（原 Header 写法） */
 .wallet-tip--down {
-  top: calc(100% + clamp(8px, 0.5vw, 100vw));
+  top: calc(100% + clamp(8px, calc(0.5 * var(--u)), 100vw));
   transform: translateX(-50%);
-  box-shadow: 0 clamp(2px, 0.125vw, 100vw) clamp(8px, 0.5vw, 100vw) 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 clamp(2px, calc(0.125 * var(--u)), 100vw) clamp(8px, calc(0.5 * var(--u)), 100vw) 0
+    rgba(0, 0, 0, 0.15);
 }
 
 /* ---- card 变体：父壳 skew(-10deg)，内容反倾斜回正；卡片内边距 ---- */
 
 .wallet-item--card .wallet-item-icon {
   transform: skew(10deg);
-  margin: 0 clamp(8px, 0.5vw, 100vw) 0 clamp(10px, 0.625vw, 100vw);
+  margin: 0 clamp(8px, calc(0.5 * var(--u)), 100vw) 0 clamp(10px, calc(0.625 * var(--u)), 100vw);
 }
 
 .wallet-item--card .wallet-item-text {
@@ -135,10 +138,10 @@ const item = computed(() => ({
 /* ---- strip 变体：头栏条间距 ---- */
 
 .wallet-item--strip .wallet-item-icon {
-  margin: 0 clamp(4px, 0.25vw, 100vw) 0 0;
+  margin: 0 clamp(4px, calc(0.25 * var(--u)), 100vw) 0 0;
 }
 
 .wallet-item--strip .wallet-item-text {
-  margin: 0 clamp(8px, 0.5vw, 100vw);
+  margin: 0 clamp(8px, calc(0.5 * var(--u)), 100vw);
 }
 </style>

@@ -63,7 +63,7 @@ const repoUrl = 'https://github.com/sf-yuzifu/BA-style-homepage'
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: clamp(24px, 1.5vw, 100vw);
+  gap: clamp(24px, calc(1.5 * var(--u)), 100vw);
   border-bottom: none;
 }
 
@@ -71,19 +71,19 @@ const repoUrl = 'https://github.com/sf-yuzifu/BA-style-homepage'
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(12px, 0.75vw, 100vw);
-  max-width: clamp(420px, 26.25vw, 100vw);
+  gap: clamp(12px, calc(0.75 * var(--u)), 100vw);
+  max-width: clamp(420px, calc(26.25 * var(--u)), 100vw);
 }
 
 .about-logo {
-  width: clamp(72px, 4.5vw, 100vw);
-  height: clamp(72px, 4.5vw, 100vw);
-  border-radius: clamp(16px, 1vw, 100vw);
+  width: clamp(72px, calc(4.5 * var(--u)), 100vw);
+  height: clamp(72px, calc(4.5 * var(--u)), 100vw);
+  border-radius: clamp(16px, calc(1 * var(--u)), 100vw);
 }
 
 .about-title {
   margin: 0;
-  font-size: clamp(28px, 1.75vw, 100vw);
+  font-size: clamp(28px, calc(1.75 * var(--u)), 100vw);
   font-weight: bold;
   line-height: 1.2;
 }
@@ -100,7 +100,7 @@ const repoUrl = 'https://github.com/sf-yuzifu/BA-style-homepage'
 
 .about-tagline {
   margin: 0;
-  font-size: clamp(15px, 0.9375vw, 100vw);
+  font-size: clamp(15px, calc(0.9375 * var(--u)), 100vw);
   color: #6b7f8d;
   line-height: 1.7;
 }
@@ -109,11 +109,11 @@ const repoUrl = 'https://github.com/sf-yuzifu/BA-style-homepage'
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(6px, 0.375vw, 100vw);
-  width: min(100%, clamp(360px, 22.5vw, 100vw));
-  padding-top: clamp(16px, 1vw, 100vw);
-  border-top: clamp(1px, 0.0625vw, 100vw) dashed #c9d8e2;
-  font-size: clamp(14px, 0.875vw, 100vw);
+  gap: clamp(6px, calc(0.375 * var(--u)), 100vw);
+  width: min(100%, clamp(360px, calc(22.5 * var(--u)), 100vw));
+  padding-top: clamp(16px, calc(1 * var(--u)), 100vw);
+  border-top: clamp(1px, calc(0.0625 * var(--u)), 100vw) dashed #c9d8e2;
+  font-size: clamp(14px, calc(0.875 * var(--u)), 100vw);
   color: #6b7f8d;
   line-height: 1.6;
 }

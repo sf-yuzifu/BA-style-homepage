@@ -53,17 +53,17 @@ onUnmounted(() => {
 
 <style scoped>
 .footer {
-  width: calc(100% - clamp(80px, 5vw, 100vw));
-  height: clamp(60px, 3.75vw, 100vw);
+  width: calc(100% - clamp(80px, calc(5 * var(--u)), 100vw));
+  height: clamp(60px, calc(3.75 * var(--u)), 100vw);
   background: #e8f3ffee;
   position: absolute;
-  bottom: calc(clamp(25px, 1.5625vw, 100vw) + var(--safe-bottom));
+  bottom: calc(clamp(25px, calc(1.5625 * var(--u)), 100vw) + var(--safe-bottom));
   transform: skew(-20deg);
   align-self: center;
-  border-radius: clamp(8px, 0.5vw, 100vw);
+  border-radius: clamp(8px, calc(0.5 * var(--u)), 100vw);
   display: inline-flex;
   justify-content: center;
-  filter: drop-shadow(0px 0px clamp(6px, 0.375vw, 100vw) #0003);
+  filter: drop-shadow(0px 0px clamp(6px, calc(0.375 * var(--u)), 100vw) #0003);
   transition: all 0.3s;
   align-items: flex-end;
   z-index: 2;
@@ -71,22 +71,24 @@ onUnmounted(() => {
 
 .footer::after {
   content: '';
-  width: calc(100% - clamp(360px, 22.5vw, 100vw));
+  width: calc(100% - clamp(360px, calc(22.5 * var(--u)), 100vw));
   height: 100%;
   background: #ffffffdd;
   position: absolute;
   transform: skew(50deg);
-  border-radius: clamp(4px, 0.25vw, 100vw);
+  border-radius: clamp(4px, calc(0.25 * var(--u)), 100vw);
   z-index: -1;
   transition: all 0.3s;
 }
 
 .project-box {
-  width: calc(100% - clamp(120px, 7.5vw, 100vw));
-  height: calc(100% + clamp(20px, 1.25vw, 100vw) + clamp(24px, 1.5vw, 100vw));
+  width: calc(100% - clamp(120px, calc(7.5 * var(--u)), 100vw));
+  height: calc(
+    100% + clamp(20px, calc(1.25 * var(--u)), 100vw) + clamp(24px, calc(1.5 * var(--u)), 100vw)
+  );
   transform: skew(20deg);
   position: absolute;
-  left: clamp(20px, 1.25vw, 100vw);
+  left: clamp(20px, calc(1.25 * var(--u)), 100vw);
   display: inline-flex;
   align-items: flex-end;
   overflow: auto;
@@ -99,17 +101,19 @@ onUnmounted(() => {
 .time {
   transform: skew(20deg);
   position: absolute;
-  right: calc(clamp(220px, 13.75vw, 100vw) + clamp(20px, 1.25vw, 100vw));
+  right: calc(
+    clamp(220px, calc(13.75 * var(--u)), 100vw) + clamp(20px, calc(1.25 * var(--u)), 100vw)
+  );
   height: 94%;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  font-size: clamp(18px, 1.125vw, 100vw);
+  font-size: clamp(18px, calc(1.125 * var(--u)), 100vw);
   flex-direction: column;
 }
 
 .time img {
-  height: clamp(12px, 0.75vw, 100vw);
+  height: clamp(12px, calc(0.75 * var(--u)), 100vw);
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -123,11 +127,13 @@ onUnmounted(() => {
 }
 
 .divide {
-  width: clamp(2px, 0.125vw, 100vw);
+  width: clamp(2px, calc(0.125 * var(--u)), 100vw);
   height: 60%;
   background-color: #abb3c4;
   position: absolute;
-  right: calc(clamp(220px, 13.75vw, 100vw) - clamp(1px, 0.0625vw, 100vw));
+  right: calc(
+    clamp(220px, calc(13.75 * var(--u)), 100vw) - clamp(1px, calc(0.0625 * var(--u)), 100vw)
+  );
   bottom: 20%;
   transform: skew(20deg);
 }
@@ -140,7 +146,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: flex-end;
   position: relative;
-  bottom: clamp(15px, 0.9375vw, 100vw);
+  bottom: clamp(15px, calc(0.9375 * var(--u)), 100vw);
   margin: 0 0 0 5%;
   transition: transform 0.05s;
 }
@@ -154,30 +160,34 @@ onUnmounted(() => {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  margin: clamp(5px, 0.3125vw, 100vw) 0 0;
+  margin: clamp(5px, calc(0.3125 * var(--u)), 100vw) 0 0;
   color: #003153;
-  font-size: clamp(16px, 1vw, 100vw);
+  font-size: clamp(16px, calc(1 * var(--u)), 100vw);
   word-break: keep-all;
 }
 
 .arco-icon {
-  font-size: clamp(64px, 4vw, 100vw);
+  font-size: clamp(64px, calc(4 * var(--u)), 100vw);
 }
 
 .project img {
-  width: clamp(64px, 4vw, 100vw);
-  height: clamp(64px, 4vw, 100vw);
+  width: clamp(64px, calc(4 * var(--u)), 100vw);
+  height: clamp(64px, calc(4 * var(--u)), 100vw);
   user-select: none;
   -webkit-user-drag: none;
 }
 
 @media screen and (max-height: 630px) {
   .time {
-    right: calc(clamp(160px, 10vw, 100vw) + clamp(20px, 1.25vw, 100vw));
+    right: calc(
+      clamp(160px, calc(10 * var(--u)), 100vw) + clamp(20px, calc(1.25 * var(--u)), 100vw)
+    );
   }
 
   .divide {
-    right: calc(clamp(160px, 10vw, 100vw) - clamp(1px, 0.0625vw, 100vw));
+    right: calc(
+      clamp(160px, calc(10 * var(--u)), 100vw) - clamp(1px, calc(0.0625 * var(--u)), 100vw)
+    );
   }
 }
 
